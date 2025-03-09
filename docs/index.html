@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="generator" content="Observable Framework v1.13.2">
-<title>Flights Analysis | Flight Analysis</title>
+<title>🏠 Flights Analysis | Flight Analysis</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
 <link rel="preload" as="style" href="./_observablehq/theme-air,near-midnight,alt,wide.db1cdf55.css">
 <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
 <link rel="stylesheet" type="text/css" href="./_observablehq/theme-air,near-midnight,alt,wide.db1cdf55.css">
-<link rel="modulepreload" href="./_observablehq/client.7ba61a43.js">
+<link rel="modulepreload" href="./_observablehq/client.11d4bb04.js">
 <link rel="modulepreload" href="./_observablehq/runtime.e080113b.js">
 <link rel="modulepreload" href="./_observablehq/stdlib.fc5dbcd7.js">
 <link rel="icon" href="./_file/observable.1af93621.png" type="image/png" sizes="32x32">
 <script type="module">
 
-import "./_observablehq/client.7ba61a43.js";
+import "./_observablehq/client.11d4bb04.js";
 
 </script>
 </head>
@@ -29,15 +29,10 @@ import "./_observablehq/client.7ba61a43.js";
     <li class="observablehq-link observablehq-link-active"><a href="./">Flight Analysis</a></li>
   </ol>
   <ol>
-    <li class="observablehq-link"><a href="./1global-trends">Global Trends 🌍</a></li>
+    <li class="observablehq-link"><a href="./1global-trends">🌍 Global Trends</a></li>
     <li class="observablehq-link"><a href="./2airline-performance">Airline performance ✈️</a></li>
-    <li class="observablehq-link"><a href="./3aatest">Test</a></li>
-    <li class="observablehq-link"><a href="./3airport-statistics">Airport statistics 📍</a></li>
-    <li class="observablehq-link"><a href="./4flight-delays">Flight Delays ⏳</a></li>
-    <li class="observablehq-link"><a href="./5test">Test Flight Delays ⏳</a></li>
-    <li class="observablehq-link"><a href="./example-dashboard">Example dashboard</a></li>
-    <li class="observablehq-link"><a href="./example-report">Example report</a></li>
-    <li class="observablehq-link"><a href="./global-trends%20copy">Global Trends</a></li>
+    <li class="observablehq-link"><a href="./3flight-delays">Flight Delays ⏳</a></li>
+    <li class="observablehq-link"><a href="./4airport-statistics">Airport statistics 📍</a></li>
   </ol>
 </nav>
 <script>{const e=document.querySelector("#observablehq-sidebar"),o=document.querySelector("#observablehq-sidebar-toggle"),r=sessionStorage.getItem("observablehq-sidebar");r?o.checked=r==="true":o.indeterminate=!0;for(const t of document.querySelectorAll("#observablehq-sidebar summary")){const s=t.parentElement;switch(sessionStorage.getItem(`observablehq-sidebar:${t.textContent}`)){case"true":s.open=!0;break;case"false":s.classList.contains("observablehq-section-active")||(s.open=!1);break}}addEventListener("beforeunload",()=>sessionStorage.setItem("observablehq-sidebar-scrolly",`${e.scrollTop}`));const a=sessionStorage.getItem("observablehq-sidebar-scrolly");a!=null&&(e.style.cssText="overflow: hidden;",e.scrollTop=+a,e.style.cssText="");}</script>
@@ -52,7 +47,6 @@ import "./_observablehq/client.7ba61a43.js";
 </aside>
 <main id="observablehq-main" class="observablehq">
 <style>
-/* Theme Styling */
 :root {
   --theme-background: #121212;
   --theme-foreground: #ffffff;
@@ -69,7 +63,7 @@ body {
 .navbar {
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  gap: 0.2rem;
   padding: 10px;
   background: var(--theme-card-background);
   border-bottom: 1px solid var(--theme-border);
@@ -82,8 +76,11 @@ body {
 }
 
 .hero {
-  text-align: center;
   margin: 2rem auto;
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  text-align: center;"
 }
 
 .hero h1 {
@@ -106,60 +103,46 @@ body {
 .card {
   padding: 1rem;
   border: 1px solid var(--theme-border);
-  border-radius: 8px;
+  border-radius: 10px;
   background-color: var(--theme-card-background);
   text-align: center;
-  width: 200px;
+  width: 160px;
 }
 
 .card a {
   color: white;
-  text-decoration: none;
   font-weight: bold;
-}
-
-footer {
-  text-align: center;
-  padding: 1rem;
-  margin-top: 2rem;
 }
 </style>
 <div class="hero">
   <h1>Flights Analysis</h1>
   <h2>Explore flight data and insights with our interactive dashboard.</h2>
 </div>
-<nav class="navbar">
-  <a href="./" class="active">🏠 Home</a>
-  <a href="./global-trends">🌍 Global Trends</a>
-  <a href="./airline-performance">✈ Airline Performance</a>
-  <a href="./airport-statistics">📍 Airport Statistics</a>
-  <a href="./flight-delays">⏳ Flight Delays</a>
-</nav>
 <h2 id="welcome-to-flights-analysis" tabindex="-1"><a class="observablehq-header-anchor" href="#welcome-to-flights-analysis">Welcome to Flights Analysis</a></h2>
-<p>Welcome to <strong>Flights Analysis</strong>, a platform for exploring global flight data, trends, and insights.</p>
-<h3 id="why-use-this-dashboard" tabindex="-1"><a class="observablehq-header-anchor" href="#why-use-this-dashboard">Why use this dashboard?</a></h3>
+<div>Have you ever wanted to better understand the world of aviation? Flights Analysis provides a comprehensive view of air travel, allowing you to explore detailed data on airlines, airports, delays, and global trends. Every day, thousands of flights cross the skies, connecting cities and nations.</div><br>
+<h3 id="why-use-this-dashboard" tabindex="-1"><a class="observablehq-header-anchor" href="#why-use-this-dashboard">🚀 Why use this dashboard?</a></h3>
 <ul>
-<li>📊 <strong>Interactive Data Visualizations</strong></li>
-<li>🌍 <strong>Global Trends Analysis</strong></li>
-<li>✈ <strong>Airline Performance Insights</strong></li>
-<li>📍 <strong>Airport Statistics</strong></li>
-<li>⏳ <strong>Flight Delays &amp; Statistics</strong></li>
+<li>📊 Interactive Data Visualizations</li>
+<li>🌍 Global Trends Analysis</li>
+<li>✈ Airline Performance Insights</li>
+<li>📍 Airport Statistics</li>
+<li>⏳ Flight Delays &amp; Statistics</li>
 </ul>
-<p>Start exploring now!</p>
+<p>🔎 Start exploring now and gain deeper insights into aviation trends!</p>
 <div class="cards-container">
   <div class="card"><a href="./1global-trends">🌍 Global Trends</a></div>
   <div class="card"><a href="./2airline-performance">✈ Airline Performance</a></div>
-  <div class="card"><a href="./3airport-statistics">📍 Airport Statistics</a></div>
-  <div class="card"><a href="./4flight-delays">⏳ Flight Delays</a></div>
+  <div class="card"><a href="./3flight-delays">⏳ Flight Delays</a></div>
+  <div class="card"><a href="./4airport-statistics">📍 Airport Statistics</a></div>
 </div>
-<footer>
+<footer style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
   <p>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a>.</p>
   <p>Developed by Elena Martino &amp; Elisa Calza</p>
 </footer>
 </main>
 <footer id="observablehq-footer">
-<nav><a rel="next" href="./1global-trends"><span>Global Trends 🌍</span></a></nav>
-<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-02-28T13:44:32">Feb 28, 2025</a>.</div>
+<nav><a rel="next" href="./1global-trends"><span>🌍 Global Trends</span></a></nav>
+<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-09T20:29:41">Mar 9, 2025</a>.</div>
 </footer>
 </div>
 </body>

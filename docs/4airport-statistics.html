@@ -10,17 +10,17 @@
 <link rel="preload" as="style" href="./_observablehq/theme-air,near-midnight,alt,wide.db1cdf55.css">
 <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
 <link rel="stylesheet" type="text/css" href="./_observablehq/theme-air,near-midnight,alt,wide.db1cdf55.css">
-<link rel="modulepreload" href="./_observablehq/client.7ba61a43.js">
+<link rel="modulepreload" href="./_observablehq/client.11d4bb04.js">
 <link rel="modulepreload" href="./_observablehq/runtime.e080113b.js">
 <link rel="modulepreload" href="./_observablehq/stdlib.fc5dbcd7.js">
 <link rel="modulepreload" href="./_npm/d3-dsv@3.0.1/407f7a1f.js">
 <link rel="icon" href="./_file/observable.1af93621.png" type="image/png" sizes="32x32">
 <script type="module">
 
-import {define} from "./_observablehq/client.7ba61a43.js";
+import {define} from "./_observablehq/client.11d4bb04.js";
 import {registerFile} from "./_observablehq/stdlib.fc5dbcd7.js";
 
-registerFile("./data/flights_data.csv", {"name":"./data/flights_data.csv","mimeType":"text/csv","path":"./_file/data/flights_data.925f7b17.csv","lastModified":1739983320000,"size":13659204});
+registerFile("./data/flights_data.csv", {"name":"./data/flights_data.csv","mimeType":"text/csv","path":"./_file/data/flights_data.925f7b17.csv","lastModified":1741526889746,"size":13659204});
 
 define({id: "5236a4f3", inputs: ["FileAttachment"], outputs: ["datasetFlights","d3","airportStateMap","airportFlightCounts","topAirports","filteredDataset","airportStats","sortedAirportStats","width","height","margin","xScale","yScale","baseColors","extraColors","fullColorPalette","colorScale","container","svg","tooltip","stateGroups"], body: async (FileAttachment) => {
 // Load dataset
@@ -458,15 +458,10 @@ return {d3,airportStateMap,selectedAirports,filteredDataset,airportStats,maxDela
     <li class="observablehq-link"><a href="./">Flight Analysis</a></li>
   </ol>
   <ol>
-    <li class="observablehq-link"><a href="./1global-trends">Global Trends 🌍</a></li>
+    <li class="observablehq-link"><a href="./1global-trends">🌍 Global Trends</a></li>
     <li class="observablehq-link"><a href="./2airline-performance">Airline performance ✈️</a></li>
-    <li class="observablehq-link"><a href="./3aatest">Test</a></li>
-    <li class="observablehq-link observablehq-link-active"><a href="./3airport-statistics">Airport statistics 📍</a></li>
-    <li class="observablehq-link"><a href="./4flight-delays">Flight Delays ⏳</a></li>
-    <li class="observablehq-link"><a href="./5test">Test Flight Delays ⏳</a></li>
-    <li class="observablehq-link"><a href="./example-dashboard">Example dashboard</a></li>
-    <li class="observablehq-link"><a href="./example-report">Example report</a></li>
-    <li class="observablehq-link"><a href="./global-trends%20copy">Global Trends</a></li>
+    <li class="observablehq-link"><a href="./3flight-delays">Flight Delays ⏳</a></li>
+    <li class="observablehq-link observablehq-link-active"><a href="./4airport-statistics">Airport statistics 📍</a></li>
   </ol>
 </nav>
 <script>{const e=document.querySelector("#observablehq-sidebar"),o=document.querySelector("#observablehq-sidebar-toggle"),r=sessionStorage.getItem("observablehq-sidebar");r?o.checked=r==="true":o.indeterminate=!0;for(const t of document.querySelectorAll("#observablehq-sidebar summary")){const s=t.parentElement;switch(sessionStorage.getItem(`observablehq-sidebar:${t.textContent}`)){case"true":s.open=!0;break;case"false":s.classList.contains("observablehq-section-active")||(s.open=!1);break}}addEventListener("beforeunload",()=>sessionStorage.setItem("observablehq-sidebar-scrolly",`${e.scrollTop}`));const a=sessionStorage.getItem("observablehq-sidebar-scrolly");a!=null&&(e.style.cssText="overflow: hidden;",e.scrollTop=+a,e.style.cssText="");}</script>
@@ -513,8 +508,8 @@ IATA Code	Airport Name	State	Reason for Selection</p>
 <p>SEA	Seattle-Tacoma Intl	Washington (WA)	Important West Coast gateway</p>
 <p></p></main>
 <footer id="observablehq-footer">
-<nav><a rel="prev" href="./3aatest"><span>Test</span></a><a rel="next" href="./4flight-delays"><span>Flight Delays ⏳</span></a></nav>
-<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-02-28T13:44:32">Feb 28, 2025</a>.</div>
+<nav><a rel="prev" href="./3flight-delays"><span>Flight Delays ⏳</span></a></nav>
+<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-09T20:29:41">Mar 9, 2025</a>.</div>
 </footer>
 </div>
 </body>
