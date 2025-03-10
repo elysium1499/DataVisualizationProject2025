@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="generator" content="Observable Framework v1.13.2">
-<title>🌍 Global Trends | Flight Analysis</title>
+<title>Global Trends | Flight Analysis</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
 <link rel="preload" as="style" href="./_observablehq/theme-air,near-midnight,alt,wide.db1cdf55.css">
@@ -52,7 +52,7 @@
 <link rel="modulepreload" href="./_npm/internmap@2.0.3/5eed35fd.js">
 <link rel="modulepreload" href="./_npm/delaunator@5.0.1/e67acb27.js">
 <link rel="modulepreload" href="./_npm/robust-predicates@3.0.2/8ac9039b.js">
-<link rel="icon" href="./_file/observable.1af93621.png" type="image/png" sizes="32x32">
+<link rel="icon" href="./_file/observable.a92c9a52.png" type="image/png" sizes="32x32">
 <script type="module">
 
 import {define} from "./_observablehq/client.11d4bb04.js";
@@ -292,12 +292,8 @@ flightVolumeChart
 ))
 }});
 
-define({id: "1db63e9c", inputs: ["d3","datasetFlights","Inputs","selectedYear"], outputs: ["topojson","usStates","stateAbbreviations","airlineOptions","selectedAirline1","filterFlights","computeStateFlightCounts","width","height","projection","path","computeColorScale","drawMap","updateMap"], body: async (d3,datasetFlights,Inputs,selectedYear) => {
+define({id: "f95cef62", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usStates","stateAbbreviations","years","selectedYear","airlineOptions","selectedAirline1","filterFlights","computeStateFlightCounts","width","height","projection","path","computeColorScale","drawMap","updateMap"], body: async (d3,datasetFlights,Inputs) => {
 const topojson = await import("https://cdn.jsdelivr.net/npm/topojson@3/+esm");
-
-// Load dataset
-//const datasetFlights = await FileAttachment("data/flights_data.csv").csv({ typed: true });
-
 // Load US states GeoJSON
 const usStates = await d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json");
 
@@ -324,9 +320,16 @@ datasetFlights.forEach(d => {
   d.ORIGIN_STATE = stateAbbreviations[d.ORIGIN_STATE] || d.ORIGIN_STATE;
 });
 
+const years = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).getFullYear()))]
+  .sort((a, b) => a - b)
+  .map(year => year.toString()); // Ensure it's treated as a string without commas
+
+// Dropdown for year selection
+const selectedYear = Inputs.select(years, { label: "📅 Select Year" });
+
 // Create dropdowns for filtering
 const airlineOptions = ["All Airlines", ...new Set(datasetFlights.map(d => d.AIRLINE))];
-const selectedAirline1 = Inputs.select(airlineOptions, { label: "✈ Select Airline" });
+const selectedAirline1 = Inputs.select(airlineOptions, { label: "✈  Select Airline" });
 
 // Function to filter flights by year and airline
 function filterFlights(year, airline) {
@@ -399,35 +402,42 @@ function drawMap(data) {
     .style("pointer-events", "none")
     .style("display", "none");
 
-  // Draw states with darker color
-  svg.append("g")
-    .selectAll("path")
-    .data(statesWithCounts)
-    .join("path")
-    .attr("d", path)
-    .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).darker(0.5))
-    .attr("stroke", "#222")
-    .on("mouseover", function (event, d) {
-      // When hovering over a state, make it brighter
-      d3.select(this)
-        .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).brighter(0.5)) // Make it brighter
-        .attr("stroke", "white"); // Change stroke color
+// Draw states with darker color
+svg.append("g")
+  .selectAll("path")
+  .data(statesWithCounts)
+  .join("path")
+  .attr("d", path)
+  .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).darker(0.5))
+  .attr("stroke", "#222")
+  .on("mouseover", function (event, d) {
+    const [x, y] = path.centroid(d); // Calcola il centro dello stato
 
-      tooltip.style("display", "block")
-        .html(`<strong>${d.properties.name}</strong><br>Flights: ${d.properties.flights}`);
-    })
-    .on("mousemove", event => {
-      tooltip.style("top", `${event.pageY + 10}px`)
-        .style("left", `${event.pageX + 10}px`);
-    })
-    .on("mouseout", function () {
-      // Reset color and stroke on mouseout
-      d3.select(this)
-        .attr("fill", d => colorScale(d.properties.flights)) // Reset to original color
-        .attr("stroke", "#222"); // Reset stroke color
+    d3.select(this)
+      .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).brighter(0.5)) // Make it brighter
+      .attr("stroke", "white") // Change stroke color
+      .transition().duration(200) // Smooth transition
+      .attr("transform", `translate(${x * -0.3}, ${y * -0.3}) scale(1.3)`);
 
-      tooltip.style("display", "none");
-    });
+    // Sposta il path sopra agli altri
+    d3.select(this).raise(); // Usa raise() per spostarlo sopra al gruppo corrente
+
+    tooltip.style("display", "block")
+      .html(`<strong>${d.properties.name}</strong><br>Flights: ${d.properties.flights}`);
+  })
+  .on("mousemove", event => {
+    tooltip.style("top", `${event.pageY + 10}px`)
+      .style("left", `${event.pageX + 10}px`);
+  })
+  .on("mouseout", function (event, d) {
+    d3.select(this)
+      .attr("fill", d => colorScale(d.properties.flights)) // Reset to original color
+      .attr("stroke", "#222") // Reset stroke color
+      .transition().duration(200) // Smooth transition
+      .attr("transform", "translate(0,0) scale(1)"); // Ritorna alla dimensione originale
+
+    tooltip.style("display", "none");
+  });
 
   const quantiles = Array.isArray(colorScale.quantiles()) ? colorScale.quantiles() : [];
 
@@ -495,7 +505,7 @@ selectedAirline1.addEventListener("input", updateMap);
 
 updateMap();
 
-return {topojson,usStates,stateAbbreviations,airlineOptions,selectedAirline1,filterFlights,computeStateFlightCounts,width,height,projection,path,computeColorScale,drawMap,updateMap};
+return {topojson,usStates,stateAbbreviations,years,selectedYear,airlineOptions,selectedAirline1,filterFlights,computeStateFlightCounts,width,height,projection,path,computeColorScale,drawMap,updateMap};
 }});
 
 define({id: "412119be", mode: "inline", inputs: ["selectedYear","display"], body: async (selectedYear,display) => {
@@ -510,14 +520,14 @@ selectedAirline1
 ))
 }});
 
-define({id: "01194690", inputs: ["datasetFlights","Inputs","d3"], outputs: ["years","selectedYear","getMonthlyData","maxFlights","fixedScale","radarChart","ridgelineChart"], body: (datasetFlights,Inputs,d3) => {
+define({id: "3aab352a", inputs: ["datasetFlights","Inputs","d3"], outputs: ["years","selYear","getMonthlyData","maxFlights","fixedScale","radarChart","ridgelineChart"], body: (datasetFlights,Inputs,d3) => {
 // Extract unique years and properly format them
 const years = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).getFullYear()))]
  .sort((a, b) => a - b)
  .map(year => year.toString()); // Ensure it's treated as a string without commas
 
 // Dropdown for year selection
-const selectedYear = Inputs.select(years, { label: "📅 Select Year" });
+const selYear = Inputs.select(years, { label: "📅 Select Year" });
 
 // Process data: Aggregate monthly flight volumes per year
 function getMonthlyData(year) {
@@ -641,18 +651,16 @@ function radarChart(year, { width = 600, height = 600 } = {}) {
 const ridgelineChart = radarChart(years[0]);
 
 // Update chart when year is selected
-selectedYear.addEventListener("input", () => {
+selYear.addEventListener("input", () => {
  document.querySelector("#ridgeline-container").innerHTML = "";
- document.querySelector("#ridgeline-container").appendChild(radarChart(selectedYear.value));
+ document.querySelector("#ridgeline-container").appendChild(radarChart(selYear.value));
 });
-
-
-return {years,selectedYear,getMonthlyData,maxFlights,fixedScale,radarChart,ridgelineChart};
+return {years,selYear,getMonthlyData,maxFlights,fixedScale,radarChart,ridgelineChart};
 }});
 
-define({id: "412119be-1", mode: "inline", inputs: ["selectedYear","display"], body: async (selectedYear,display) => {
+define({id: "c716dc07", mode: "inline", inputs: ["selYear","display"], body: async (selYear,display) => {
 display(await(
-selectedYear
+selYear
 ))
 }});
 
@@ -673,10 +681,10 @@ ridgelineChart
     <li class="observablehq-link"><a href="./">Flight Analysis</a></li>
   </ol>
   <ol>
-    <li class="observablehq-link observablehq-link-active"><a href="./1global-trends">🌍 Global Trends</a></li>
-    <li class="observablehq-link"><a href="./2airline-performance">Airline performance ✈️</a></li>
-    <li class="observablehq-link"><a href="./3flight-delays">Flight Delays ⏳</a></li>
-    <li class="observablehq-link"><a href="./4airport-statistics">Airport statistics 📍</a></li>
+    <li class="observablehq-link observablehq-link-active"><a href="./1global-trends">Global Trends</a></li>
+    <li class="observablehq-link"><a href="./2airline-performance">Airline performance</a></li>
+    <li class="observablehq-link"><a href="./3flight-delays">Flight Delays</a></li>
+    <li class="observablehq-link"><a href="./4airport-statistics">Airport statistics</a></li>
   </ol>
 </nav>
 <script>{const e=document.querySelector("#observablehq-sidebar"),o=document.querySelector("#observablehq-sidebar-toggle"),r=sessionStorage.getItem("observablehq-sidebar");r?o.checked=r==="true":o.indeterminate=!0;for(const t of document.querySelectorAll("#observablehq-sidebar summary")){const s=t.parentElement;switch(sessionStorage.getItem(`observablehq-sidebar:${t.textContent}`)){case"true":s.open=!0;break;case"false":s.classList.contains("observablehq-section-active")||(s.open=!1);break}}addEventListener("beforeunload",()=>sessionStorage.setItem("observablehq-sidebar-scrolly",`${e.scrollTop}`));const a=sessionStorage.getItem("observablehq-sidebar-scrolly");a!=null&&(e.style.cssText="overflow: hidden;",e.scrollTop=+a,e.style.cssText="");}</script>
@@ -686,7 +694,7 @@ ridgelineChart
 <div>Contents</div>
 <ol>
 <li class="observablehq-secondary-link"><a href="#flight-volume-over-time">Flight Volume Over Time</a></li>
-<li class="observablehq-secondary-link"><a href="#map">Map</a></li>
+<li class="observablehq-secondary-link"><a href="#map-of-flight">Map of flight</a></li>
 <li class="observablehq-secondary-link"><a href="#monthly-flight-volume">Monthly Flight Volume</a></li>
 </ol>
 </nav>
@@ -707,8 +715,8 @@ ridgelineChart
 <div> 
 <p>The <strong>blue line</strong> shows the number of flights per day. Use the <strong>filters</strong> above to select a specific <strong>airline</strong> or <strong>destination</strong>. The <strong>red dashed line</strong> marks the start of <strong>COVID-19 (March 2020)</strong>. Toggle <strong>Smooth Line</strong> to adjust visualization. </p></div><p></p>
 <br>
-<h2 id="map" tabindex="-1"><a class="observablehq-header-anchor" href="#map">Map</a></h2>
-<div class="observablehq observablehq--block"><!--:1db63e9c:--></div>
+<h2 id="map-of-flight" tabindex="-1"><a class="observablehq-header-anchor" href="#map-of-flight">Map of flight</a></h2>
+<div class="observablehq observablehq--block"><!--:f95cef62:--></div>
 <br>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px;"><observablehq-loading></observablehq-loading><!--:412119be:--></div>
@@ -723,11 +731,11 @@ ridgelineChart
 <p>🔹 <strong>Hovering over a state</strong> to see the exact number of flights.</p>
 </div><br> 
 <h2 id="monthly-flight-volume" tabindex="-1"><a class="observablehq-header-anchor" href="#monthly-flight-volume">Monthly Flight Volume</a></h2>
-<div class="observablehq observablehq--block"><!--:01194690:--></div>
+<div class="observablehq observablehq--block"><!--:3aab352a:--></div>
 <br>
-<div class="filter"> <observablehq-loading></observablehq-loading><!--:412119be-1:--> </div>
-<div class="grid grid-cols-1">
-  <div class="card" id="ridgeline-container"> <observablehq-loading></observablehq-loading><!--:70fc7963:--> </div>
+<div style="font-family: 'Times New Roman', serif;">
+  <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px;"><observablehq-loading></observablehq-loading><!--:c716dc07:--></div>
+  <div class="grid grid-cols-1"> <div class="card" id="ridgeline-container"> <observablehq-loading></observablehq-loading><!--:70fc7963:--> </div> </div>
 </div>
 <div>
 <p>📊 This <strong>radar chart</strong> visualizes <strong>monthly flight volumes</strong> in a circular layout.</p>
@@ -737,8 +745,8 @@ ridgelineChart
 </ul>
 </div></main>
 <footer id="observablehq-footer">
-<nav><a rel="prev" href="./"><span>Flight Analysis</span></a><a rel="next" href="./2airline-performance"><span>Airline performance ✈️</span></a></nav>
-<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-09T20:29:41">Mar 9, 2025</a>.</div>
+<nav><a rel="prev" href="./"><span>Flight Analysis</span></a><a rel="next" href="./2airline-performance"><span>Airline performance</span></a></nav>
+<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-10T12:43:37">Mar 10, 2025</a>.</div>
 </footer>
 </div>
 </body>
