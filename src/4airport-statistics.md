@@ -1,6 +1,6 @@
 ---
 theme: dashboard
-title: Airport statistics 📍
+title: Airport statistics
 toc: true
 ---
  

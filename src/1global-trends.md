@@ -1,6 +1,6 @@
 ---
 theme: dashboard
-title: 🌍 Global Trends
+title: Global Trends
 toc: true
 ---
 
@@ -235,10 +235,6 @@ The **blue line** shows the number of flights per day. Use the **filters** above
 
 ```js
 const topojson = await import("https://cdn.jsdelivr.net/npm/topojson@3/+esm");
-
-// Load dataset
-//const datasetFlights = await FileAttachment("data/flights_data.csv").csv({ typed: true });
-
 // Load US states GeoJSON
 const usStates = await d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json");
 
@@ -265,9 +261,16 @@ datasetFlights.forEach(d => {
   d.ORIGIN_STATE = stateAbbreviations[d.ORIGIN_STATE] || d.ORIGIN_STATE;
 });
 
+const years = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).getFullYear()))]
+  .sort((a, b) => a - b)
+  .map(year => year.toString()); // Ensure it's treated as a string without commas
+
+// Dropdown for year selection
+const selectedYear = Inputs.select(years, { label: "📅 Select Year" });
+
 // Create dropdowns for filtering
 const airlineOptions = ["All Airlines", ...new Set(datasetFlights.map(d => d.AIRLINE))];
-const selectedAirline1 = Inputs.select(airlineOptions, { label: "✈ Select Airline" });
+const selectedAirline1 = Inputs.select(airlineOptions, { label: "✈  Select Airline" });
 
 // Function to filter flights by year and airline
 function filterFlights(year, airline) {
@@ -340,35 +343,42 @@ function drawMap(data) {
     .style("pointer-events", "none")
     .style("display", "none");
 
-  // Draw states with darker color
-  svg.append("g")
-    .selectAll("path")
-    .data(statesWithCounts)
-    .join("path")
-    .attr("d", path)
-    .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).darker(0.5))
-    .attr("stroke", "#222")
-    .on("mouseover", function (event, d) {
-      // When hovering over a state, make it brighter
-      d3.select(this)
-        .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).brighter(0.5)) // Make it brighter
-        .attr("stroke", "white"); // Change stroke color
+// Draw states with darker color
+svg.append("g")
+  .selectAll("path")
+  .data(statesWithCounts)
+  .join("path")
+  .attr("d", path)
+  .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).darker(0.5))
+  .attr("stroke", "#222")
+  .on("mouseover", function (event, d) {
+    const [x, y] = path.centroid(d); // Calcola il centro dello stato
 
-      tooltip.style("display", "block")
-        .html(`<strong>${d.properties.name}</strong><br>Flights: ${d.properties.flights}`);
-    })
-    .on("mousemove", event => {
-      tooltip.style("top", `${event.pageY + 10}px`)
-        .style("left", `${event.pageX + 10}px`);
-    })
-    .on("mouseout", function () {
-      // Reset color and stroke on mouseout
-      d3.select(this)
-        .attr("fill", d => colorScale(d.properties.flights)) // Reset to original color
-        .attr("stroke", "#222"); // Reset stroke color
+    d3.select(this)
+      .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).brighter(0.5)) // Make it brighter
+      .attr("stroke", "white") // Change stroke color
+      .transition().duration(200) // Smooth transition
+      .attr("transform", `translate(${x * -0.3}, ${y * -0.3}) scale(1.3)`);
 
-      tooltip.style("display", "none");
-    });
+    // Sposta il path sopra agli altri
+    d3.select(this).raise(); // Usa raise() per spostarlo sopra al gruppo corrente
+
+    tooltip.style("display", "block")
+      .html(`<strong>${d.properties.name}</strong><br>Flights: ${d.properties.flights}`);
+  })
+  .on("mousemove", event => {
+    tooltip.style("top", `${event.pageY + 10}px`)
+      .style("left", `${event.pageX + 10}px`);
+  })
+  .on("mouseout", function (event, d) {
+    d3.select(this)
+      .attr("fill", d => colorScale(d.properties.flights)) // Reset to original color
+      .attr("stroke", "#222") // Reset stroke color
+      .transition().duration(200) // Smooth transition
+      .attr("transform", "translate(0,0) scale(1)"); // Ritorna alla dimensione originale
+
+    tooltip.style("display", "none");
+  });
 
   const quantiles = Array.isArray(colorScale.quantiles()) ? colorScale.quantiles() : [];
 
@@ -470,7 +480,7 @@ const years = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).getFullYea
   .map(year => year.toString()); // Ensure it's treated as a string without commas
 
 // Dropdown for year selection
-const selectedYear = Inputs.select(years, { label: "📅 Select Year" });
+const selYear = Inputs.select(years, { label: "📅 Select Year" });
 
 // Process data: Aggregate monthly flight volumes per year
 function getMonthlyData(year) {
@@ -594,17 +604,15 @@ function radarChart(year, { width = 600, height = 600 } = {}) {
 const ridgelineChart = radarChart(years[0]);
 
 // Update chart when year is selected
-selectedYear.addEventListener("input", () => {
+selYear.addEventListener("input", () => {
   document.querySelector("#ridgeline-container").innerHTML = "";
-  document.querySelector("#ridgeline-container").appendChild(radarChart(selectedYear.value));
+  document.querySelector("#ridgeline-container").appendChild(radarChart(selYear.value));
 });
-
-
 ```
 <br>
-<div class="filter"> ${selectedYear} </div>
-<div class="grid grid-cols-1">
-  <div class="card" id="ridgeline-container"> ${ridgelineChart} </div>
+<div style="font-family: 'Times New Roman', serif;">
+  <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px;">${selYear}</div>
+  <div class="grid grid-cols-1"> <div class="card" id="ridgeline-container"> ${ridgelineChart} </div> </div>
 </div>
 
 

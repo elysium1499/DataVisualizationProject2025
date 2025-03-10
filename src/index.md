@@ -1,6 +1,6 @@
 ---
 theme: dashboard
-title: 🏠 Flights Analysis
+title: Flights Analysis
 toc: true
 ---
 

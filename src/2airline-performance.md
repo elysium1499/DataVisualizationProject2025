@@ -1,6 +1,6 @@
 ---
 theme: dashboard
-title: Airline performance ✈️
+title: Airline performance
 toc: true
 ---
 

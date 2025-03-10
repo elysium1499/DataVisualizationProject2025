@@ -1,6 +1,6 @@
 ---
 theme: dashboard
-title: Flight Delays ⏳
+title: Flight Delays
 toc: true
 ---
 
