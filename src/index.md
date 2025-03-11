@@ -10,7 +10,7 @@ toc: true
   --theme-foreground: #ffffff;
   --theme-foreground-muted: #b0bec5;
   --theme-border: #444444;
-  --theme-card-background: #1e1e1e;
+  --theme-card-background:#2e2e2e;
 }
 
 body {

@@ -9,14 +9,14 @@ toc: true
 <br>
 
 ## Overview
+<br>
 
 ```js
-console.log("🚀 Bar chart function is running!");
-
-// Load dataset
 const datasetFlights = await FileAttachment("data/flights_data.csv").csv({ typed: true });
-console.log("🛠 Data loaded:", datasetFlights); // Debugging
+```
 
+
+```js
 // Airline Names
 const airlines = [...new Set(datasetFlights.map(d => d.AIRLINE))];
 
@@ -50,8 +50,6 @@ const maxDivertedFlights = d3.max(flightData, d => d.diverted);
 
 // Function to Draw Chart
 function drawBarChart() {
-  console.log("📊 Selected View:", selectedView.value);
-
   // Remove previous chart
   d3.select("#barchart-container").html("");
 
@@ -173,6 +171,34 @@ function drawBarChart() {
       });
   }
 
+  // **Create Legend in Top-Right Corner**
+  const legend = svg.append("g")
+    .attr("transform", `translate(${width - margin.right - 150},${margin.top})`);
+
+  // Create Legend Items
+  const legendData = [
+    { label: "Total Flights", color: "#3498db" },    // Blue for Total Flights
+    { label: "Canceled Flights", color: "#e74c3c" }, // Red for Canceled
+    { label: "Diverted Flights", color: "#f1c40f" }  // Yellow for Diverted
+  ];
+
+  // Draw Legend Items
+  legendData.forEach((item, index) => {
+    legend.append("rect")
+      .attr("x", 0)
+      .attr("y", index * 25)
+      .attr("width", 20)
+      .attr("height", 20)
+      .attr("fill", item.color);
+    
+    legend.append("text")
+      .attr("x", 30)
+      .attr("y", index * 25 + 15)
+      .style("fill", "white")
+      .style("font-size", "14px")
+      .text(item.label);
+  });
+
   return svg.node();
 }
 
@@ -185,18 +211,14 @@ selectedView.addEventListener("input", () => {
   d3.select("#barchart-container").html("");
   drawBarChart();
 });
-
 ```
 
-<div style="display: flex; gap: 15px;">
-  <div class="filter"> ${selectedView} </div>
+<div style="font-family: 'Times New Roman', serif;">
+  <div style="display: inline-block; width: 500px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;">${selectedView}</div>
+  <div class="grid grid-cols-1"> <div class="card"><div id="barchart-container"></div> </div> </div>
 </div>
 
-<div class="grid grid-cols-1">
-  <div class="card">
-    <div id="barchart-container"></div> <!-- This is the div where the chart will be inserted -->
-  </div>
-</div>
+
 
 <p>
 
@@ -212,8 +234,11 @@ This **interactive bar chart** displays the number of flights per airline.
   - 🟡 **Yellow** → Diverted Flights  
 </p>
 
+<br>
 
 ## Flight Status Flow
+<br>
+
 ```js
 async function createSankeyChart() {
   // Load required libraries
@@ -239,11 +264,11 @@ async function createSankeyChart() {
 
   // Define nodes
   const nodes = [{ name: "Total Flights" }];
-
+  
   // Add airlines as nodes
   const airlineNodes = airlineStatusCounts.map(([airline]) => ({ name: airline }));
   nodes.push(...airlineNodes);
-
+  
   // Add flight status categories as nodes
   const statusNodes = ["On-Time", "Delayed", "Cancelled", "Diverted"].map(name => ({ name }));
   nodes.push(...statusNodes);
@@ -277,13 +302,13 @@ async function createSankeyChart() {
   });
 
   // **Set up dimensions**
-  const width = 950, height = 650; // Adjusted to fit labels
+  const width = 900, height =600; // Increased height to move the chart down
 
   // **Define Sankey layout**
   const { nodes: sankeyNodes, links: sankeyLinks } = sankey()
     .nodeWidth(15)
     .nodePadding(10)
-    .extent([[100, 20], [width - 100, height - 20]])({ // Centering the chart
+    .extent([[100, 50], [width - 100, height - 20]])({ // Increased vertical padding for more space
       nodes: nodes.map(d => Object.assign({}, d)),
       links: links.map(d => Object.assign({}, d))
     });
@@ -300,13 +325,15 @@ async function createSankeyChart() {
     .attr("width", "100%")
     .attr("height", height)
     .style("display", "block")
-    .style("margin", "auto")
+    .style("margin", "0 auto") // Center the entire SVG
     .style("font", "12px sans-serif");
 
-  // **Define color scale**
-  const colorScale = d3.scaleOrdinal()
-    .domain(["Total", "On-Time", "Delayed", "Cancelled", "Diverted"])
-    .range(["#f39c12", "#2ecc71", "#f1c40f", "#e74c3c", "#9b59b6"]);
+  // **Define color scales**
+  const colorA = "#f39c12"; // Color A (Total Flights + Links)
+  const colorB = "#3498db"; // Color B (Airlines)
+  const colorScaleStatus = d3.scaleOrdinal()
+    .domain(["On-Time", "Delayed", "Cancelled", "Diverted"])
+    .range(["#2ecc71", "#f1c40f", "#e74c3c", "#9b59b6"]); // Colors C, D, E, F for statuses
 
   // **Tooltip**
   const tooltip = d3.select("body").append("div")
@@ -326,17 +353,22 @@ async function createSankeyChart() {
     .data(sankeyLinks)
     .join("path")
     .attr("d", sankeyLinkHorizontal())
-    .attr("stroke", d => colorScale(d.category))
+    .attr("stroke", d => {
+      if (nodes[d.source.index].name === "Total Flights") {
+        return colorA; // Color A for Total Flights and its links
+      } else {
+        return colorScaleStatus(d.category); // Color for the status links (C, D, E, F)
+      }
+    })
     .attr("stroke-width", d => Math.max(1, d.width))
     .attr("fill", "none")
     .attr("opacity", 0.6)
     .on("mouseover", function (event, d) {
       d3.select(this).attr("opacity", 1);
       tooltip.style("display", "block")
-        .html(`
-          <strong>${nodes[d.source.index]?.name || "Unknown"} → ${nodes[d.target.index]?.name || "Unknown"}</strong><br>
-          📊 Flights: ${d.value}
-        `);
+        .html(
+          `<strong>${nodes[d.source.index]?.name || "Unknown"} → ${nodes[d.target.index]?.name || "Unknown"}</strong><br>📊 Flights: ${d.value}`
+        );
     })
     .on("mousemove", event => {
       let tooltipWidth = 150;
@@ -362,7 +394,15 @@ async function createSankeyChart() {
     .attr("y", d => d.y0)
     .attr("height", d => d.y1 - d.y0)
     .attr("width", d => d.x1 - d.x0)
-    .attr("fill", d => colorScale(d.name))
+    .attr("fill", d => {
+      if (d.name === "Total Flights") {
+        return colorA; // Total Flights bar color
+      } else if (airlineStatusCounts.some(([airline]) => airline === d.name)) {
+        return colorB; // Airline bar color
+      } else {
+        return colorScaleStatus(d.name); // Status bar colors (C, D, E, F)
+      }
+    })
     .append("title")
     .text(d => `${d.name}`);
 
@@ -378,9 +418,44 @@ async function createSankeyChart() {
     .style("fill", "white")
     .style("font-size", "11px")
     .text(d => d.name);
+
+  // **Add Column Headers Above the Sankey Diagram**
+  const headerHeight = 20;  // Set a height for the header labels
+
+  // Add "Number of Flights" header above the "Total Flights" node
+  svg.append("text")
+    .attr("x", width / 8)
+    .attr("y", 25)  // Position at the top
+    .attr("dy", headerHeight / 2)  // Center vertically
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px")
+    .style("fill", "white")
+    .text("Number of Flights");
+
+  // Add "Airport" header above the airline nodes
+  const airportWidth = 200; // Adjust the width according to your layout
+  const airportXPos = width / 2; // Adjust this based on your Sankey layout
+  svg.append("text")
+    .attr("x", airportXPos)
+    .attr("y", 25)  // Position at the top
+    .attr("dy", headerHeight / 2)  // Center vertically
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px")
+    .style("fill", "white")
+    .text("Airport");
+
+  // Add "Status" header above the status nodes (On-Time, Delayed, Cancelled, Diverted)
+  const statusXPos = width;  // You might want to adjust this if status nodes are spread out horizontally
+  svg.append("text")
+    .attr("x", statusXPos-100)
+    .attr("y", 25)  // Position at the top
+    .attr("dy", headerHeight / 2)  // Center vertically
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px")
+    .style("fill", "white")
+    .text("Status");
 }
 
-// **Run the function to create the chart**
 createSankeyChart();
 
 ```

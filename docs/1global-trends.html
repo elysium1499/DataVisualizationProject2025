@@ -292,7 +292,7 @@ flightVolumeChart
 ))
 }});
 
-define({id: "f95cef62", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usStates","stateAbbreviations","years","selectedYear","airlineOptions","selectedAirline1","filterFlights","computeStateFlightCounts","width","height","projection","path","computeColorScale","drawMap","updateMap"], body: async (d3,datasetFlights,Inputs) => {
+define({id: "f467d8aa", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usStates","stateAbbreviations","years","selectedYear","airlineOptions","selectedAirline1","filterFlights","computeStateFlightCounts","width","height","projection","path","computeColorScale","drawMap","updateMap"], body: async (d3,datasetFlights,Inputs) => {
 const topojson = await import("https://cdn.jsdelivr.net/npm/topojson@3/+esm");
 // Load US states GeoJSON
 const usStates = await d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json");
@@ -402,42 +402,42 @@ function drawMap(data) {
     .style("pointer-events", "none")
     .style("display", "none");
 
-// Draw states with darker color
-svg.append("g")
-  .selectAll("path")
-  .data(statesWithCounts)
-  .join("path")
-  .attr("d", path)
-  .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).darker(0.5))
-  .attr("stroke", "#222")
-  .on("mouseover", function (event, d) {
-    const [x, y] = path.centroid(d); // Calcola il centro dello stato
+  // Draw states with darker color
+  svg.append("g")
+    .selectAll("path")
+    .data(statesWithCounts)
+    .join("path")
+    .attr("d", path)
+    .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).darker(0.5))
+    .attr("stroke", "#222")
+    .on("mouseover", function (event, d) {
+      const [x, y] = path.centroid(d); // Calcola il centro dello stato
 
-    d3.select(this)
-      .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).brighter(0.5)) // Make it brighter
-      .attr("stroke", "white") // Change stroke color
-      .transition().duration(200) // Smooth transition
-      .attr("transform", `translate(${x * -0.3}, ${y * -0.3}) scale(1.3)`);
+      d3.select(this)
+        .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).brighter(0.5)) // Make it brighter
+        .attr("stroke", "white") // Change stroke color
+        .transition().duration(200) // Smooth transition
+        .attr("transform", `translate(${x * -0.3}, ${y * -0.3}) scale(1.3)`);
 
-    // Sposta il path sopra agli altri
-    d3.select(this).raise(); // Usa raise() per spostarlo sopra al gruppo corrente
+      // Sposta il path sopra agli altri
+      d3.select(this).raise(); // Usa raise() per spostarlo sopra al gruppo corrente
 
-    tooltip.style("display", "block")
-      .html(`<strong>${d.properties.name}</strong><br>Flights: ${d.properties.flights}`);
-  })
-  .on("mousemove", event => {
-    tooltip.style("top", `${event.pageY + 10}px`)
-      .style("left", `${event.pageX + 10}px`);
-  })
-  .on("mouseout", function (event, d) {
-    d3.select(this)
-      .attr("fill", d => colorScale(d.properties.flights)) // Reset to original color
-      .attr("stroke", "#222") // Reset stroke color
-      .transition().duration(200) // Smooth transition
-      .attr("transform", "translate(0,0) scale(1)"); // Ritorna alla dimensione originale
+      tooltip.style("display", "block")
+        .html(`<strong>${d.properties.name}</strong><br>Flights: ${d.properties.flights}`);
+    })
+    .on("mousemove", event => {
+      tooltip.style("top", `${event.pageY + 10}px`)
+        .style("left", `${event.pageX + 10}px`);
+    })
+    .on("mouseout", function (event, d) {
+      d3.select(this)
+        .attr("fill", d => colorScale(d.properties.flights)) // Reset to original color
+        .attr("stroke", "#222") // Reset stroke color
+        .transition().duration(200) // Smooth transition
+        .attr("transform", "translate(0,0) scale(1)"); // Ritorna alla dimensione originale
 
-    tooltip.style("display", "none");
-  });
+      tooltip.style("display", "none");
+    });
 
   const quantiles = Array.isArray(colorScale.quantiles()) ? colorScale.quantiles() : [];
 
@@ -707,20 +707,22 @@ ridgelineChart
 <div class="observablehq observablehq--block"><!--:afe10ad1:--></div>
 <br>
 <div style="font-family: 'Times New Roman', serif;">
-  <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px;"><observablehq-loading></observablehq-loading><!--:bac88d80:--></div>
-  <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px;"><observablehq-loading></observablehq-loading><!--:67c88d57:--></div>
-  <div style="display: inline-block; width: 150px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px;"><observablehq-loading></observablehq-loading><!--:d24ef87d:--></div>
-  <div class="grid grid-cols-1"> <div class="card" id="chart-container"> <observablehq-loading></observablehq-loading><!--:c8f5ec9a:--> </div> </div>
+  <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:bac88d80:--></div>
+  <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;"><observablehq-loading></observablehq-loading><!--:67c88d57:--></div>
+  <div style="display: inline-block; width: 150px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;"><observablehq-loading></observablehq-loading><!--:d24ef87d:--></div>
+  <div class="grid grid-cols-1"> 
+    <div class="card" id="chart-container"><observablehq-loading></observablehq-loading><!--:c8f5ec9a:--></div> 
+  </div>
 </div>
 <div> 
 <p>The <strong>blue line</strong> shows the number of flights per day. Use the <strong>filters</strong> above to select a specific <strong>airline</strong> or <strong>destination</strong>. The <strong>red dashed line</strong> marks the start of <strong>COVID-19 (March 2020)</strong>. Toggle <strong>Smooth Line</strong> to adjust visualization. </p></div><p></p>
 <br>
 <h2 id="map-of-flight" tabindex="-1"><a class="observablehq-header-anchor" href="#map-of-flight">Map of flight</a></h2>
-<div class="observablehq observablehq--block"><!--:f95cef62:--></div>
+<div class="observablehq observablehq--block"><!--:f467d8aa:--></div>
 <br>
 <div style="font-family: 'Times New Roman', serif;">
-  <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px;"><observablehq-loading></observablehq-loading><!--:412119be:--></div>
-  <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px;"><observablehq-loading></observablehq-loading><!--:af6a7095:--></div>
+  <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;"><observablehq-loading></observablehq-loading><!--:412119be:--></div>
+  <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;"><observablehq-loading></observablehq-loading><!--:af6a7095:--></div>
   <div class="grid grid-cols-1"> <div class="card"> <div id="map-container"></div> </div> </div>
 </div>
 <div> 
@@ -734,7 +736,7 @@ ridgelineChart
 <div class="observablehq observablehq--block"><!--:3aab352a:--></div>
 <br>
 <div style="font-family: 'Times New Roman', serif;">
-  <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px;"><observablehq-loading></observablehq-loading><!--:c716dc07:--></div>
+  <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;"><observablehq-loading></observablehq-loading><!--:c716dc07:--></div>
   <div class="grid grid-cols-1"> <div class="card" id="ridgeline-container"> <observablehq-loading></observablehq-loading><!--:70fc7963:--> </div> </div>
 </div>
 <div>
@@ -746,7 +748,7 @@ ridgelineChart
 </div></main>
 <footer id="observablehq-footer">
 <nav><a rel="prev" href="./"><span>Flight Analysis</span></a><a rel="next" href="./2airline-performance"><span>Airline performance</span></a></nav>
-<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-10T12:43:37">Mar 10, 2025</a>.</div>
+<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-11T22:50:36">Mar 11, 2025</a>.</div>
 </footer>
 </div>
 </body>

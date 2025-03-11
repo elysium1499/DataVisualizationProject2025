@@ -217,10 +217,12 @@ smoothLine.addEventListener("input", () => {
 ```
 <br>
 <div style="font-family: 'Times New Roman', serif;">
-  <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px;">${selectedAirline}</div>
-  <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px;">${selectedDestination}</div>
-  <div style="display: inline-block; width: 150px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px;">${smoothLine}</div>
-  <div class="grid grid-cols-1"> <div class="card" id="chart-container"> ${flightVolumeChart} </div> </div>
+  <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;">${selectedAirline}</div>
+  <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selectedDestination}</div>
+  <div style="display: inline-block; width: 150px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${smoothLine}</div>
+  <div class="grid grid-cols-1"> 
+    <div class="card" id="chart-container">${flightVolumeChart}</div> 
+  </div>
 </div>
 
 
@@ -343,42 +345,42 @@ function drawMap(data) {
     .style("pointer-events", "none")
     .style("display", "none");
 
-// Draw states with darker color
-svg.append("g")
-  .selectAll("path")
-  .data(statesWithCounts)
-  .join("path")
-  .attr("d", path)
-  .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).darker(0.5))
-  .attr("stroke", "#222")
-  .on("mouseover", function (event, d) {
-    const [x, y] = path.centroid(d); // Calcola il centro dello stato
+  // Draw states with darker color
+  svg.append("g")
+    .selectAll("path")
+    .data(statesWithCounts)
+    .join("path")
+    .attr("d", path)
+    .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).darker(0.5))
+    .attr("stroke", "#222")
+    .on("mouseover", function (event, d) {
+      const [x, y] = path.centroid(d); // Calcola il centro dello stato
 
-    d3.select(this)
-      .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).brighter(0.5)) // Make it brighter
-      .attr("stroke", "white") // Change stroke color
-      .transition().duration(200) // Smooth transition
-      .attr("transform", `translate(${x * -0.3}, ${y * -0.3}) scale(1.3)`);
+      d3.select(this)
+        .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).brighter(0.5)) // Make it brighter
+        .attr("stroke", "white") // Change stroke color
+        .transition().duration(200) // Smooth transition
+        .attr("transform", `translate(${x * -0.3}, ${y * -0.3}) scale(1.3)`);
 
-    // Sposta il path sopra agli altri
-    d3.select(this).raise(); // Usa raise() per spostarlo sopra al gruppo corrente
+      // Sposta il path sopra agli altri
+      d3.select(this).raise(); // Usa raise() per spostarlo sopra al gruppo corrente
 
-    tooltip.style("display", "block")
-      .html(`<strong>${d.properties.name}</strong><br>Flights: ${d.properties.flights}`);
-  })
-  .on("mousemove", event => {
-    tooltip.style("top", `${event.pageY + 10}px`)
-      .style("left", `${event.pageX + 10}px`);
-  })
-  .on("mouseout", function (event, d) {
-    d3.select(this)
-      .attr("fill", d => colorScale(d.properties.flights)) // Reset to original color
-      .attr("stroke", "#222") // Reset stroke color
-      .transition().duration(200) // Smooth transition
-      .attr("transform", "translate(0,0) scale(1)"); // Ritorna alla dimensione originale
+      tooltip.style("display", "block")
+        .html(`<strong>${d.properties.name}</strong><br>Flights: ${d.properties.flights}`);
+    })
+    .on("mousemove", event => {
+      tooltip.style("top", `${event.pageY + 10}px`)
+        .style("left", `${event.pageX + 10}px`);
+    })
+    .on("mouseout", function (event, d) {
+      d3.select(this)
+        .attr("fill", d => colorScale(d.properties.flights)) // Reset to original color
+        .attr("stroke", "#222") // Reset stroke color
+        .transition().duration(200) // Smooth transition
+        .attr("transform", "translate(0,0) scale(1)"); // Ritorna alla dimensione originale
 
-    tooltip.style("display", "none");
-  });
+      tooltip.style("display", "none");
+    });
 
   const quantiles = Array.isArray(colorScale.quantiles()) ? colorScale.quantiles() : [];
 
@@ -450,8 +452,8 @@ updateMap();
 
 <br>
 <div style="font-family: 'Times New Roman', serif;">
-  <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px;">${selectedYear}</div>
-  <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px;">${selectedAirline1}</div>
+  <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selectedYear}</div>
+  <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selectedAirline1}</div>
   <div class="grid grid-cols-1"> <div class="card"> <div id="map-container"></div> </div> </div>
 </div>
 
@@ -611,7 +613,7 @@ selYear.addEventListener("input", () => {
 ```
 <br>
 <div style="font-family: 'Times New Roman', serif;">
-  <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px;">${selYear}</div>
+  <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selYear}</div>
   <div class="grid grid-cols-1"> <div class="card" id="ridgeline-container"> ${ridgelineChart} </div> </div>
 </div>
 
