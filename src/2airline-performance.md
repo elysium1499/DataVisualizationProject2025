@@ -177,7 +177,7 @@ function drawBarChart() {
 
   // Create Legend Items
   const legendData = [
-    { label: "Total Flights", color: "#3498db" },    // Blue for Total Flights
+    { label: "On-time and delayed Flights", color: "#3498db" },    // Blue for Total Flights
     { label: "Canceled Flights", color: "#e74c3c" }, // Red for Canceled
     { label: "Diverted Flights", color: "#f1c40f" }  // Yellow for Diverted
   ];

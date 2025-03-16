@@ -65,7 +65,7 @@ const datasetFlights = await FileAttachment("./data/flights_data.csv").csv({ typ
 return {datasetFlights};
 }});
 
-define({id: "f71cd40b", inputs: ["datasetFlights","Inputs","d3"], outputs: ["airlines","selectedView","width","height","margin","computeFlightCounts","flightData","maxTotalFlights","maxCanceledFlights","maxDivertedFlights","drawBarChart","barChart"], body: (datasetFlights,Inputs,d3) => {
+define({id: "189270ad", inputs: ["datasetFlights","Inputs","d3"], outputs: ["airlines","selectedView","width","height","margin","computeFlightCounts","flightData","maxTotalFlights","maxCanceledFlights","maxDivertedFlights","drawBarChart","barChart"], body: (datasetFlights,Inputs,d3) => {
 // Airline Names
 const airlines = [...new Set(datasetFlights.map(d => d.AIRLINE))];
 
@@ -226,7 +226,7 @@ function drawBarChart() {
 
   // Create Legend Items
   const legendData = [
-    { label: "Total Flights", color: "#3498db" },    // Blue for Total Flights
+    { label: "On-time and delayed Flights", color: "#3498db" },    // Blue for Total Flights
     { label: "Canceled Flights", color: "#e74c3c" }, // Red for Canceled
     { label: "Diverted Flights", color: "#f1c40f" }  // Yellow for Diverted
   ];
@@ -525,7 +525,7 @@ return {createSankeyChart};
 <h2 id="overview" tabindex="-1"><a class="observablehq-header-anchor" href="#overview">Overview</a></h2>
 <br>
 <div class="observablehq observablehq--block"><!--:6dc3996e:--></div>
-<div class="observablehq observablehq--block"><!--:f71cd40b:--></div>
+<div class="observablehq observablehq--block"><!--:189270ad:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: inline-block; width: 500px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:1d3e1bb2:--></div>
   <div class="grid grid-cols-1"> <div class="card"><div id="barchart-container"></div> </div> </div>
@@ -551,7 +551,7 @@ return {createSankeyChart};
 </main>
 <footer id="observablehq-footer">
 <nav><a rel="prev" href="./1global-trends"><span>Global Trends</span></a><a rel="next" href="./3flight-delays"><span>Flight Delays</span></a></nav>
-<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-11T22:50:36">Mar 11, 2025</a>.</div>
+<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-16T22:25:57">Mar 16, 2025</a>.</div>
 </footer>
 </div>
 </body>
