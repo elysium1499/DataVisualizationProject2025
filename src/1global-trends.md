@@ -165,7 +165,7 @@ function drawChart() {
       );
 
       tooltip.style("display", "block")
-        .html(`📅 ${closestPoint.date.toDateString()}<br>✈ Flights: ${closestPoint.count}`)
+        .html(`📅 ${closestPoint.date.toDateString()}`)
         .style("top", (event.pageY - 10) + "px")
         .style("left", (event.pageX + 10) + "px");
     })
@@ -366,7 +366,7 @@ function drawMap(data) {
       d3.select(this).raise(); // Usa raise() per spostarlo sopra al gruppo corrente
 
       tooltip.style("display", "block")
-        .html(`<strong>${d.properties.name}</strong><br>Flights: ${d.properties.flights}`);
+        .html(`<strong>${d.properties.name}</strong><br>✈ Flights: ${d.properties.flights}`);
     })
     .on("mousemove", event => {
       tooltip.style("top", `${event.pageY + 10}px`)

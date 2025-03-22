@@ -72,7 +72,7 @@ const covidStartDate = new Date("2020-03-01");
 return {datasetFlights,covidStartDate};
 }});
 
-define({id: "afe10ad1", inputs: ["datasetFlights","Inputs","d3","covidStartDate"], outputs: ["stateNameMap","width","height","margin","airlineOptions","destinationOptions","selectedAirline","selectedDestination","smoothLine","getFilteredData","flightsPerDay","drawChart","flightVolumeChart"], body: (datasetFlights,Inputs,d3,covidStartDate) => {
+define({id: "e58ee676", inputs: ["datasetFlights","Inputs","d3","covidStartDate"], outputs: ["stateNameMap","width","height","margin","airlineOptions","destinationOptions","selectedAirline","selectedDestination","smoothLine","getFilteredData","flightsPerDay","drawChart","flightVolumeChart"], body: (datasetFlights,Inputs,d3,covidStartDate) => {
 const stateNameMap = {
   "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
   "CA": "California", "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware",
@@ -216,7 +216,7 @@ function drawChart() {
       );
 
       tooltip.style("display", "block")
-        .html(`📅 ${closestPoint.date.toDateString()}<br>✈ Flights: ${closestPoint.count}`)
+        .html(`📅 ${closestPoint.date.toDateString()}`)
         .style("top", (event.pageY - 10) + "px")
         .style("left", (event.pageX + 10) + "px");
     })
@@ -292,7 +292,7 @@ flightVolumeChart
 ))
 }});
 
-define({id: "f467d8aa", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usStates","stateAbbreviations","years","selectedYear","airlineOptions","selectedAirline1","filterFlights","computeStateFlightCounts","width","height","projection","path","computeColorScale","drawMap","updateMap"], body: async (d3,datasetFlights,Inputs) => {
+define({id: "339ec17a", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usStates","stateAbbreviations","years","selectedYear","airlineOptions","selectedAirline1","filterFlights","computeStateFlightCounts","width","height","projection","path","computeColorScale","drawMap","updateMap"], body: async (d3,datasetFlights,Inputs) => {
 const topojson = await import("https://cdn.jsdelivr.net/npm/topojson@3/+esm");
 // Load US states GeoJSON
 const usStates = await d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json");
@@ -423,7 +423,7 @@ function drawMap(data) {
       d3.select(this).raise(); // Usa raise() per spostarlo sopra al gruppo corrente
 
       tooltip.style("display", "block")
-        .html(`<strong>${d.properties.name}</strong><br>Flights: ${d.properties.flights}`);
+        .html(`<strong>${d.properties.name}</strong><br>✈ Flights: ${d.properties.flights}`);
     })
     .on("mousemove", event => {
       tooltip.style("top", `${event.pageY + 10}px`)
@@ -704,7 +704,7 @@ ridgelineChart
 <h1 id="global-trends" tabindex="-1"><a class="observablehq-header-anchor" href="#global-trends">Global Trends 🌍</a></h1>
 <br>
 <h2 id="flight-volume-over-time" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-volume-over-time">Flight Volume Over Time</a></h2>
-<div class="observablehq observablehq--block"><!--:afe10ad1:--></div>
+<div class="observablehq observablehq--block"><!--:e58ee676:--></div>
 <br>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:bac88d80:--></div>
@@ -718,7 +718,7 @@ ridgelineChart
 <p>The <strong>blue line</strong> shows the number of flights per day. Use the <strong>filters</strong> above to select a specific <strong>airline</strong> or <strong>destination</strong>. The <strong>red dashed line</strong> marks the start of <strong>COVID-19 (March 2020)</strong>. Toggle <strong>Smooth Line</strong> to adjust visualization. </p></div><p></p>
 <br>
 <h2 id="map-of-flight" tabindex="-1"><a class="observablehq-header-anchor" href="#map-of-flight">Map of flight</a></h2>
-<div class="observablehq observablehq--block"><!--:f467d8aa:--></div>
+<div class="observablehq observablehq--block"><!--:339ec17a:--></div>
 <br>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;"><observablehq-loading></observablehq-loading><!--:412119be:--></div>
@@ -748,7 +748,7 @@ ridgelineChart
 </div></main>
 <footer id="observablehq-footer">
 <nav><a rel="prev" href="./"><span>Flight Analysis</span></a><a rel="next" href="./2airline-performance"><span>Airline performance</span></a></nav>
-<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-22T01:09:20">Mar 22, 2025</a>.</div>
+<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-22T18:38:30">Mar 22, 2025</a>.</div>
 </footer>
 </div>
 </body>

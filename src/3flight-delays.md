@@ -858,7 +858,7 @@ svg.append("g")
 
 //  Define Color Scale for Delays
 const colorScale = d3.scaleDiverging()
-  .domain([-10, 0, 30]) // Negative = Early, 0 = On Time, 30+ = Very Late
+  .domain([30, 0, -10]) // Negative = Early, 0 = On Time, 30+ = Very Late
   .interpolator(d3.interpolateRdYlGn); // Red = Late, White = On-time, Green = Early
 
 //  Define Size Scale for Flights
@@ -915,7 +915,10 @@ function updateMap() {
         .attr("cx", d => projection(d.coords)[0])
         .attr("cy", d => projection(d.coords)[1])
         .attr("r", d => sizeScale(d.totalFlights))
-        .attr("fill", d => colorScale(d.avgDelay))
+        .attr("fill", d => {
+          console.log(`avgDelay for ${d.airport}: ${d.avgDelay}`); // Log avgDelay for debugging
+          return colorScale(d.avgDelay); // Ensure avgDelay is correctly mapped to the color scale
+        })
         .attr("stroke", "#222")
         .attr("opacity", 0.8)
         .on("mouseover", function (event, d) {
@@ -937,11 +940,12 @@ function updateMap() {
         }),
       update => update.transition().duration(500)
         .attr("r", d => sizeScale(d.totalFlights))
-        .attr("fill", d => colorScale(d.avgDelay)),
+        .attr("fill", d => colorScale(d.avgDelay)), // Use the correct color scale here
       exit => exit.remove()
     )
     .sort((a, b) => d3.descending(a.totalFlights, b.totalFlights)); // Ordina le bolle aggiornate
-  //  Define the color scale legend
+
+  //  Define the color scale legend (Update the legend as well)
   const legend = svg.append("g")
     .attr("transform", `translate(${width - 150}, 30)`); // Position the legend on the right
 
@@ -955,9 +959,9 @@ function updateMap() {
     .attr("y2", "0%")
     .selectAll("stop")
     .data([
-      { offset: "0%", color: colorScale(-10) },
-      { offset: "50%", color: colorScale(0) },
-      { offset: "100%", color: colorScale(30) }
+      { offset: "0%", color: colorScale(30) }, // Red (Late)
+      { offset: "50%", color: colorScale(0) },  // White (On Time)
+      { offset: "100%", color: colorScale(-10) } // Green (Early)
     ])
     .enter().append("stop")
     .attr("offset", d => d.offset)
@@ -976,7 +980,7 @@ function updateMap() {
     .attr("text-anchor", "middle")
     .style("font-size", "12px")
     .style("fill", "white")
-    .text("Early");
+    .text("Late");
 
   legend.append("text")
     .attr("x", 60)
@@ -992,7 +996,7 @@ function updateMap() {
     .attr("text-anchor", "middle")
     .style("font-size", "12px")
     .style("fill", "white")
-    .text("Late");
+    .text("Early");
 }
 
 //  Listen for Season Toggle Changes
@@ -1000,6 +1004,7 @@ selectedSeason.addEventListener("input", updateMap);
 
 //  Initial Map Render
 updateMap();
+
 ```
 
 

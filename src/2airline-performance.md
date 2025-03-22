@@ -20,10 +20,10 @@ const datasetFlights = await FileAttachment("data/flights_data.csv").csv({ typed
 // Airline Names
 const airlines = [...new Set(datasetFlights.map(d => d.AIRLINE))];
 
-// Create Toggle (Total, Canceled, Diverted) with a Default Value
-const selectedView = Inputs.radio(["Total Flights", "Canceled Flights", "Diverted Flights"], {
+// Create Dropdown Menu (On-Time, Delayed, Canceled, Diverted) with a Default Value
+const selectedView = Inputs.select(["Total Flights", "On-Time Flights", "Delayed Flights", "Cancelled Flights", "Diverted Flights"], {
   label: "✈ Select View",
-  value: "Total Flights" // Set Default
+  value: "Total Flights"
 });
 
 // Set Dimensions
@@ -33,20 +33,29 @@ const width = 900, height = 500, margin = { top: 30, right: 40, bottom: 100, lef
 function computeFlightCounts() {
   return airlines.map(airline => {
     const flights = datasetFlights.filter(d => d.AIRLINE === airline);
+    const onTimeFlights = flights.filter(f => f.CANCELLED === 0 && f.DIVERTED === 0 && f.DEP_DELAY <= 15);
+    const delayedFlights = flights.filter(f => f.CANCELLED === 0 && f.DIVERTED === 0 && f.DEP_DELAY > 15);
+    const cancelledFlights = flights.filter(f => f.CANCELLED === 1);
+    const divertedFlights = flights.filter(f => f.DIVERTED === 1);
+
     return {
       airline,
-      total: flights.length,
-      canceled: flights.filter(d => d.CANCELLED > 0).length,
-      diverted: flights.filter(d => d.DIVERTED > 0).length
+      onTime: onTimeFlights.length,
+      delayed: delayedFlights.length,
+      cancelled: cancelledFlights.length,
+      diverted: divertedFlights.length,
+      total: flights.length
     };
   });
 }
 
 // Compute Separate Y Scales
 const flightData = computeFlightCounts();
-const maxTotalFlights = d3.max(flightData, d => d.total);
-const maxCanceledFlights = d3.max(flightData, d => d.canceled);
+const maxOnTimeFlights = d3.max(flightData, d => d.onTime);
+const maxDelayedFlights = d3.max(flightData, d => d.delayed);
+const maxCanceledFlights = d3.max(flightData, d => d.cancelled);
 const maxDivertedFlights = d3.max(flightData, d => d.diverted);
+const maxTotalFlights = d3.max(flightData, d => d.total);
 
 // Function to Draw Chart
 function drawBarChart() {
@@ -71,14 +80,24 @@ function drawBarChart() {
       .domain([0, maxTotalFlights])
       .nice()
       .range([height - margin.bottom, margin.top]);
-  } else if (selectedView.value === "Canceled Flights") {
+  } else if (selectedView.value === "Cancelled Flights") {
     yScale = d3.scaleLinear()
       .domain([0, maxCanceledFlights])
       .nice()
       .range([height - margin.bottom, margin.top]);
-  } else {
+  } else if (selectedView.value === "Diverted Flights") {
     yScale = d3.scaleLinear()
       .domain([0, maxDivertedFlights])
+      .nice()
+      .range([height - margin.bottom, margin.top]);
+  } else if (selectedView.value === "On-Time Flights") {
+    yScale = d3.scaleLinear()
+      .domain([0, maxOnTimeFlights])
+      .nice()
+      .range([height - margin.bottom, margin.top]);
+  } else if (selectedView.value === "Delayed Flights") {
+    yScale = d3.scaleLinear()
+      .domain([0, maxDelayedFlights])
       .nice()
       .range([height - margin.bottom, margin.top]);
   }
@@ -118,20 +137,27 @@ function drawBarChart() {
         const g = d3.select(this);
         let yPos = yScale(0);
 
-        // Stacked Order: Diverted → Canceled → Normal
-        ["diverted", "canceled", "total"].forEach((category, i) => {
+        // Stacked Order: Diverted → Canceled → Delayed → On-Time
+        ["diverted", "cancelled", "delayed", "onTime"].forEach((category, i) => {
           const barHeight = height - margin.bottom - yScale(d[category]);
+          let color;
+          switch (category) {
+            case "onTime": color = "#4caf50"; break; // Green
+            case "delayed": color = "#ffeb3b"; break; // Yellow
+            case "cancelled": color = "#f44336"; break; // Red
+            case "diverted": color = "#ff9800"; break; // Orange
+          }
 
           g.append("rect")
             .attr("x", xScale(d.airline))
             .attr("y", yPos - barHeight)
             .attr("height", barHeight)
             .attr("width", xScale.bandwidth())
-            .attr("fill", ["#f1c40f", "#e74c3c", "#3498db"][i]) // Diverted (Yellow), Canceled (Red), Normal (Blue)
+            .attr("fill", color)
             .on("mouseover", function(event) {
               d3.select(this).style("opacity", 0.8);
               tooltip.style("display", "block")
-                .html(`📊 ${d.airline}<br>✈ ${category}: ${d[category]}`);
+                .html(`📊 ${d.airline}<br>✈ ${category.charAt(0).toUpperCase() + category.slice(1)} Flights: ${d[category]}`);
             })
             .on("mousemove", event => {
               tooltip.style("top", `${event.pageY + 10}px`)
@@ -146,20 +172,29 @@ function drawBarChart() {
         });
       });
   } else {
-    // **Single Bars for Canceled/Diverted**
+    // **Single Bars for On-Time, Delayed, Canceled/Diverted**
+    const selectedCategory = selectedView.value.toLowerCase().split(" ")[0]; // 'on-time', 'delayed', 'cancelled', 'diverted'
+    const colorMap = {
+      "on-time": "#4caf50", // Green
+      "delayed": "#ffeb3b", // Yellow
+      "cancelled": "#f44336", // Red
+      "diverted": "#9b59b6"   // Violet
+    };
+    const selectedDataKey = selectedCategory === "on-time" ? "onTime" : selectedCategory;
+
     svg.append("g")
       .selectAll("rect")
       .data(flightData)
       .join("rect")
       .attr("x", d => xScale(d.airline))
-      .attr("y", d => yScale(d[selectedView.value.toLowerCase().split(" ")[0]])) // Either 'canceled' or 'diverted'
-      .attr("height", d => height - margin.bottom - yScale(d[selectedView.value.toLowerCase().split(" ")[0]]))
+      .attr("y", d => yScale(d[selectedDataKey]))
+      .attr("height", d => height - margin.bottom - yScale(d[selectedDataKey]))
       .attr("width", xScale.bandwidth())
-      .attr("fill", selectedView.value === "Canceled Flights" ? "#e74c3c" : "#f1c40f") // Red for Canceled, Yellow for Diverted
+      .attr("fill", colorMap[selectedCategory])
       .on("mouseover", function(event, d) {
         d3.select(this).style("opacity", 0.8);
         tooltip.style("display", "block")
-          .html(`📊 ${d.airline}<br>✈ ${selectedView.value}: ${d[selectedView.value.toLowerCase().split(" ")[0]]}`);
+          .html(`📊 ${d.airline}<br>✈ ${selectedView.value}: ${d[selectedDataKey]}`);
       })
       .on("mousemove", event => {
         tooltip.style("top", `${event.pageY + 10}px`)
@@ -173,13 +208,14 @@ function drawBarChart() {
 
   // **Create Legend in Top-Right Corner**
   const legend = svg.append("g")
-    .attr("transform", `translate(${width - margin.right - 150},${margin.top})`);
+    .attr("transform", `translate(${width - margin.right - 180},${margin.top})`);
 
   // Create Legend Items
   const legendData = [
-    { label: "On-time and delayed Flights", color: "#3498db" },    // Blue for Total Flights
-    { label: "Canceled Flights", color: "#e74c3c" }, // Red for Canceled
-    { label: "Diverted Flights", color: "#f1c40f" }  // Yellow for Diverted
+    { label: "On-Time Flights", color: "#4caf50" },   // Green
+    { label: "Delayed Flights", color: "#ffeb3b" }, // Yellow
+    { label: "Cancelled Flights", color: "#f44336" }, // Red
+    { label: "Diverted Flights", color: "#9b59b6" }   // Violet
   ];
 
   // Draw Legend Items
@@ -190,7 +226,7 @@ function drawBarChart() {
       .attr("width", 20)
       .attr("height", 20)
       .attr("fill", item.color);
-    
+
     legend.append("text")
       .attr("x", 30)
       .attr("y", index * 25 + 15)
@@ -211,10 +247,13 @@ selectedView.addEventListener("input", () => {
   d3.select("#barchart-container").html("");
   drawBarChart();
 });
+
+// Append the dropdown menu to the document body or a specific container
+document.body.appendChild(selectedView);
 ```
 
 <div style="font-family: 'Times New Roman', serif;">
-  <div style="display: inline-block; width: 500px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;">${selectedView}</div>
+  <div style="display: inline-block; width: 250px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;">${selectedView}</div>
   <div class="grid grid-cols-1"> <div class="card"><div id="barchart-container"></div> </div> </div>
 </div>
 
@@ -306,13 +345,12 @@ async function createSankeyChart() {
 
   // **Define Sankey layout**
   const { nodes: sankeyNodes, links: sankeyLinks } = sankey()
-    .nodeWidth(15)
-    .nodePadding(10)
+    .nodeWidth(20)
+    .nodePadding(5)
     .extent([[100, 50], [width - 100, height - 20]])({ // Increased vertical padding for more space
       nodes: nodes.map(d => Object.assign({}, d)),
       links: links.map(d => Object.assign({}, d))
     });
-
   // **Select the container div**
   const container = d3.select("#sankey-container");
 
@@ -413,14 +451,14 @@ async function createSankeyChart() {
     .join("text")
     .attr("x", d => d.x0 < width / 2 ? d.x0 - 10 : d.x1 + 10)
     .attr("y", d => (d.y0 + d.y1) / 2)
-    .attr("dy", "0.35em")
+    .attr("dy", "0.40em")
     .attr("text-anchor", d => d.x0 < width / 2 ? "end" : "start")
     .style("fill", "white")
     .style("font-size", "11px")
     .text(d => d.name);
 
   // **Add Column Headers Above the Sankey Diagram**
-  const headerHeight = 20;  // Set a height for the header labels
+  const headerHeight = 30;  // Set a height for the header labels
 
   // Add "Number of Flights" header above the "Total Flights" node
   svg.append("text")
@@ -433,7 +471,7 @@ async function createSankeyChart() {
     .text("Number of Flights");
 
   // Add "Airport" header above the airline nodes
-  const airportWidth = 200; // Adjust the width according to your layout
+  const airportWidth = 100; // Adjust the width according to your layout
   const airportXPos = width / 2; // Adjust this based on your Sankey layout
   svg.append("text")
     .attr("x", airportXPos)
@@ -442,7 +480,7 @@ async function createSankeyChart() {
     .attr("text-anchor", "middle")
     .style("font-size", "14px")
     .style("fill", "white")
-    .text("Airport");
+    .text("Airline");
 
   // Add "Status" header above the status nodes (On-Time, Delayed, Cancelled, Diverted)
   const statusXPos = width;  // You might want to adjust this if status nodes are spread out horizontally

@@ -731,7 +731,7 @@ svg.append("line")
 return {scatterDataset,airlineStats,width,height,margin,xScale,yScale,sizeScale,colorScale,container,svg,tooltip};
 }});
 
-define({id: "0c34e436", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usMap","getSeason","airportDelays","airportCoords","airportData","width","height","projection","path","container","svg","tooltip","colorScale","sizeScale","selectedSeason","updateMap"], body: async (d3,datasetFlights,Inputs) => {
+define({id: "70837dfb", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usMap","getSeason","airportDelays","airportCoords","airportData","width","height","projection","path","container","svg","tooltip","colorScale","sizeScale","selectedSeason","updateMap"], body: async (d3,datasetFlights,Inputs) => {
 //  Load necessary D3 libraries and US States GeoJSON
 const topojson = await import("https://cdn.jsdelivr.net/npm/topojson@3/+esm");
 const usMap = await d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json");
@@ -849,7 +849,7 @@ svg.append("g")
 
 //  Define Color Scale for Delays
 const colorScale = d3.scaleDiverging()
-  .domain([-10, 0, 30]) // Negative = Early, 0 = On Time, 30+ = Very Late
+  .domain([30, 0, -10]) // Negative = Early, 0 = On Time, 30+ = Very Late
   .interpolator(d3.interpolateRdYlGn); // Red = Late, White = On-time, Green = Early
 
 //  Define Size Scale for Flights
@@ -906,7 +906,10 @@ function updateMap() {
         .attr("cx", d => projection(d.coords)[0])
         .attr("cy", d => projection(d.coords)[1])
         .attr("r", d => sizeScale(d.totalFlights))
-        .attr("fill", d => colorScale(d.avgDelay))
+        .attr("fill", d => {
+          console.log(`avgDelay for ${d.airport}: ${d.avgDelay}`); // Log avgDelay for debugging
+          return colorScale(d.avgDelay); // Ensure avgDelay is correctly mapped to the color scale
+        })
         .attr("stroke", "#222")
         .attr("opacity", 0.8)
         .on("mouseover", function (event, d) {
@@ -928,11 +931,12 @@ function updateMap() {
         }),
       update => update.transition().duration(500)
         .attr("r", d => sizeScale(d.totalFlights))
-        .attr("fill", d => colorScale(d.avgDelay)),
+        .attr("fill", d => colorScale(d.avgDelay)), // Use the correct color scale here
       exit => exit.remove()
     )
     .sort((a, b) => d3.descending(a.totalFlights, b.totalFlights)); // Ordina le bolle aggiornate
-  //  Define the color scale legend
+
+  //  Define the color scale legend (Update the legend as well)
   const legend = svg.append("g")
     .attr("transform", `translate(${width - 150}, 30)`); // Position the legend on the right
 
@@ -946,9 +950,9 @@ function updateMap() {
     .attr("y2", "0%")
     .selectAll("stop")
     .data([
-      { offset: "0%", color: colorScale(-10) },
-      { offset: "50%", color: colorScale(0) },
-      { offset: "100%", color: colorScale(30) }
+      { offset: "0%", color: colorScale(30) }, // Red (Late)
+      { offset: "50%", color: colorScale(0) },  // White (On Time)
+      { offset: "100%", color: colorScale(-10) } // Green (Early)
     ])
     .enter().append("stop")
     .attr("offset", d => d.offset)
@@ -967,7 +971,7 @@ function updateMap() {
     .attr("text-anchor", "middle")
     .style("font-size", "12px")
     .style("fill", "white")
-    .text("Early");
+    .text("Late");
 
   legend.append("text")
     .attr("x", 60)
@@ -983,7 +987,7 @@ function updateMap() {
     .attr("text-anchor", "middle")
     .style("font-size", "12px")
     .style("fill", "white")
-    .text("Late");
+    .text("Early");
 }
 
 //  Listen for Season Toggle Changes
@@ -991,6 +995,7 @@ selectedSeason.addEventListener("input", updateMap);
 
 //  Initial Map Render
 updateMap();
+
 return {topojson,usMap,getSeason,airportDelays,airportCoords,airportData,width,height,projection,path,container,svg,tooltip,colorScale,sizeScale,selectedSeason,updateMap};
 }});
 
@@ -1070,7 +1075,7 @@ return {topojson,usMap,getSeason,airportDelays,airportCoords,airportData,width,h
 <br>
 </p><h1 id="flight-delays-1" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays-1">Flight Delays ⏳</a></h1>
 <h2 id="percentage-of-delays-by-reason-1" tabindex="-1"><a class="observablehq-header-anchor" href="#percentage-of-delays-by-reason-1">Percentage of Delays by Reason 📊</a></h2>
-<div class="observablehq observablehq--block"><!--:0c34e436:--></div>
+<div class="observablehq observablehq--block"><!--:70837dfb:--></div>
 <div class="grid grid-cols-1"><div class="card"><div id="airport-map-container"></div></div></div>
 <p>
 </p><p>Airports with negative delays (flights arrive early) → Green</p>
@@ -1085,7 +1090,7 @@ return {topojson,usMap,getSeason,airportDelays,airportCoords,airportData,width,h
 </main>
 <footer id="observablehq-footer">
 <nav><a rel="prev" href="./2airline-performance"><span>Airline performance</span></a><a rel="next" href="./4airport-statistics"><span>Airport statistics</span></a></nav>
-<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-22T01:09:20">Mar 22, 2025</a>.</div>
+<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-22T18:38:30">Mar 22, 2025</a>.</div>
 </footer>
 </div>
 </body>
