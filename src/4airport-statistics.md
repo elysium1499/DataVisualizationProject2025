@@ -20,17 +20,8 @@ console.log("🛠 Data loaded:", datasetFlights); // Debugging
 
 console.log("🚀 Box plot function is running!");
 
-// ✅ Load necessary D3 libraries
+// Load necessary D3 libraries
 const d3 = await import("https://cdn.jsdelivr.net/npm/d3@7/+esm");
-
-// ✅ Define IATA Airport Code → State Mapping
-//const airportStateMap = {
-//  "ATL": "Georgia (GA)", "DFW": "Texas (TX)", "ORD": "Illinois (IL)", "DEN": "Colorado (CO)",
-//  "CLT": "North Carolina (NC)", "LAX": "California (CA)", "LAS": "Nevada (NV)", "PHX": "Arizona (AZ)",
-//  "SEA": "Washington (WA)", "MCO": "Florida (FL)", "IAH": "Texas (TX)", "DTW": "Michigan (MI)",
-//  "LGA": "New York (NY)", "MSP": "Minnesota (MN)", "SFO": "California (CA)", "BOS": "Massachusetts (MA)",
-//  "EWR": "New Jersey (NJ)", "DCA": "Virginia (VA)", "JFK": "New York (NY)", "SLC": "Utah (UT)"
-//};
 
 const airportStateMap = {
   "ATL": "Georgia", "DFW": "Texas", "ORD": "Illinois", "DEN": "Colorado",
@@ -40,24 +31,24 @@ const airportStateMap = {
   "EWR": "New Jersey", "DCA": "Virginia", "JFK": "New York", "SLC": "Utah"
 };
 
-// ✅ Count Flights Per Airport
+// Count Flights Per Airport
 const airportFlightCounts = d3.rollups(
   datasetFlights,
   v => v.length,
   d => d.ORIGIN
 );
 
-// ✅ Sort Airports & Select the 20 Busiest Airports
+// Sort Airports & Select the 20 Busiest Airports
 const topAirports = new Set(
   airportFlightCounts.sort((a, b) => b[1] - a[1]) // Sort descending
     .slice(0, 20) // Take top 20
     .map(d => d[0]) // Extract airport codes
 );
 
-// ✅ Filter Dataset to Keep Only the 20 Busiest Airports
+// Filter Dataset to Keep Only the 20 Busiest Airports
 const filteredDataset = datasetFlights.filter(d => topAirports.has(d.ORIGIN));
 
-// ✅ Process Data: Compute Summary Statistics for Each Airport
+// Process Data: Compute Summary Statistics for Each Airport
 const airportStats = d3.rollups(
   filteredDataset,
   v => ({
@@ -70,33 +61,30 @@ const airportStats = d3.rollups(
   d => d.ORIGIN
 ).map(([airport, stats]) => ({
   airport,
-  state: airportStateMap[airport] || "Unknown", // ✅ Assign State
+  state: airportStateMap[airport] || "Unknown", // Assign State
   ...stats
 }));
 
-// ✅ Sort Airports by State First, Then by Airport Name
+// Sort Airports by State First, Then by Airport Name
 const sortedAirportStats = airportStats.sort((a, b) => 
   d3.ascending(a.state, b.state) || d3.ascending(a.airport, b.airport)
 );
 
-// ✅ Set up Dimensions
+// Set up Dimensions
 const width = 1000, height = 650, margin = { top: 50, right: 50, bottom: 150, left: 80 };
 
-// ✅ Define Scales
+// Define Scales
 const xScale = d3.scaleBand()
   .domain(sortedAirportStats.map(d => d.airport)) // Sorted Airports
   .range([margin.left, width - margin.right])
   .padding(0.3);
 
 const yScale = d3.scaleLinear()
-  .domain([-70, 60]) // ✅ Standardized Delay Range
+  .domain([-70, 60]) // Standardized Delay Range
   .nice()
   .range([height - margin.bottom, margin.top]);
 
-// ✅ Assign Colors to States
-//const colorScale = d3.scaleOrdinal(d3.schemeCategory10)
-//  .domain([...new Set(sortedAirportStats.map(d => d.state))]);
-// ✅ Define Color Scale for States with 17 Unique Colors
+// Define Color Scale for States with 17 Unique Colors
 const baseColors = d3.schemeCategory10; // 12 Vibrant Colors from D3
 //const baseColors = d3.schemeSet3; // 12 Vibrant Colors from D3
 const extraColors = d3.range(8).map(i => d3.interpolateRainbow(i / 8)); // Generate 5 more
@@ -107,19 +95,19 @@ const colorScale = d3.scaleOrdinal(fullColorPalette)
 
 
 
-// ✅ Select Container
+// Select Container
 const container = d3.select("#boxplot-container");
 
-// ✅ Remove Old SVG
+// Remove Old SVG
 container.select("svg").remove();
 
-// ✅ Create SVG
+// Create SVG
 const svg = container.append("svg")
   .attr("width", width)
   .attr("height", height)
   .style("font", "12px sans-serif");
 
-// ✅ Tooltip
+// Tooltip
 const tooltip = d3.select("body").append("div")
   .attr("class", "tooltip")
   .style("position", "absolute")
@@ -131,7 +119,7 @@ const tooltip = d3.select("body").append("div")
   .style("pointer-events", "none")
   .style("display", "none");
 
-// ✅ Draw Box Plot for Each Airport
+// Draw Box Plot for Each Airport
 svg.append("g")
   .selectAll("g")
   .data(sortedAirportStats)
@@ -143,7 +131,7 @@ svg.append("g")
     const color = colorScale(d.state);
     const boxWidth = xScale.bandwidth();
 
-    // ✅ Draw Box
+    // Draw Box
     g.append("rect")
       .attr("x", xPos - boxWidth / 2)
       .attr("y", yScale(d.q3))
@@ -171,7 +159,7 @@ svg.append("g")
         tooltip.style("display", "none");
       });
 
-    // ✅ Draw Median Line
+    // Draw Median Line
     g.append("line")
       .attr("x1", xPos - boxWidth / 2)
       .attr("x2", xPos + boxWidth / 2)
@@ -181,12 +169,12 @@ svg.append("g")
       .attr("stroke-width", 2);
 
     
-    // ✅ Compute IQR and Adjust Whisker Bounds
+    // Compute IQR and Adjust Whisker Bounds
     const iqr = d.q3 - d.q1;
     const lowerWhisker = Math.max(d.q1 - 1.5 * iqr, d.minDelay); // 1.5×IQR Rule
     const upperWhisker = Math.min(d.q3 + 1.5 * iqr, d.maxDelay); // 1.5×IQR Rule
 
-    // ✅ Draw Whiskers (1.5×IQR instead of full min/max)
+    // Draw Whiskers (1.5×IQR instead of full min/max)
     g.append("line") // Lower whisker (Restricted Min to Q1)
       .attr("x1", xPos)
       .attr("x2", xPos)
@@ -203,7 +191,7 @@ svg.append("g")
       .attr("stroke", "white")
       .attr("stroke-width", 2);
 
-    // ✅ Add horizontal caps to whiskers
+    // Add horizontal caps to whiskers
     g.append("line") // Cap at Lower Whisker
       .attr("x1", xPos - 5)
       .attr("x2", xPos + 5)
@@ -220,7 +208,7 @@ svg.append("g")
       .attr("stroke", "white")
       .attr("stroke-width", 2);
 
-    // ✅ Draw Outlier Dots (Points outside 1.5×IQR range)
+    // Draw Outlier Dots (Points outside 1.5×IQR range)
     g.selectAll(".outlier")
       .data(d.ARR_DELAY > upperWhisker || d.ARR_DELAY < lowerWhisker ? [d.ARR_DELAY] : []) // Only plot outliers
       .join("circle")
@@ -231,12 +219,12 @@ svg.append("g")
 
   });
 
-// ✅ Y Axis (Delays)
+// Y Axis (Delays)
 svg.append("g")
   .attr("transform", `translate(${margin.left},0)`)
   .call(d3.axisLeft(yScale));
 
-// ✅ X-Axis with Airport Labels
+// X-Axis with Airport Labels
 svg.append("g")
   .attr("transform", `translate(0,${height - margin.bottom})`)
   .call(d3.axisBottom(xScale))
@@ -245,7 +233,7 @@ svg.append("g")
   .style("text-anchor", "end")
   .style("fill", "white");
 
-// ✅ Add **State Labels as Group Titles** Above Airports
+// Add **State Labels as Group Titles** Above Airports
 const stateGroups = d3.groups(sortedAirportStats, d => d.state);
 stateGroups.forEach(([state, airports], i) => {
   const firstAirport = airports[0].airport;
@@ -269,14 +257,12 @@ stateGroups.forEach(([state, airports], i) => {
     .attr("fill", "white")
     .attr("text-anchor", "middle")
     .style("font-size", "7.5px")
-    //.style("font-weight", "bold")
-    //.attr("transform", "rotate(-45)")
     .text(state);
 });
 
 ```
 <div class="grid grid-cols-1">
-  <div class="card">
+  <div class="card" style="display: flex; justify-content: center; align-items: center;">
     <div id="boxplot-container"></div> 
   </div>
 </div> 
@@ -288,23 +274,23 @@ stateGroups.forEach(([state, airports], i) => {
 ```js
 console.log("🚀 Small Multiples Radar Chart with Airport Labels!");
 
-// ✅ Load necessary D3 libraries
+// Load necessary D3 libraries
 const d3 = await import("https://cdn.jsdelivr.net/npm/d3@7/+esm");
 
-// ✅ Define IATA Airport Code → State Mapping
+// Define IATA Airport Code → State Mapping
 const airportStateMap = {
   "ATL": "Georgia", "ORD": "Illinois", "LAX": "California", "DFW": "Texas",
   "JFK": "New York", "DEN": "Colorado", "SFO": "California",
   "MCO": "Florida", "SEA": "Washington"
 };
 
-// ✅ Manually Selected 9 Airports
+// Manually Selected 9 Airports
 const selectedAirports = new Set(["ATL", "ORD", "LAX", "DFW", "JFK", "DEN", "SFO", "MCO", "SEA"]);
 
-// ✅ Filter Dataset to Keep Only the Selected Airports
+// Filter Dataset to Keep Only the Selected Airports
 const filteredDataset = datasetFlights.filter(d => selectedAirports.has(d.ORIGIN));
 
-// ✅ Process Data: Compute Metrics for Each Airport
+// Process Data: Compute Metrics for Each Airport
 const airportStats = d3.rollups(
   filteredDataset,
   v => ({
@@ -319,45 +305,45 @@ const airportStats = d3.rollups(
   ...stats
 }));
 
-// ✅ Get Max Values for Each Metric (New Scaling Approach)
+// Get Max Values for Each Metric (New Scaling Approach)
 const maxDelay = d3.max(airportStats, d => d.avgDelay);
 const maxCancellations = d3.max(airportStats, d => d.cancellations);
 const maxDiverted = d3.max(airportStats, d => d.diverted);
 
-// ✅ Set Radar Chart Layout
+// Set Radar Chart Layout
 const numAxes = 3; // Three metrics: Delay, Cancellations, Diversions
 const radius = 80; // Size of each radar chart
 const angleSlice = (Math.PI * 2) / numAxes; // Divide circle into equal parts
 
-// ✅ Define Colors for Different Metrics
+// Define Colors for Different Metrics
 const colorScale = d3.scaleOrdinal(d3.schemeSet2).domain(["avgDelay", "cancellations", "diverted"]);
 
-// ✅ Select the Container
+// Select the Container
 const container = d3.select("#radar-chart-container");
 
-// ✅ Remove Old Charts
+// Remove Old Charts
 container.html("");
 
-// ✅ Create Grid Layout for Small Multiples
+// Create Grid Layout for Small Multiples
 const chartWidth = 250, chartHeight = 250;
 
-// ✅ Create SVG for Each Airport
+// Create SVG for Each Airport
 airportStats.forEach((airportData, i) => {
-  // ✅ Create a div for each radar chart (for better control)
+  // Create a div for each radar chart (for better control)
   const airportDiv = container.append("div")
     .style("display", "inline-block")
-    .style("text-align", "center") // ✅ Center labels
+    .style("text-align", "center") // Center labels
     .style("margin", "10px");
 
-  // ✅ Add Airport Label
+  // Add Airport Label
   airportDiv.append("div")
     .style("color", "white")
     .style("font-size", "12px")
     .style("font-weight", "bold")
-    .style("margin-bottom", "5px") // ✅ Space between text and chart
+    .style("margin-bottom", "5px") // Space between text and chart
     .text(airportData.airport);
 
-  // ✅ Create SVG
+  // Create SVG
   const svg = airportDiv.append("svg")
     .attr("width", chartWidth)
     .attr("height", chartHeight)
@@ -367,14 +353,14 @@ airportStats.forEach((airportData, i) => {
   const g = svg.append("g")
     .attr("transform", `translate(${chartWidth / 2}, ${chartHeight / 2})`);
 
-  // ✅ Draw Radar Grid (Circular Grid)
+  // Draw Radar Grid (Circular Grid)
   for (let level = 1; level <= 5; level++) {
     g.append("circle")
       .attr("r", (radius / 5) * level)
       .attr("stroke", "#ddd")
       .attr("fill", "none");
 
-    // ✅ Label for each level
+    // Label for each level
     g.append("text")
       .attr("x", 0)
       .attr("y", -(radius / 5) * level)
@@ -385,7 +371,7 @@ airportStats.forEach((airportData, i) => {
       .text(Math.round((level / 5) * 100) + "%");
   }
 
-  // ✅ Draw Radar Axes
+  // Draw Radar Axes
   const metrics = ["avgDelay", "cancellations", "diverted"];
   const maxValues = { avgDelay: maxDelay, cancellations: maxCancellations, diverted: maxDiverted };
 
@@ -401,7 +387,7 @@ airportStats.forEach((airportData, i) => {
       .attr("y2", y)
       .attr("stroke", "#bbb");
 
-    // ✅ Axis Labels
+    // Axis Labels
     g.append("text")
       .attr("x", x * 1.2)
       .attr("y", y * 1.2)
@@ -411,9 +397,9 @@ airportStats.forEach((airportData, i) => {
       .text(metric === "avgDelay" ? "Avg Delay" : metric === "cancellations" ? "Cancellations" : "Diverted");
   });
 
-  // ✅ Draw Radar Chart Shape (Using **MAX VALUES FOR EACH METRIC**)
+  // Draw Radar Chart Shape (Using **MAX VALUES FOR EACH METRIC**)
   const radarPoints = metrics.map((metric, index) => {
-    const value = (airportData[metric] / maxValues[metric]) * radius; // ✅ Normalize based on the max value per metric
+    const value = (airportData[metric] / maxValues[metric]) * radius; // Normalize based on the max value per metric
     const angle = angleSlice * index;
     return [Math.cos(angle) * value, Math.sin(angle) * value];
   });

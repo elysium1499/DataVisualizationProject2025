@@ -20,7 +20,7 @@ const covidStartDate = new Date("2020-03-01");
 # Global Trends 🌍
 <br>
 
-## Flight Volume Over Time
+## Flight Volume Over Time (Line Chart)
 ```js
 const stateNameMap = {
   "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
@@ -39,8 +39,8 @@ const stateNameMap = {
 };
 
 // Set up dimensions
-const width = 1000 * 0.90;
-const height = 500 * 0.90;
+const width = 900 * 0.90;
+const height = 400 * 0.90;
 const margin = { top: 30, right: 40, bottom: 50, left: 70 };
 
 // Create dropdowns and toggle for filtering
@@ -217,23 +217,28 @@ smoothLine.addEventListener("input", () => {
 ```
 <br>
 <div style="font-family: 'Times New Roman', serif;">
-  <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;">${selectedAirline}</div>
-  <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selectedDestination}</div>
-  <div style="display: inline-block; width: 150px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${smoothLine}</div>
+  <div style="display: flex; justify-content: center; align-items: center;">
+    <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;">${selectedAirline}</div>
+    <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selectedDestination}</div>
+    <div style="display: inline-block; width: 150px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${smoothLine}</div>
+  </div>
   <div class="grid grid-cols-1"> 
-    <div class="card" id="chart-container">${flightVolumeChart}</div> 
+    <div class="card" style="display: flex; justify-content: center; align-items: center; height: 400px;" id="chart-container">${flightVolumeChart}</div> 
   </div>
 </div>
 
 
 <div> 
-
-The **blue line** shows the number of flights per day. Use the **filters** above to select a specific **airline** or **destination**. The **red dashed line** marks the start of **COVID-19 (March 2020)**. Toggle **Smooth Line** to adjust visualization. </div> 
+The chart shows the monthly flight volume from April 2019 to July 2023. We can observe a clear drop in the number of flights around April 2020, coinciding with the start of the COVID-19 pandemic. After the initial drop, flight volume gradually recovered, showing peaks and troughs, but generally trending upwards towards pre-pandemic levels by mid-2022. In 2023, the flight volume appears to be somewhat lower than the peaks observed in 2019 but is still significantly higher than the low point during the pandemic.
+</div>
+<div>
+The chart allows for filtering by airline and destination state, so we could potentially identify if air travel increases in certain months or if specific airlines dominate particular destinations by applying those filters
+The blue line shows the number of flights per day. The filters can be use to select a specific airline or destination. The red dashed line marks the start of COVID-19 (March 2020) and the toggle Smooth Line can adjust visualization. </div> 
 
 <br>
 
 
-## Map of flight
+## Destination density flight (Map)
 
 ```js
 const topojson = await import("https://cdn.jsdelivr.net/npm/topojson@3/+esm");
@@ -293,7 +298,7 @@ function computeStateFlightCounts(data) {
 }
 
 // Define map dimensions
-const width = 900, height = 600;
+const width = 750, height = 450;
 
 // Projection & path generator
 const projection = d3.geoAlbersUsa().fitSize([width, height], topojson.feature(usStates, usStates.objects.states));
@@ -402,9 +407,8 @@ function drawMap(data) {
     return `${d}-${nextValue}`;
   });
 
-  // Create legend
   const legend = svg.append("g")
-    .attr("transform", `translate(${width - 150}, 20)`);
+    .attr("transform", `translate(-30, 0)`);
 
   // Draw color boxes
   legend.selectAll("rect")
@@ -447,32 +451,32 @@ selectedYear.addEventListener("input", updateMap);
 selectedAirline1.addEventListener("input", updateMap);
 
 updateMap();
-
 ```
 
 <br>
 <div style="font-family: 'Times New Roman', serif;">
-  <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selectedYear}</div>
-  <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selectedAirline1}</div>
-  <div class="grid grid-cols-1"> <div class="card"> <div id="map-container"></div> </div> </div>
+  <div style="display: flex; justify-content: center; align-items: center;">
+    <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selectedYear}</div>
+    <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selectedAirline1}</div>
+  </div>
+  <div class="grid grid-cols-1"> 
+    <div class="card" style="display: flex; justify-content: center; align-items: center; height: 500px;"> 
+      <div id="map-container"></div> 
+    </div> 
+  </div>
 </div>
 
 <div> 
-
-This **interactive flight map** allows you to explore **USA flight routes** by: 
-
-🔹 **Selecting a year** to filter flight data. 
-
-🔹 **Choosing an airline** to visualize specific airline coverage. 
-
-🔹 **Viewing flight density** with states shaded according to flight volume. 
-
-🔹 **Hovering over a state** to see the exact number of flights.
+This is a geographical view of flight density per state, filtered by year and airline, helps identify the busiest regions. Flight volume fluctuates over time and it is influenced by different conditions: seasons, airline operations, and passenger demand.
+</div> 
+<br>
+<div> 
+This interactive flight map displays USA flight routes, with all airlines currently selected. The map uses color shading to represent flight density across different states. States with a higher volume of flights are shaded in darker blue, while those with fewer flights are in lighter shades. The legend indicates the ranges for the number of flights corresponding to each color intensity. For example, the darkest blue represents states with 665 or more flights. This visualization allows users to quickly identify the most common flight destinations within the United States for the selected year.
 
 </div><br> 
 
  
- ## Monthly Flight Volume
+ ## Monthly Flight Volume (Radar chart)
 
  ```js
  
@@ -504,7 +508,7 @@ const maxFlights = 2500; // Define a static upper limit
 const fixedScale = d3.scaleLinear().domain([0, maxFlights]).range([0, 250]);
 
 // Radar chart function
-function radarChart(year, { width = 600, height = 600 } = {}) {
+function radarChart(year, { width = 500, height = 500 } = {}) {
   const data = getMonthlyData(year);
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -613,14 +617,13 @@ selYear.addEventListener("input", () => {
 ```
 <br>
 <div style="font-family: 'Times New Roman', serif;">
-  <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selYear}</div>
-  <div class="grid grid-cols-1"> <div class="card" id="ridgeline-container"> ${ridgelineChart} </div> </div>
+  <div style="display: flex; justify-content: center; align-items: center;">
+    <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selYear}</div>
+  </div>
+  <div class="grid grid-cols-1"> <div class="card" style="display: flex; justify-content: center; align-items: center; height: 500px; " id="ridgeline-container"> ${ridgelineChart} </div> </div>
 </div>
 
 
 <div>
-
-📊 This **radar chart** visualizes **monthly flight volumes** in a circular layout. 
-- **Hover over points** to see flight counts. 
-- **Select a year** to compare trends over time.
+The radar chart allows you to view monthly flight volumes. Each point on the circular graph represents a specific month of the year, starting from January at the top and moving clockwise through February, March, and so on, until December. The distance of each point from the center of the circle indicates the number of flights during that month. By hovering over each point, you would be able to see the exact number of flights for that particular month. This type of chart is useful for identifying seasonal trends in air travel. You could also select a different year from the dropdown menu to compare how these monthly flight patterns have changed over time.
 </div>
