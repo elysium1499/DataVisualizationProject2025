@@ -845,7 +845,7 @@ function updateMap() {
 
   //  Define the color scale legend (Update the legend as well)
   const legend = svg.append("g")
-    .attr("transform", `translate(-100, 20)`); // Position the legend on the right
+    .attr("transform", `translate(590 20)`); // Position the legend on the right
 
   //  Add a gradient for the color scale
   legend.append("defs")

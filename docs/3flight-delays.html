@@ -626,7 +626,7 @@ scatterSvg.append("line")
 return {scatterData,processedScatterData,scatterStats,scatterWidth,scatterHeight,scatterMargin,scatterXScale,scatterYScale,scatterSizeScale,scatterColorScale,scatterContainer,scatterSvg,scatterTooltip};
 }});
 
-define({id: "73fe6ac1", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usMap","getSeason","airportDelays","airportCoords","airportData","width","height","projection","path","container","svg","tooltip","colorScale","sizeScale","selectedSeason","updateMap"], body: async (d3,datasetFlights,Inputs) => {
+define({id: "cb0c13ba", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usMap","getSeason","airportDelays","airportCoords","airportData","width","height","projection","path","container","svg","tooltip","colorScale","sizeScale","selectedSeason","updateMap"], body: async (d3,datasetFlights,Inputs) => {
 //  Load necessary D3 libraries and US States GeoJSON
 const topojson = await import("https://cdn.jsdelivr.net/npm/topojson@3/+esm");
 const usMap = await d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json");
@@ -832,7 +832,7 @@ function updateMap() {
 
   //  Define the color scale legend (Update the legend as well)
   const legend = svg.append("g")
-    .attr("transform", `translate(-100, 20)`); // Position the legend on the right
+    .attr("transform", `translate(590 20)`); // Position the legend on the right
 
   //  Add a gradient for the color scale
   legend.append("defs")
@@ -969,7 +969,7 @@ Each bar is divided into colored segments, and the height of each segment indica
 The circle specifically represents an airline with several pieces of information about it: the average flight distance in miles, the average delay in minutes, the number of flights considered in the average.</div>
 <br>
 <h2 id="flight-delays-for-company-map" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays-for-company-map">Flight Delays for company (Map)</a></h2>
-<div class="observablehq observablehq--block"><!--:73fe6ac1:--></div>
+<div class="observablehq observablehq--block"><!--:cb0c13ba:--></div>
 <div class="grid grid-cols-1">
   <div class="card" style="display: flex; justify-content: center; align-items: center;">
     <div id="airport-map-container"></div>
@@ -987,7 +987,7 @@ Hovering over or selecting an airport would provide more specific details about 
 </main>
 <footer id="observablehq-footer">
 <nav><a rel="prev" href="./2airline-performance"><span>Airline performance</span></a><a rel="next" href="./4airport-statistics"><span>Airport statistics</span></a></nav>
-<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-24T13:15:50">Mar 24, 2025</a>.</div>
+<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-24T13:22:26">Mar 24, 2025</a>.</div>
 </footer>
 </div>
 </body>
