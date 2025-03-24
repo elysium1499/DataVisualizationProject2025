@@ -32,7 +32,7 @@ const datasetFlights = await FileAttachment("./data/flights_data.csv").csv({ typ
 return {datasetFlights};
 }});
 
-define({id: "41aaca5b", inputs: ["datasetFlights","Inputs"], outputs: ["d3","getHour","getDayOfWeek","availableYears","availableMonths","selectedYear","selectedMonth","autoplayInterval","isAutoplayActive","filterData","processHeatmapData","drawHeatmap","toggleAutoplay"], body: async (datasetFlights,Inputs) => {
+define({id: "8f77ec8d", inputs: ["datasetFlights","Inputs"], outputs: ["d3","getHour","getDayOfWeek","availableYears","availableMonths","selectedYear","selectedMonth","autoplayInterval","isAutoplayActive","filterData","processHeatmapData","drawHeatmap","toggleAutoplay"], body: async (datasetFlights,Inputs) => {
 // Load necessary D3 libraries
 const d3 = await import("https://cdn.jsdelivr.net/npm/d3@7/+esm");
 
@@ -124,7 +124,7 @@ function drawHeatmap() {
 
   const minDelay = d3.min(heatmapData, d => d.avgDelay);
   const maxDelay = d3.max(heatmapData, d => d.avgDelay);
-  const colorScale = d3.scaleDiverging().domain([maxDelay, 0, minDelay]).interpolator(d3.interpolateRdYlGn);
+  const colorScale = d3.scaleDiverging().domain([minDelay, 0, maxDelay]).interpolator(d3.interpolateRdYlGn);
 
   const container = d3.select("#heatmap-container");
   container.select("svg").remove();
@@ -177,13 +177,17 @@ function drawHeatmap() {
     .call(d3.axisLeft(yScale));
 
   // Centered Legend
-  const legendWidth = 500, legendHeight = 15;
+  const legendWidth = 600, legendHeight = 15;
   const legendX = (width - legendWidth) / 2;
   const legendSvg = svg.append("g").attr("transform", `translate(${legendX}, ${margin.top - 90})`);
 
-  const legendScale = d3.scaleLinear().domain([maxDelay, minDelay]).range([0, legendWidth]);
-  const legendAxis = d3.axisBottom(legendScale).tickValues([maxDelay, Math.round(maxDelay / 2), minDelay]).tickFormat(d => `${Math.round(d)} min`);
-  
+  const legendScale = d3.scaleLinear().domain([minDelay, maxDelay]).range([0, legendWidth]);
+  const legendAxis = d3.axisBottom(legendScale)
+    .tickValues([minDelay, Math.round(maxDelay / 2), maxDelay, 0]) // Add 0 to the tick values
+    .tickFormat(d => {
+      return d === 0 ? "" : `${Math.round(d)} min`; // Hide text for 0
+    })
+    .tickSizeOuter(0); // Remove the outer ticks
 
   const legendGradient = legendSvg.append("defs").append("linearGradient")
     .attr("id", "legend-gradient")
@@ -194,7 +198,18 @@ function drawHeatmap() {
   legendGradient.append("stop").attr("offset", "100%").attr("stop-color", colorScale(minDelay));
 
   legendSvg.append("rect").attr("width", legendWidth).attr("height", legendHeight).style("fill", "url(#legend-gradient)");
-  legendSvg.append("g").attr("transform", `translate(0, ${legendHeight})`).call(legendAxis);
+
+  const legendAxisGroup = legendSvg.append("g").attr("transform", `translate(0, ${legendHeight})`).call(legendAxis);
+
+  // Append a white line for zero
+  legendAxisGroup.selectAll(".tick")
+    .filter(d => d === 0)
+    .append("line")
+    .attr("y1", -legendHeight)
+    .attr("y2", 0)
+    .attr("stroke", "white")
+    .attr("stroke-width", 2);
+
   legendSvg.append("text").attr("x", legendWidth / 2).attr("y", -10).attr("text-anchor", "middle").style("fill", "white").text("Avg Delay (min)");
 }
 
@@ -245,204 +260,224 @@ selectedMonth
 ))
 }});
 
-define({id: "d0404283", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","viewToggle","resetZoomButton","width","height","margin","selectedCategory","drawStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
-//  Define Seasons
+define({id: "26028b5d", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","viewToggle","resetZoomButton","width","height","margin","selectedCategory","drawStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
+//  Define Seasons
 const seasons = ["Winter", "Spring", "Summer", "Fall"];
 
-//  Function to Assign Season to Each Flight
+//  Function to Assign Season to Each Flight
 function getSeason(date) {
-  const month = new Date(date).getMonth() + 1; // Convert to 1-based month
-  if ([12, 1, 2].includes(month)) return "Winter";
-  if ([3, 4, 5].includes(month)) return "Spring";
-  if ([6, 7, 8].includes(month)) return "Summer";
-  return "Fall"; // September, October, November
+  const month = new Date(date).getMonth() + 1; // Convert to 1-based month
+  if ([12, 1, 2].includes(month)) return "Winter";
+  if ([3, 4, 5].includes(month)) return "Spring";
+  if ([6, 7, 8].includes(month)) return "Summer";
+  return "Fall"; // September, October, November
 }
 
-//  Assign Season to Each Flight (Preprocessed for Speed)
+//  Assign Season to Each Flight (Preprocessed for Speed)
 datasetFlights.forEach(d => {
-  d.FL_DATE = new Date(d.FL_DATE);
-  d.SEASON = getSeason(d.FL_DATE);
+  d.FL_DATE = new Date(d.FL_DATE);
+  d.SEASON = getSeason(d.FL_DATE);
 });
 
-//  Define Delay Categories
+//  Define Delay Categories
 const delayCategories = ["Carrier", "NAS", "Late Aircraft", "Weather", "Security"];
 
-//  Compute Delay Counts per (Delay Type, Season)
+//  Compute Delay Counts per (Delay Type, Season)
 const delayCounts = d3.rollups(
-  datasetFlights.filter(d => delayCategories.includes(d.DELAY_CATEGORY)), // Only relevant delays
-  v => v.length, // Count flights per delay type
-  d => d.DELAY_CATEGORY,
-  d => d.SEASON
+  datasetFlights.filter(d => delayCategories.includes(d.DELAY_CATEGORY)), // Only relevant delays
+  v => v.length, // Count flights per delay type
+  d => d.DELAY_CATEGORY,
+  d => d.SEASON
 );
 
-//  Convert Data to Percentage Format
+//  Convert Data to Percentage Format
 function getStackedData(percentageView) {
-  const rawData = Object.fromEntries(delayCounts.map(([category, seasons]) => [
-    category,
-    Object.fromEntries(seasons)
-  ]));
+  const rawData = Object.fromEntries(delayCounts.map(([category, seasons]) => [
+    category,
+    Object.fromEntries(seasons)
+  ]));
 
-  const stackedData = delayCategories.map(category => {
-    const categoryData = rawData[category] || {};
-    const totalDelays = d3.sum(Object.values(categoryData));
+  const stackedData = delayCategories.map(category => {
+    const categoryData = rawData[category] || {};
+    const totalDelays = d3.sum(Object.values(categoryData));
 
-    return {
-      category,
-      ...categoryData,
-      total: percentageView ? totalDelays : 1, // Normalize for percentage view
-    };
-  });
+    return {
+      category,
+      ...categoryData,
+      total: percentageView ? totalDelays : 1, // Normalize for percentage view
+    };
+  });
 
-  return stackedData;
+  return stackedData;
 }
 
-//  Create View Toggle (Absolute vs Percentage)
+//  Create View Toggle (Absolute vs Percentage)
 const viewToggle = Inputs.radio(["Absolute Numbers", "Percentage"], {
-  label: "📊 View Mode",
-  value: "Absolute Numbers" // Default mode
+  label: "📊 View Mode",
+  value: "Absolute Numbers" // Default mode
 });
 
-//  Create Reset Zoom Button
+//  Create Reset Zoom Button
 const resetZoomButton = Inputs.button("🔍 Reset Zoom");
 
-//  Define Chart Dimensions
+//  Define Chart Dimensions
 const width = 900, height = 500, margin = { top: 50, right: 80, bottom: 80, left: 100 };
 
-//  Track Selected Category for Zoom
+//  Track Selected Category for Zoom
 let selectedCategory = null;
 
-//  Create Stacked Chart
+//  Create Stacked Chart
 function drawStackedBarChart() {
-  console.log("📊 Drawing Chart in:", viewToggle.value, "| Zoomed on:", selectedCategory);
+  const percentageView = viewToggle.value === "Percentage";
+  let data = getStackedData(percentageView);
 
-  const percentageView = viewToggle.value === "Percentage";
-  let data = getStackedData(percentageView);
+  //  Filter data if zoomed on a specific category
+  if (selectedCategory) {
+    data = data.filter(d => d.category === selectedCategory);
+  }
 
-  //  Filter data if zoomed on a specific category
-  if (selectedCategory) {
-    data = data.filter(d => d.category === selectedCategory);
-  }
+  //  Get Dynamic Y-Axis Max Value
+  const maxTotal = d3.max(data, d => d3.sum(seasons.map(season => d[season] || 0)));
 
-  //  Get Dynamic Y-Axis Max Value
-  const maxTotal = d3.max(data, d => d3.sum(seasons.map(season => d[season] || 0)));
+  //  Define Scales
+  const xScale = d3.scaleBand()
+    .domain(data.map(d => d.category))
+    .range([margin.left, width - margin.right])
+    .padding(0.3);
 
-  //  Define Scales
-  const xScale = d3.scaleBand()
-    .domain(data.map(d => d.category))
-    .range([margin.left, width - margin.right])
-    .padding(0.3);
+  const yScaleLeft = d3.scaleLinear()
+    .domain([0, percentageView ? 100 : maxTotal]) // Adjust for percentage view
+    .nice()
+    .range([height - margin.bottom, margin.top]);
 
-  const yScaleLeft = d3.scaleLinear()
-    .domain([0, percentageView ? 100 : maxTotal]) // Adjust for percentage view
-    .nice()
-    .range([height - margin.bottom, margin.top]);
+  const yScaleRight = d3.scaleLinear()
+    .domain([0, 100]) // Percentage always 0-100%
+    .nice()
+    .range([height - margin.bottom, margin.top]);
 
-  const yScaleRight = d3.scaleLinear()
-    .domain([0, 100]) // Percentage always 0-100%
-    .nice()
-    .range([height - margin.bottom, margin.top]);
+  // Define the custom color scale
+  const colorScale = d3.scaleOrdinal()
+    .domain(seasons)
+    .range(["#8cacc6", "#e598be", "#93c47d", "#fbb95d"]); // Light blue, light pink, light green, light orange
 
-  const colorScale = d3.scaleOrdinal(d3.schemeSet2)
-    .domain(seasons);
+  //  Select Container
+  const container = d3.select("#stacked-chart-container");
 
-  //  Select Container
-  const container = d3.select("#stacked-chart-container");
+  //  Remove Old SVG
+  container.select("svg").remove();
 
-  //  Remove Old SVG
-  container.select("svg").remove();
+  //  Create SVG
+  const svg = container.append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .style("font", "12px sans-serif");
 
-  //  Create SVG
-  const svg = container.append("svg")
-    .attr("width", width)
-    .attr("height", height)
-    .style("font", "12px sans-serif");
+  //  Tooltip
+  const tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("position", "absolute")
+    .style("background", "rgba(0, 0, 0, 0.8)")
+    .style("color", "white")
+    .style("padding", "6px 10px")
+    .style("border-radius", "5px")
+    .style("font-size", "12px")
+    .style("pointer-events", "none")
+    .style("display", "none");
 
-  //  Tooltip
-  const tooltip = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("position", "absolute")
-    .style("background", "rgba(0, 0, 0, 0.8)")
-    .style("color", "white")
-    .style("padding", "6px 10px")
-    .style("border-radius", "5px")
-    .style("font-size", "12px")
-    .style("pointer-events", "none")
-    .style("display", "none");
+  //  Stack Data
+  const stackedSeries = d3.stack()
+    .keys(seasons)
+    .value((d, key) => (d[key] || 0) / d.total * (percentageView ? 100 : 1)) // Normalize for percentage
+    (data);
 
-  //  Stack Data
-  const stackedSeries = d3.stack()
-    .keys(seasons)
-    .value((d, key) => (d[key] || 0) / d.total * (percentageView ? 100 : 1)) // Normalize for percentage
-    (data);
+  //  Draw Stacked Bars
+  svg.append("g")
+    .selectAll("g")
+    .data(stackedSeries)
+    .join("g")
+    .attr("fill", d => colorScale(d.key))
+    .selectAll("rect")
+    .data(d => d)
+    .join("rect")
+    .attr("x", d => xScale(d.data.category))
+    .attr("y", d => yScaleLeft(d[1]))
+    .attr("height", d => yScaleLeft(d[0]) - yScaleLeft(d[1]))
+    .attr("width", xScale.bandwidth())
+    .on("mouseover", function(event, d) {
+      const season = d3.select(this.parentNode).datum().key;
+      const percentage = Math.round(d[1] - d[0]);
 
-  //  Draw Stacked Bars
-  svg.append("g")
-    .selectAll("g")
-    .data(stackedSeries)
-    .join("g")
-    .attr("fill", d => colorScale(d.key))
-    .selectAll("rect")
-    .data(d => d)
-    .join("rect")
-    .attr("x", d => xScale(d.data.category))
-    .attr("y", d => yScaleLeft(d[1]))
-    .attr("height", d => yScaleLeft(d[0]) - yScaleLeft(d[1]))
-    .attr("width", xScale.bandwidth())
-    .on("mouseover", function(event, d) {
-      const season = d3.select(this.parentNode).datum().key;
-      const percentage = Math.round(d[1] - d[0]);
+      d3.select(this).style("opacity", 0.7);
+      tooltip.style("display", "block")
+        .html(`
+          <strong>${d.data.category}</strong><br>
+          Season: ${season}<br>
+          ${percentageView ? "Percentage: " : "Delays: "} ${percentage}${percentageView ? "%" : ""}
+        `);
+    })
+    .on("mousemove", event => {
+      tooltip.style("top", `${event.pageY + 10}px`).style("left", `${event.pageX + 10}px`);
+    })
+    .on("mouseout", function () {
+      d3.select(this).style("opacity", 1);
+      tooltip.style("display", "none");
+    })
+    .on("click", function(event, d) {
+      selectedCategory = selectedCategory === d.data.category ? null : d.data.category;
+      //  Hide tooltip when zooming
+      tooltip.style("display", "none");
+      drawStackedBarChart(); //  Redraw chart with zoom
+    });
 
-      d3.select(this).style("opacity", 0.7);
-      tooltip.style("display", "block")
-        .html(`
-          <strong>${d.data.category}</strong><br>
-          Season: ${season}<br>
-          ${percentageView ? "Percentage: " : "Delays: "} ${percentage}${percentageView ? "%" : ""}
-        `);
-    })
-    .on("mousemove", event => {
-      tooltip.style("top", `${event.pageY + 10}px`).style("left", `${event.pageX + 10}px`);
-    })
-    .on("mouseout", function () {
-      d3.select(this).style("opacity", 1);
-      tooltip.style("display", "none");
-    })
-    .on("click", function(event, d) {
-      selectedCategory = selectedCategory === d.data.category ? null : d.data.category;
-      //  Hide tooltip when zooming
-      tooltip.style("display", "none");
-      drawStackedBarChart(); //  Redraw chart with zoom
-    });
+  //  X Axis (Delay Categories)
+  svg.append("g")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(xScale))
+    .selectAll("text")
+    .style("fill", "white")
+    .style("font-size", "14px");
 
-  //  X Axis (Delay Categories)
-  svg.append("g")
-    .attr("transform", `translate(0,${height - margin.bottom})`)
-    .call(d3.axisBottom(xScale))
-    .selectAll("text")
-    .style("fill", "white")
-    .style("font-size", "14px");
+  //  Y Axis (Left - Absolute/Percentage)
+  svg.append("g")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(yScaleLeft).tickFormat(d => percentageView ? `${d}%` : d))
+    .selectAll("text")
+    .style("fill", "white")
+    .style("font-size", "14px");
+  const legend = svg.append("g")
+    .attr("transform", `translate(${width - margin.right + 20}, ${margin.top})`)
+    .style("font-size", "12px");
 
-  //  Y Axis (Left - Absolute/Percentage)
-  svg.append("g")
-    .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(yScaleLeft).tickFormat(d => percentageView ? `${d}%` : d))
-    .selectAll("text")
-    .style("fill", "white")
-    .style("font-size", "14px");
+  //  Legend
+  seasons.forEach((season, i) => {
+    const legendRow = legend.append("g")
+      .attr("transform", `translate(-40, ${i * 20})`);
 
-  //  Reset Zoom Button
-  resetZoomButton.onclick = () => {
-    selectedCategory = null;
-    drawStackedBarChart();
-  };
+    legendRow.append("rect")
+      .attr("width", 15)
+      .attr("height", 15)
+      .attr("fill", colorScale(season));
+
+    legendRow.append("text")
+      .attr("x", 20)
+      .attr("y", 13)
+      .attr("text-anchor", "start")
+      .text(season)
+      .style("fill", "white");
+  });
+
+  //  Reset Zoom Button
+  resetZoomButton.onclick = () => {
+    selectedCategory = null;
+    drawStackedBarChart();
+  };
 }
 
-//  Initial Render
+//  Initial Render
 drawStackedBarChart();
 
-//  Update Chart when View Changes
+//  Update Chart when View Changes
 viewToggle.addEventListener("input", drawStackedBarChart);
-
 return {seasons,getSeason,delayCategories,delayCounts,getStackedData,viewToggle,resetZoomButton,width,height,margin,selectedCategory,drawStackedBarChart};
 }});
 
@@ -591,7 +626,7 @@ scatterSvg.append("line")
 return {scatterData,processedScatterData,scatterStats,scatterWidth,scatterHeight,scatterMargin,scatterXScale,scatterYScale,scatterSizeScale,scatterColorScale,scatterContainer,scatterSvg,scatterTooltip};
 }});
 
-define({id: "5d61ce44", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usMap","getSeason","airportDelays","airportCoords","airportData","width","height","projection","path","container","svg","tooltip","colorScale","sizeScale","selectedSeason","updateMap"], body: async (d3,datasetFlights,Inputs) => {
+define({id: "73fe6ac1", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usMap","getSeason","airportDelays","airportCoords","airportData","width","height","projection","path","container","svg","tooltip","colorScale","sizeScale","selectedSeason","updateMap"], body: async (d3,datasetFlights,Inputs) => {
 //  Load necessary D3 libraries and US States GeoJSON
 const topojson = await import("https://cdn.jsdelivr.net/npm/topojson@3/+esm");
 const usMap = await d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json");
@@ -767,7 +802,6 @@ function updateMap() {
         .attr("cy", d => projection(d.coords)[1])
         .attr("r", d => sizeScale(d.totalFlights))
         .attr("fill", d => {
-          console.log(`avgDelay for ${d.airport}: ${d.avgDelay}`); // Log avgDelay for debugging
           return colorScale(d.avgDelay); // Ensure avgDelay is correctly mapped to the color scale
         })
         .attr("stroke", "#222")
@@ -798,7 +832,7 @@ function updateMap() {
 
   //  Define the color scale legend (Update the legend as well)
   const legend = svg.append("g")
-    .attr("transform", `translate(${width - 250}, 30)`); // Position the legend on the right
+    .attr("transform", `translate(-100, 20)`); // Position the legend on the right
 
   //  Add a gradient for the color scale
   legend.append("defs")
@@ -855,7 +889,6 @@ selectedSeason.addEventListener("input", updateMap);
 
 //  Initial Map Render
 updateMap();
-
 return {topojson,usMap,getSeason,airportDelays,airportCoords,airportData,width,height,projection,path,container,svg,tooltip,colorScale,sizeScale,selectedSeason,updateMap};
 }});
 
@@ -883,9 +916,9 @@ return {topojson,usMap,getSeason,airportDelays,airportCoords,airportData,width,h
 <div>Contents</div>
 <ol>
 <li class="observablehq-secondary-link"><a href="#flight-delays-by-day-and-hour-heatmap">Flight Delays by Day &amp; Hour (Heatmap)</a></li>
-<li class="observablehq-secondary-link"><a href="#percentage-of-delays-by-reason">Percentage of Delays by Reason 📊</a></li>
-<li class="observablehq-secondary-link"><a href="#flight-distance-vs-average-delay-per-airline">Flight Distance vs. Average Delay per Airline</a></li>
-<li class="observablehq-secondary-link"><a href="#flight-delays-1">Flight Delays ⏳</a></li>
+<li class="observablehq-secondary-link"><a href="#number-or-percentage-of-delays-by-reason-bar-chart">Number or Percentage of Delays by Reason (Bar chart)</a></li>
+<li class="observablehq-secondary-link"><a href="#flight-distance-vs-average-delay-per-airline-bubble-chart">Flight distance vs. average delay per airline (Bubble chart)</a></li>
+<li class="observablehq-secondary-link"><a href="#flight-delays-for-company-map">Flight Delays for company (Map)</a></li>
 </ol>
 </nav>
 </aside>
@@ -895,7 +928,7 @@ return {topojson,usMap,getSeason,airportDelays,airportCoords,airportData,width,h
 <h2 id="flight-delays-by-day-and-hour-heatmap" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays-by-day-and-hour-heatmap">Flight Delays by Day &amp; Hour (Heatmap)</a></h2>
 <br>
 <div class="observablehq observablehq--block"><!--:6dc3996e:--></div>
-<div class="observablehq observablehq--block"><!--:41aaca5b:--></div>
+<div class="observablehq observablehq--block"><!--:8f77ec8d:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:412119be:--></div>
@@ -905,9 +938,14 @@ return {topojson,usMap,getSeason,airportDelays,airportCoords,airportData,width,h
   <div class="grid grid-cols-1"><div class="card" style="display: flex; justify-content: center; align-items: center;"><div id="heatmap-container"></div></div>
 </div>
 </div>
+<div>This heat map shows the average delay in minutes for US airlines in 2022. The y-axis represents days of the week (Sun-Sat) and the x-axis represents hours of the day (0:00 to 23:00). The intensity of the color indicates the average delay, with green representing shorter or even negative delays (early arrivals), the white line representing no delay or advance (0 min), and red representing longer delays.</div>
 <br>
-<h2 id="percentage-of-delays-by-reason" tabindex="-1"><a class="observablehq-header-anchor" href="#percentage-of-delays-by-reason">Percentage of Delays by Reason 📊</a></h2>
-<div class="observablehq observablehq--block"><!--:d0404283:--></div>
+<h2 id="number-or-percentage-of-delays-by-reason-bar-chart" tabindex="-1"><a class="observablehq-header-anchor" href="#number-or-percentage-of-delays-by-reason-bar-chart">Number or Percentage of Delays by Reason (Bar chart)</a></h2>
+<div>
+<p>MCO	Orlando Intl	Florida (FL)	High leisure travel volume</p>
+<p>SEA	Seattle-Tacoma Intl	Washington (WA)	Important West Coast gateway</p>
+</div>
+<div class="observablehq observablehq--block"><!--:26028b5d:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 110px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:fd613d63:--></div>
@@ -915,41 +953,41 @@ return {topojson,usMap,getSeason,airportDelays,airportCoords,airportData,width,h
   </div>
   <div class="grid grid-cols-1"><div class="card" style="display: flex; justify-content: center; align-items: center;"><div id="stacked-chart-container"></div></div></div>
 </div>
-<p>
-</p><p>MCO	Orlando Intl	Florida (FL)	High leisure travel volume</p>
-<p>SEA	Seattle-Tacoma Intl	Washington (WA)	Important West Coast gateway</p>
-<p></p>
+<div>
+The x-axis lists the major delay categories: Carrier, NAS (National Aviation System), Late Aircraft, Weather, and Security. The y-axis represents the absolute number of delays.
+Each bar is divided into colored segments, and the height of each segment indicates the number of delays attributed to a specific factor within that major category. The different colored sections within the bars show the number of those delays divided by season (Winter, Spring, Summer, Fall). In addition, it is possible to view the percentage distribution of flight delays, on the y-axis, for different causes, by changing the view using the button.
+</div>
 <br>
-<h2 id="flight-distance-vs-average-delay-per-airline" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-distance-vs-average-delay-per-airline">Flight Distance vs. Average Delay per Airline</a></h2>
+<h2 id="flight-distance-vs-average-delay-per-airline-bubble-chart" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-distance-vs-average-delay-per-airline-bubble-chart">Flight distance vs. average delay per airline (Bubble chart)</a></h2>
 <div class="observablehq observablehq--block"><!--:15498d0d:--></div>
 <div class="grid grid-cols-1">  
   <div class="card" style="display: flex; justify-content: center; align-items: center;">
     <div id="scatter-container"></div>
   </div>
 </div> 
+<div>This chart is a Bubble plot that focuses on data for airlines. It shows the relationship between the average flight distance (in miles) on the x-axis and the average delay (in minutes) on the y-axis.
+The circle specifically represents an airline with several pieces of information about it: the average flight distance in miles, the average delay in minutes, the number of flights considered in the average.</div>
 <br>
-<h1 id="flight-delays-1" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays-1">Flight Delays ⏳</a></h1>
-<h2 id="percentage-of-delays-by-reason-1" tabindex="-1"><a class="observablehq-header-anchor" href="#percentage-of-delays-by-reason-1">Percentage of Delays by Reason 📊</a></h2>
-<div class="observablehq observablehq--block"><!--:5d61ce44:--></div>
+<h2 id="flight-delays-for-company-map" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays-for-company-map">Flight Delays for company (Map)</a></h2>
+<div class="observablehq observablehq--block"><!--:73fe6ac1:--></div>
 <div class="grid grid-cols-1">
   <div class="card" style="display: flex; justify-content: center; align-items: center;">
     <div id="airport-map-container"></div>
   </div>
 </div>
-<p>
-</p><p>Airports with negative delays (flights arrive early) → Green</p>
-<p>Airports with 0 delay (on time) → White</p>
-<p>Airports with high average delays (30+ mins) → Red</p>
-<p>This ensures that:</p>
-<p>Red indicates airports with severe delays.</p>
-<p>Green indicates airports where flights tend to arrive early.</p>
-<p>White or Yellowish means the airport is closer to 0 average delay (on-time flights).</p>
-<p>If an airport is a different shade from others, it means its average delay is significantly different from the others.</p>
-<p></p>
+<div>
+This chart is a map of the United States showing average flight delays at different airports. Each circle on the map represents an airport.
+The color of the circle indicates the average delay status: <br>
+- Red suggests that flights at this airport tend to be delayed. <br>
+- Yellow/orange suggests that flights are generally on time. <br>
+- Green suggests that flights tend to be early. <br>
+The size of the circle likely represents the volume of flights at that particular airport; larger circles would indicate a greater number of flights.
+Hovering over or selecting an airport would provide more specific details about its average delay and number of flights.
+</div>
 </main>
 <footer id="observablehq-footer">
 <nav><a rel="prev" href="./2airline-performance"><span>Airline performance</span></a><a rel="next" href="./4airport-statistics"><span>Airport statistics</span></a></nav>
-<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-23T18:06:57">Mar 23, 2025</a>.</div>
+<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-24T13:15:50">Mar 24, 2025</a>.</div>
 </footer>
 </div>
 </body>

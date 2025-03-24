@@ -21,6 +21,11 @@ const covidStartDate = new Date("2020-03-01");
 <br>
 
 ## Flight Volume Over Time (Line Chart)
+
+<div> 
+The chart shows the monthly flight volume from April 2019 to July 2023. We can observe a clear drop in the number of flights around April 2020, coinciding with the start of the COVID-19 pandemic. After the initial drop, flight volume gradually recovered, showing peaks and troughs, but generally trending upwards towards pre-pandemic levels by mid-2022. In 2023, the flight volume appears to be somewhat lower than the peaks observed in 2019 but is still significantly higher than the low point during the pandemic.
+</div>
+
 ```js
 const stateNameMap = {
   "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
@@ -228,9 +233,6 @@ smoothLine.addEventListener("input", () => {
 </div>
 
 
-<div> 
-The chart shows the monthly flight volume from April 2019 to July 2023. We can observe a clear drop in the number of flights around April 2020, coinciding with the start of the COVID-19 pandemic. After the initial drop, flight volume gradually recovered, showing peaks and troughs, but generally trending upwards towards pre-pandemic levels by mid-2022. In 2023, the flight volume appears to be somewhat lower than the peaks observed in 2019 but is still significantly higher than the low point during the pandemic.
-</div>
 <div>
 The chart allows for filtering by airline and destination state, so we could potentially identify if air travel increases in certain months or if specific airlines dominate particular destinations by applying those filters
 The blue line shows the number of flights per day. The filters can be use to select a specific airline or destination. The red dashed line marks the start of COVID-19 (March 2020) and the toggle Smooth Line can adjust visualization. </div> 
@@ -239,6 +241,10 @@ The blue line shows the number of flights per day. The filters can be use to sel
 
 
 ## Destination density flight (Map)
+
+<div> 
+This is a geographical view of flight density per state, filtered by year and airline, helps identify the busiest regions. Flight volume fluctuates over time and it is influenced by different conditions: seasons, airline operations, and passenger demand.
+</div> 
 
 ```js
 const topojson = await import("https://cdn.jsdelivr.net/npm/topojson@3/+esm");
@@ -466,10 +472,6 @@ updateMap();
   </div>
 </div>
 
-<div> 
-This is a geographical view of flight density per state, filtered by year and airline, helps identify the busiest regions. Flight volume fluctuates over time and it is influenced by different conditions: seasons, airline operations, and passenger demand.
-</div> 
-<br>
 <div> 
 This interactive flight map displays USA flight routes, with all airlines currently selected. The map uses color shading to represent flight density across different states. States with a higher volume of flights are shaded in darker blue, while those with fewer flights are in lighter shades. The legend indicates the ranges for the number of flights corresponding to each color intensity. For example, the darkest blue represents states with 665 or more flights. This visualization allows users to quickly identify the most common flight destinations within the United States for the selected year.
 

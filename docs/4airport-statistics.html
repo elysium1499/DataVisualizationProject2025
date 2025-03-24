@@ -22,12 +22,9 @@ import {registerFile} from "./_observablehq/stdlib.fc5dbcd7.js";
 
 registerFile("./data/flights_data.csv", {"name":"./data/flights_data.csv","mimeType":"text/csv","path":"./_file/data/flights_data.925f7b17.csv","lastModified":1741526889746,"size":13659204});
 
-define({id: "8e1b472a", inputs: ["FileAttachment"], outputs: ["datasetFlights","d3","airportStateMap","airportFlightCounts","topAirports","filteredDataset","airportStats","sortedAirportStats","width","height","margin","xScale","yScale","baseColors","extraColors","fullColorPalette","colorScale","container","svg","tooltip","stateGroups"], body: async (FileAttachment) => {
+define({id: "fdc15201", inputs: ["FileAttachment"], outputs: ["datasetFlights","d3","airportStateMap","airportFlightCounts","topAirports","filteredDataset","airportStats","sortedAirportStats","width","height","margin","xScale","yScale","baseColors","extraColors","fullColorPalette","colorScale","container","svg","tooltip","stateGroups"], body: async (FileAttachment) => {
 // Load dataset
 const datasetFlights = await FileAttachment("./data/flights_data.csv").csv({ typed: true });
-console.log("🛠 Data loaded:", datasetFlights); // Debugging
-
-console.log("🚀 Box plot function is running!");
 
 // Load necessary D3 libraries
 const d3 = await import("https://cdn.jsdelivr.net/npm/d3@7/+esm");
@@ -80,7 +77,7 @@ const sortedAirportStats = airportStats.sort((a, b) =>
 );
 
 // Set up Dimensions
-const width = 1000, height = 650, margin = { top: 50, right: 50, bottom: 150, left: 80 };
+const width = 950, height = 550, margin = { top: 100, right: 50, bottom: 130, left: 50 };
 
 // Define Scales
 const xScale = d3.scaleBand()
@@ -272,9 +269,7 @@ stateGroups.forEach(([state, airports], i) => {
 return {datasetFlights,d3,airportStateMap,airportFlightCounts,topAirports,filteredDataset,airportStats,sortedAirportStats,width,height,margin,xScale,yScale,baseColors,extraColors,fullColorPalette,colorScale,container,svg,tooltip,stateGroups};
 }});
 
-define({id: "36b1138b", inputs: ["datasetFlights","tooltip"], outputs: ["d3","airportStateMap","selectedAirports","filteredDataset","airportStats","maxDelay","maxCancellations","maxDiverted","numAxes","radius","angleSlice","colorScale","container","chartWidth","chartHeight"], body: async (datasetFlights,tooltip) => {
-console.log("🚀 Small Multiples Radar Chart with Airport Labels!");
-
+define({id: "70039870", inputs: ["datasetFlights","tooltip"], outputs: ["d3","airportStateMap","selectedAirports","filteredDataset","airportStats","maxDelay","maxCancellations","maxDiverted","numAxes","radius","angleSlice","colorScale","container","chartWidth","chartHeight"], body: async (datasetFlights,tooltip) => {
 // Load necessary D3 libraries
 const d3 = await import("https://cdn.jsdelivr.net/npm/d3@7/+esm");
 
@@ -456,46 +451,55 @@ return {d3,airportStateMap,selectedAirports,filteredDataset,airportStats,maxDela
 <nav>
 <div>Contents</div>
 <ol>
-<li class="observablehq-secondary-link"><a href="#flight-delay-distribution-by-airport">Flight Delay Distribution by Airport</a></li>
-<li class="observablehq-secondary-link"><a href="#airport-performance-on-delays-cancellations-and-diversions">Airport Performance on Delays, Cancellations, and Diversions</a></li>
+<li class="observablehq-secondary-link"><a href="#flight-delay-distribution-by-airport-box-plot">Flight Delay Distribution by Airport (Box plot)</a></li>
+<li class="observablehq-secondary-link"><a href="#airport-performance-on-delays-cancellations-and-diversions-radar-chart">Airport Performance on Delays, Cancellations, and Diversions (Radar chart)</a></li>
 </ol>
 </nav>
 </aside>
 <main id="observablehq-main" class="observablehq">
 <h1 id="airport-statistics" tabindex="-1"><a class="observablehq-header-anchor" href="#airport-statistics">Airport statistics 📍</a></h1>
 <br>
-<h2 id="flight-delay-distribution-by-airport" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delay-distribution-by-airport">Flight Delay Distribution by Airport</a></h2>
+<h2 id="flight-delay-distribution-by-airport-box-plot" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delay-distribution-by-airport-box-plot">Flight Delay Distribution by Airport (Box plot)</a></h2>
 <h3 id="flight-delay-distribution-of-top-20-busiest-airports-grouped-by-state" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delay-distribution-of-top-20-busiest-airports-grouped-by-state">Flight Delay Distribution of Top 20 Busiest Airports (Grouped by State)</a></h3>
-<div class="observablehq observablehq--block"><!--:8e1b472a:--></div>
+<div class="observablehq observablehq--block"><!--:fdc15201:--></div>
 <div class="grid grid-cols-1">
-  <div class="card" style="display: flex; justify-content: center; align-items: center;">
+  <div class="card" style="display: flex; justify-content: center; align-items: center; height: 450px;">
     <div id="boxplot-container"></div> 
   </div>
 </div> 
+<div> This chart is a box plot showing the distribution of flight delays (in minutes) for various airports in the United States.
+The y-axis represents the average delay in minutes where negative values ​​indicate that flights arrived early.
+The x-axis lists several airport codes. Under each airport code, the corresponding status is mentioned.
+Each box plot provides a summary of the delay distribution for a specific airport:<br>
+- The bottom whisker indicates the minimum delay experienced.<br>
+- The bottom of the box represents the first quartile (Q1).<br>
+- The white line inside the box represents the median delay.<br>
+- The top of the box represents the third quartile (Q3).<br>
+- The top of the box represents the maximum delay experienced. <br>
+Hovering over the box shows the previously discussed statistics. <br><br>
+By comparing box plots for different airports, you can see which airports tend to have the most delays, the typical delay time, and the variability of delays.</div>
 <br>
-<h2 id="airport-performance-on-delays-cancellations-and-diversions" tabindex="-1"><a class="observablehq-header-anchor" href="#airport-performance-on-delays-cancellations-and-diversions">Airport Performance on Delays, Cancellations, and Diversions</a></h2>
-<div class="observablehq observablehq--block"><!--:36b1138b:--></div>
+<h2 id="airport-performance-on-delays-cancellations-and-diversions-radar-chart" tabindex="-1"><a class="observablehq-header-anchor" href="#airport-performance-on-delays-cancellations-and-diversions-radar-chart">Airport Performance on Delays, Cancellations, and Diversions (Radar chart)</a></h2>
+<div>The chart provides a quick visual comparison of six major U.S. airports by displaying three key metrics related to flight disruptions: the percentage of flights diverted, an area representing the average delay, and the percentage of flights canceled.</div>
+<div class="observablehq observablehq--block"><!--:70039870:--></div>
 <div class="grid grid-cols-1">
   <div class="card">
     <div id="radar-chart-container"></div> 
   </div>
 </div> 
-<p>
-</p><p>Selected 8 Airports
-IATA Code	Airport Name	State	Reason for Selection</p>
-<p>ATL	Hartsfield-Jackson Atlanta Intl	Georgia (GA)	Busiest airport in the USA, major Delta hub</p>
-<p>ORD	Chicago O’Hare Intl	Illinois (IL)	High delays, major United &amp; American hub</p>
-<p>LAX	Los Angeles Intl	California (CA)	One of the busiest West Coast hubs</p>
-<p>DFW	Dallas/Fort Worth Intl	Texas (TX)	Largest American Airlines hub</p>
-<p>JFK	John F. Kennedy Intl	New York (NY)	Major international gateway</p>
-<p>DEN	Denver Intl	Colorado (CO)	Large hub with unique weather challenges</p>
-<p>SFO	San Francisco Intl	California (CA)	High delays due to fog/weather</p>
-<p>MCO	Orlando Intl	Florida (FL)	High leisure travel volume</p>
-<p>SEA	Seattle-Tacoma Intl	Washington (WA)	Important West Coast gateway</p>
-<p></p></main>
+<div>
+This chart shows radar charts for six of the eight airports selected (ATL, ORD, LAX, SEA, SFO, and MCO).
+Here's what the chart shows for each of these airports, keeping in mind the reasons for their selection:<br>
+- ATL (Hartsfield-Jackson Atlanta Intl, Georgia): As the busiest airport in the United States and a major Delta hub, ATL shows a moderate average delay, a very low percentage of diverted flights, and a very low percentage of cancellations. This suggests that despite its high traffic volume, ATL generally maintains efficient operations with minimal disruption in terms of diversions and cancellations.<br>
+- ORD (Chicago O'Hare Intl, Illinois): Known for high delays and being a major hub for United &amp; American, ORD's chart shows a relatively high average delay compared to the others. It also shows a very low percentage of diverted flights and a low percentage of cancellations. This is consistent with the reason for its selection: high delays.<br>
+- LAX (Los Angeles Intl, California): As one of the busiest hubs on the West Coast, LAX shows a moderate average delay, a low percentage of diverted flights, and a low percentage of cancellations.<br>
+- SEA (Seattle-Tacoma Intl, Washington): A major West Coast gateway, SEA shows a moderate average delay, a low percentage of diverted flights, and a low percentage of cancellations.<br>
+- SFO (San Francisco Intl, California): Selected because of its high delays often caused by fog/weather, SFO's chart shows a moderate average delay. It also shows a low percentage of diverted flights and a low percentage of cancellations. While the delay is not the highest of these six, it is still noticeable.<br>
+- MCO (Orlando Intl, Florida): Selected for its high volume of leisure travel, MCO has a moderate average delay, a low percentage of diverted flights, and a very low percentage of cancellations. This suggests that even with a high volume of leisure travelers, MCO experiences relatively few disruptions.
+</div></main>
 <footer id="observablehq-footer">
 <nav><a rel="prev" href="./3flight-delays"><span>Flight Delays</span></a></nav>
-<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-23T18:06:57">Mar 23, 2025</a>.</div>
+<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-24T13:15:50">Mar 24, 2025</a>.</div>
 </footer>
 </div>
 </body>
