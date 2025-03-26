@@ -12,20 +12,20 @@
 <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
 <link rel="stylesheet" type="text/css" href="./_observablehq/theme-air,near-midnight,alt,wide.db1cdf55.css">
 <link rel="stylesheet" type="text/css" href="./_observablehq/stdlib/inputs.ea9fd553.css">
-<link rel="modulepreload" href="./_observablehq/client.11d4bb04.js">
+<link rel="modulepreload" href="./_observablehq/client.cd9d3395.js">
 <link rel="modulepreload" href="./_observablehq/runtime.e080113b.js">
-<link rel="modulepreload" href="./_observablehq/stdlib.fc5dbcd7.js">
-<link rel="modulepreload" href="./_observablehq/stdlib/inputs.56af3ea0.js">
-<link rel="modulepreload" href="./_npm/d3-dsv@3.0.1/407f7a1f.js">
+<link rel="modulepreload" href="./_observablehq/stdlib.6b9c64a3.js">
+<link rel="modulepreload" href="./_observablehq/stdlib/inputs.fb95cbfe.js">
+<link rel="modulepreload" href="./_npm/d3-dsv@3.0.1/9f467835.js">
 <link rel="modulepreload" href="./_npm/htl@0.3.1/063eb405.js">
 <link rel="modulepreload" href="./_npm/isoformat@0.2.1/c68fbd73.js">
 <link rel="icon" href="./_file/observable.a92c9a52.png" type="image/png" sizes="32x32">
 <script type="module">
 
-import {define} from "./_observablehq/client.11d4bb04.js";
-import {registerFile} from "./_observablehq/stdlib.fc5dbcd7.js";
+import {define} from "./_observablehq/client.cd9d3395.js";
+import {registerFile} from "./_observablehq/stdlib.6b9c64a3.js";
 
-registerFile("./data/flights_data.csv", {"name":"./data/flights_data.csv","mimeType":"text/csv","path":"./_file/data/flights_data.925f7b17.csv","lastModified":1741526889746,"size":13659204});
+registerFile("./data/flights_data.csv", {"name":"./data/flights_data.csv","mimeType":"text/csv","path":"./_file/data/flights_data.925f7b17.csv","lastModified":1742975586506,"size":13659204});
 
 define({id: "6dc3996e", inputs: ["FileAttachment"], outputs: ["datasetFlights"], body: async (FileAttachment) => {
 const datasetFlights = await FileAttachment("./data/flights_data.csv").csv({ typed: true });
@@ -626,7 +626,7 @@ scatterSvg.append("line")
 return {scatterData,processedScatterData,scatterStats,scatterWidth,scatterHeight,scatterMargin,scatterXScale,scatterYScale,scatterSizeScale,scatterColorScale,scatterContainer,scatterSvg,scatterTooltip};
 }});
 
-define({id: "cb0c13ba", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usMap","getSeason","airportDelays","airportCoords","airportData","width","height","projection","path","container","svg","tooltip","colorScale","sizeScale","selectedSeason","updateMap"], body: async (d3,datasetFlights,Inputs) => {
+define({id: "049a4265", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usMap","getSeason","airportDelays","airportCoords","airportData","width","height","projection","path","container","svg","tooltip","colorScale","sizeScale","selectedSeason","updateMap"], body: async (d3,datasetFlights,Inputs) => {
 //  Load necessary D3 libraries and US States GeoJSON
 const topojson = await import("https://cdn.jsdelivr.net/npm/topojson@3/+esm");
 const usMap = await d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json");
@@ -689,7 +689,20 @@ const airportCoords = {
   "MOB": [-88.2428, 30.6914], "SRQ": [-82.5530, 27.3954], "TLH": [-84.3504, 30.3965],
   "TYS": [-83.9933, 35.8128], "AVL": [-82.5418, 35.4362], "SYR": [-76.1071, 43.1112],
   "BIL": [-108.5429, 45.8077], "CAK": [-81.4422, 40.9161], "LBB": [-101.8234, 33.6636],
-  "GPT": [-89.0720, 30.4120], "ECP": [-85.7956, 30.3571], "BZN": [-111.1524, 45.7770]
+  "GPT": [-89.0720, 30.4120], "ECP": [-85.7956, 30.3571], "BZN": [-111.1524, 45.7770], 
+  "ANC": [-149.9810, 61.1739], "FAI": [-147.8560, 64.8151], "SIT": [-135.3616, 57.0471],
+  "ADK": [-176.6460, 51.8779], "KTN": [-131.7112, 55.3541], "BIL": [-108.5429, 45.8077],
+  "MSO": [-114.0919, 46.9163], "GTF": [-111.3710, 47.4820], "HLN": [-111.9820, 46.6068],
+  "BTM": [-112.4975, 45.9548], "FAR": [-96.8158, 46.9207], "BIS": [-100.7467, 46.7727],
+  "GFK": [-97.1761, 47.9493], "XWA": [-103.7420, 48.2578], "JMS": [-98.6782, 46.9297],
+  "FSD": [-96.7417, 43.5820], "RAP": [-103.0572, 44.0453], "JAC": [-110.7377, 43.6073],  
+  "CPR": [-106.4634, 42.9080], "COD": [-109.0246, 44.5202], "OMA": [-95.8997, 41.3032],  
+  "LNK": [-96.7592, 40.8509], "GRI": [-98.3096, 40.9670], "DEN": [-104.6737, 39.8561],  
+  "COS": [-104.7006, 38.8058], "ASE": [-106.9177, 39.2232], "DSM": [-93.6631, 41.5339],  
+  "CID": [-91.7108, 41.8847], "SUX": [-96.3844, 42.4026], "LAS": [-115.1523, 36.0801],  
+  "RNO": [-119.7681, 39.4991], "PHX": [-112.0116, 33.4342], "TUS": [-110.9410, 32.1161],
+  "ABQ": [-106.6092, 35.0402], "SAF": [-106.0884, 35.6171], "SLC": [-111.9782, 40.7858],  
+  "SGU": [-113.5108, 37.0364]   
 };
 
 
@@ -907,6 +920,7 @@ return {topojson,usMap,getSeason,airportDelays,airportCoords,airportData,width,h
     <li class="observablehq-link"><a href="./2airline-performance">Airline performance</a></li>
     <li class="observablehq-link observablehq-link-active"><a href="./3flight-delays">Flight Delays</a></li>
     <li class="observablehq-link"><a href="./4airport-statistics">Airport statistics</a></li>
+    <li class="observablehq-link"><a href="./5navigating-the-skies-through-data">Navigating the Skies Through Data</a></li>
   </ol>
 </nav>
 <script>{const e=document.querySelector("#observablehq-sidebar"),o=document.querySelector("#observablehq-sidebar-toggle"),r=sessionStorage.getItem("observablehq-sidebar");r?o.checked=r==="true":o.indeterminate=!0;for(const t of document.querySelectorAll("#observablehq-sidebar summary")){const s=t.parentElement;switch(sessionStorage.getItem(`observablehq-sidebar:${t.textContent}`)){case"true":s.open=!0;break;case"false":s.classList.contains("observablehq-section-active")||(s.open=!1);break}}addEventListener("beforeunload",()=>sessionStorage.setItem("observablehq-sidebar-scrolly",`${e.scrollTop}`));const a=sessionStorage.getItem("observablehq-sidebar-scrolly");a!=null&&(e.style.cssText="overflow: hidden;",e.scrollTop=+a,e.style.cssText="");}</script>
@@ -915,17 +929,20 @@ return {topojson,usMap,getSeason,airportDelays,airportCoords,airportData,width,h
 <nav>
 <div>Contents</div>
 <ol>
-<li class="observablehq-secondary-link"><a href="#flight-delays-by-day-and-hour-heatmap">Flight Delays by Day &amp; Hour (Heatmap)</a></li>
-<li class="observablehq-secondary-link"><a href="#number-or-percentage-of-delays-by-reason-bar-chart">Number or Percentage of Delays by Reason (Bar chart)</a></li>
-<li class="observablehq-secondary-link"><a href="#flight-distance-vs-average-delay-per-airline-bubble-chart">Flight distance vs. average delay per airline (Bubble chart)</a></li>
-<li class="observablehq-secondary-link"><a href="#flight-delays-for-company-map">Flight Delays for company (Map)</a></li>
+<li class="observablehq-secondary-link"><a href="#flight-delays-by-day-and-hour">Flight Delays by Day &amp; Hour</a></li>
+<li class="observablehq-secondary-link"><a href="#number-or-percentage-of-delays-by-reason">Number or Percentage of Delays by Reason</a></li>
+<li class="observablehq-secondary-link"><a href="#flight-distance-vs-average-delay-per-airline">Flight distance vs. average delay per airline</a></li>
+<li class="observablehq-secondary-link"><a href="#flight-delays-for-company">Flight Delays for company</a></li>
 </ol>
 </nav>
 </aside>
 <main id="observablehq-main" class="observablehq">
 <h1 id="flight-delays" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays">Flight Delays ⏳</a></h1>
 <br>
-<h2 id="flight-delays-by-day-and-hour-heatmap" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays-by-day-and-hour-heatmap">Flight Delays by Day &amp; Hour (Heatmap)</a></h2>
+<div>
+Analyzing flight delays offers valuable insights into the operational efficiency of airlines and the overall health of the aviation industry. The "Flight Delays" dashboard provides an interactive platform to explore various dimensions of flight delays across U.S. airlines and airports. Through a series of visualizations, users can uncover patterns related to timing, causes, distances, and geographic distribution of delays. Each graph is designed with interactive features that allow for a deeper understanding of the data.
+</div>
+<h2 id="flight-delays-by-day-and-hour" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays-by-day-and-hour">Flight Delays by Day &amp; Hour</a></h2>
 <br>
 <div class="observablehq observablehq--block"><!--:6dc3996e:--></div>
 <div class="observablehq observablehq--block"><!--:8f77ec8d:--></div>
@@ -938,13 +955,20 @@ return {topojson,usMap,getSeason,airportDelays,airportCoords,airportData,width,h
   <div class="grid grid-cols-1"><div class="card" style="display: flex; justify-content: center; align-items: center;"><div id="heatmap-container"></div></div>
 </div>
 </div>
-<div>This heat map shows the average delay in minutes for US airlines in 2022. The y-axis represents days of the week (Sun-Sat) and the x-axis represents hours of the day (0:00 to 23:00). The intensity of the color indicates the average delay, with green representing shorter or even negative delays (early arrivals), the white line representing no delay or advance (0 min), and red representing longer delays.</div>
-<br>
-<h2 id="number-or-percentage-of-delays-by-reason-bar-chart" tabindex="-1"><a class="observablehq-header-anchor" href="#number-or-percentage-of-delays-by-reason-bar-chart">Number or Percentage of Delays by Reason (Bar chart)</a></h2>
 <div>
-<p>MCO	Orlando Intl	Florida (FL)	High leisure travel volume</p>
-<p>SEA	Seattle-Tacoma Intl	Washington (WA)	Important West Coast gateway</p>
+This heatmap visualizes the average delay times for U.S. airlines throughout 2022, segmented by days of the week and hours of the day. The y-axis lists the days from Sunday to Saturday, while the x-axis represents the 24-hour clock. Color intensity conveys the average delay duration:
+<ul>
+<li>Green Shades: Indicate shorter delays or early arrivals.</li>
+<li>White Line: Represents zero delay, marking on-time departures.</li>
+<li>Red Shades: Denote longer delays.</li>
+</ul>
+<p>Analyzing delays based on time of day allows users to easily identify peak congestion periods. By observing the color concentrations across different hours, it becomes clear when delays are most frequent, helping to pinpoint patterns such as morning rushes or late-night bottlenecks.</p>
+<p>Similarly, examining trends across different days of the week can reveal broader patterns in flight delays. Some days may consistently experience higher disruptions due to increased air traffic, maintenance schedules, or external factors like weather conditions. Identifying these trends can provide valuable insights for both travellers and airline operators, helping to anticipate and mitigate potential delays.</p>
+<p>By interacting with the heatmap, users can pinpoint specific times and days that are more prone to delays, aiding in strategic planning for travel or operational adjustments.</p>
 </div>
+<br>
+<h2 id="number-or-percentage-of-delays-by-reason" tabindex="-1"><a class="observablehq-header-anchor" href="#number-or-percentage-of-delays-by-reason">Number or Percentage of Delays by Reason</a></h2>
+<br>
 <div class="observablehq observablehq--block"><!--:26028b5d:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
@@ -954,40 +978,57 @@ return {topojson,usMap,getSeason,airportDelays,airportCoords,airportData,width,h
   <div class="grid grid-cols-1"><div class="card" style="display: flex; justify-content: center; align-items: center;"><div id="stacked-chart-container"></div></div></div>
 </div>
 <div>
-The x-axis lists the major delay categories: Carrier, NAS (National Aviation System), Late Aircraft, Weather, and Security. The y-axis represents the absolute number of delays.
-Each bar is divided into colored segments, and the height of each segment indicates the number of delays attributed to a specific factor within that major category. The different colored sections within the bars show the number of those delays divided by season (Winter, Spring, Summer, Fall). In addition, it is possible to view the percentage distribution of flight delays, on the y-axis, for different causes, by changing the view using the button.
+This bar chart breaks down the causes of flight delays into five main categories:
+<ol>
+<li>Carrier: Issues directly related to the airline's operations.</li>
+<li>NAS (National Aviation System): Delays due to the broader air traffic control system.</li>
+<li>Late Aircraft: Delays caused by the late arrival of the incoming aircraft.</li>
+<li>Weather: Weather-related disruptions.</li>
+<li>Security: Delays stemming from security concerns or procedures.</li>
+</ol>
+<p>Each bar is segmented by season (Winter, Spring, Summer, Fall), allowing users to observe how delay reasons fluctuate throughout the year.
+Users can switch between viewing absolute numbers of delays and percentage distributions, providing both a macro and micro perspective on the data.</p>
+<p>This visualization enables users to discern which factors predominantly contribute to delays and how their impact varies seasonally, facilitating targeted strategies to mitigate specific delay causes.</p>
 </div>
 <br>
-<h2 id="flight-distance-vs-average-delay-per-airline-bubble-chart" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-distance-vs-average-delay-per-airline-bubble-chart">Flight distance vs. average delay per airline (Bubble chart)</a></h2>
+<br>
+<h2 id="flight-distance-vs-average-delay-per-airline" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-distance-vs-average-delay-per-airline">Flight distance vs. average delay per airline</a></h2>
 <div class="observablehq observablehq--block"><!--:15498d0d:--></div>
 <div class="grid grid-cols-1">  
   <div class="card" style="display: flex; justify-content: center; align-items: center;">
     <div id="scatter-container"></div>
   </div>
 </div> 
-<div>This chart is a Bubble plot that focuses on data for airlines. It shows the relationship between the average flight distance (in miles) on the x-axis and the average delay (in minutes) on the y-axis.
-The circle specifically represents an airline with several pieces of information about it: the average flight distance in miles, the average delay in minutes, the number of flights considered in the average.</div>
+<div>
+The bubble chart examines the relationship between average flight distance and average delay time across different airlines. The x-axis represents the average flight distance in miles, while the y-axis shows the average delay in minutes. Each bubble corresponds to an airline, with:
+<ul>
+<li>Bubble Size: Indicating the number of flights considered in the average.</li>
+<li>Bubble Position: Revealing the correlation between flight distance and delay duration for that airline.</li>
+</ul>
+<p>Users can hover over each bubble to view specific data points, including the airline's name, average flight distance, average delay, and total number of flights.</p>
+<p>This chart assists in understanding whether longer flights are more susceptible to delays and how each airline's performance compares in this context, offering insights into operational efficiencies related to flight length.</p></div>
 <br>
-<h2 id="flight-delays-for-company-map" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays-for-company-map">Flight Delays for company (Map)</a></h2>
-<div class="observablehq observablehq--block"><!--:cb0c13ba:--></div>
+<br><p></p>
+<h2 id="flight-delays-for-company" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays-for-company">Flight Delays for company</a></h2>
+<div class="observablehq observablehq--block"><!--:049a4265:--></div>
 <div class="grid grid-cols-1">
   <div class="card" style="display: flex; justify-content: center; align-items: center;">
     <div id="airport-map-container"></div>
   </div>
 </div>
 <div>
-This chart is a map of the United States showing average flight delays at different airports. Each circle on the map represents an airport.
-The color of the circle indicates the average delay status: <br>
-- Red suggests that flights at this airport tend to be delayed. <br>
-- Yellow/orange suggests that flights are generally on time. <br>
-- Green suggests that flights tend to be early. <br>
-The size of the circle likely represents the volume of flights at that particular airport; larger circles would indicate a greater number of flights.
-Hovering over or selecting an airport would provide more specific details about its average delay and number of flights.
+This U.S. map displays average flight delays at various airports, with each circle representing a specific airport. The visualization uses color and size to convey information:
+  - Red: Indicates airports where flights tend to be delayed.
+  - Yellow/Orange: Suggests generally on-time performance.
+  - Green: Denotes airports where flights often arrive early.
+<p>The circle size reflects the volume of flights at that airport, with larger circles representing higher traffic.
+By hovering over a circle, users can access detailed statistics about that airport's average delay and flight volume.
+This geographic visualization allows users to identify regional patterns in flight delays, highlighting airports that may require operational improvements or those that excel in maintaining schedules.</p>
 </div>
 </main>
 <footer id="observablehq-footer">
 <nav><a rel="prev" href="./2airline-performance"><span>Airline performance</span></a><a rel="next" href="./4airport-statistics"><span>Airport statistics</span></a></nav>
-<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-24T13:22:26">Mar 24, 2025</a>.</div>
+<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-26T11:42:16">Mar 26, 2025</a>.</div>
 </footer>
 </div>
 </body>

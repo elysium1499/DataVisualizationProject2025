@@ -9,8 +9,11 @@ toc: true
 
 <br>
 
+<div>
+Analyzing flight delays offers valuable insights into the operational efficiency of airlines and the overall health of the aviation industry. The "Flight Delays" dashboard provides an interactive platform to explore various dimensions of flight delays across U.S. airlines and airports. Through a series of visualizations, users can uncover patterns related to timing, causes, distances, and geographic distribution of delays. Each graph is designed with interactive features that allow for a deeper understanding of the data.
+</div>
 
-## Flight Delays by Day & Hour (Heatmap)
+## Flight Delays by Day & Hour 
 
 <br>
 
@@ -243,18 +246,27 @@ selectedMonth.addEventListener("input", drawHeatmap);
 </div>
 </div>
 
-<div>This heat map shows the average delay in minutes for US airlines in 2022. The y-axis represents days of the week (Sun-Sat) and the x-axis represents hours of the day (0:00 to 23:00). The intensity of the color indicates the average delay, with green representing shorter or even negative delays (early arrivals), the white line representing no delay or advance (0 min), and red representing longer delays.</div>
-<br>
-
-## Number or Percentage of Delays by Reason (Bar chart)
-
 <div>
+This heatmap visualizes the average delay times for U.S. airlines throughout 2022, segmented by days of the week and hours of the day. The y-axis lists the days from Sunday to Saturday, while the x-axis represents the 24-hour clock. Color intensity conveys the average delay duration:
 
-MCO	Orlando Intl	Florida (FL)	High leisure travel volume
+- Green Shades: Indicate shorter delays or early arrivals.
+- White Line: Represents zero delay, marking on-time departures.
+- Red Shades: Denote longer delays.
 
-SEA	Seattle-Tacoma Intl	Washington (WA)	Important West Coast gateway
+Analyzing delays based on time of day allows users to easily identify peak congestion periods. By observing the color concentrations across different hours, it becomes clear when delays are most frequent, helping to pinpoint patterns such as morning rushes or late-night bottlenecks.  
+
+Similarly, examining trends across different days of the week can reveal broader patterns in flight delays. Some days may consistently experience higher disruptions due to increased air traffic, maintenance schedules, or external factors like weather conditions. Identifying these trends can provide valuable insights for both travellers and airline operators, helping to anticipate and mitigate potential delays.
+
+By interacting with the heatmap, users can pinpoint specific times and days that are more prone to delays, aiding in strategic planning for travel or operational adjustments.
 
 </div>
+<br>
+
+## Number or Percentage of Delays by Reason
+
+<br>
+
+
 
 ```js
 //  Define Seasons
@@ -484,15 +496,27 @@ viewToggle.addEventListener("input", drawStackedBarChart);
 </div>
 
 <div>
-The x-axis lists the major delay categories: Carrier, NAS (National Aviation System), Late Aircraft, Weather, and Security. The y-axis represents the absolute number of delays.
-Each bar is divided into colored segments, and the height of each segment indicates the number of delays attributed to a specific factor within that major category. The different colored sections within the bars show the number of those delays divided by season (Winter, Spring, Summer, Fall). In addition, it is possible to view the percentage distribution of flight delays, on the y-axis, for different causes, by changing the view using the button.
+This bar chart breaks down the causes of flight delays into five main categories:
+
+1. Carrier: Issues directly related to the airline's operations.
+2. NAS (National Aviation System): Delays due to the broader air traffic control system.
+3. Late Aircraft: Delays caused by the late arrival of the incoming aircraft.
+4. Weather: Weather-related disruptions.
+5. Security: Delays stemming from security concerns or procedures.
+
+Each bar is segmented by season (Winter, Spring, Summer, Fall), allowing users to observe how delay reasons fluctuate throughout the year.
+Users can switch between viewing absolute numbers of delays and percentage distributions, providing both a macro and micro perspective on the data.
+
+This visualization enables users to discern which factors predominantly contribute to delays and how their impact varies seasonally, facilitating targeted strategies to mitigate specific delay causes.
+
 </div>
 
 
 <br>
+<br>
 
 
-## Flight distance vs. average delay per airline (Bubble chart)
+## Flight distance vs. average delay per airline 
 
 ```js
 //  Make a deep copy of dataset to avoid mutations
@@ -632,12 +656,20 @@ scatterSvg.append("line")
   </div>
 </div> 
 
-<div>This chart is a Bubble plot that focuses on data for airlines. It shows the relationship between the average flight distance (in miles) on the x-axis and the average delay (in minutes) on the y-axis.
-The circle specifically represents an airline with several pieces of information about it: the average flight distance in miles, the average delay in minutes, the number of flights considered in the average.</div>
+<div>
+The bubble chart examines the relationship between average flight distance and average delay time across different airlines. The x-axis represents the average flight distance in miles, while the y-axis shows the average delay in minutes. Each bubble corresponds to an airline, with:
+
+- Bubble Size: Indicating the number of flights considered in the average.
+- Bubble Position: Revealing the correlation between flight distance and delay duration for that airline.
+
+Users can hover over each bubble to view specific data points, including the airline's name, average flight distance, average delay, and total number of flights.
+
+This chart assists in understanding whether longer flights are more susceptible to delays and how each airline's performance compares in this context, offering insights into operational efficiencies related to flight length.</div>
+<br>
 <br>
 
 
-## Flight Delays for company (Map) 
+## Flight Delays for company 
 
 ```js
 //  Load necessary D3 libraries and US States GeoJSON
@@ -702,7 +734,20 @@ const airportCoords = {
   "MOB": [-88.2428, 30.6914], "SRQ": [-82.5530, 27.3954], "TLH": [-84.3504, 30.3965],
   "TYS": [-83.9933, 35.8128], "AVL": [-82.5418, 35.4362], "SYR": [-76.1071, 43.1112],
   "BIL": [-108.5429, 45.8077], "CAK": [-81.4422, 40.9161], "LBB": [-101.8234, 33.6636],
-  "GPT": [-89.0720, 30.4120], "ECP": [-85.7956, 30.3571], "BZN": [-111.1524, 45.7770]
+  "GPT": [-89.0720, 30.4120], "ECP": [-85.7956, 30.3571], "BZN": [-111.1524, 45.7770], 
+  "ANC": [-149.9810, 61.1739], "FAI": [-147.8560, 64.8151], "SIT": [-135.3616, 57.0471],
+  "ADK": [-176.6460, 51.8779], "KTN": [-131.7112, 55.3541], "BIL": [-108.5429, 45.8077],
+  "MSO": [-114.0919, 46.9163], "GTF": [-111.3710, 47.4820], "HLN": [-111.9820, 46.6068],
+  "BTM": [-112.4975, 45.9548], "FAR": [-96.8158, 46.9207], "BIS": [-100.7467, 46.7727],
+  "GFK": [-97.1761, 47.9493], "XWA": [-103.7420, 48.2578], "JMS": [-98.6782, 46.9297],
+  "FSD": [-96.7417, 43.5820], "RAP": [-103.0572, 44.0453], "JAC": [-110.7377, 43.6073],  
+  "CPR": [-106.4634, 42.9080], "COD": [-109.0246, 44.5202], "OMA": [-95.8997, 41.3032],  
+  "LNK": [-96.7592, 40.8509], "GRI": [-98.3096, 40.9670], "DEN": [-104.6737, 39.8561],  
+  "COS": [-104.7006, 38.8058], "ASE": [-106.9177, 39.2232], "DSM": [-93.6631, 41.5339],  
+  "CID": [-91.7108, 41.8847], "SUX": [-96.3844, 42.4026], "LAS": [-115.1523, 36.0801],  
+  "RNO": [-119.7681, 39.4991], "PHX": [-112.0116, 33.4342], "TUS": [-110.9410, 32.1161],
+  "ABQ": [-106.6092, 35.0402], "SAF": [-106.0884, 35.6171], "SLC": [-111.9782, 40.7858],  
+  "SGU": [-113.5108, 37.0364]   
 };
 
 
@@ -912,11 +957,13 @@ updateMap();
 </div>
 
 <div>
-This chart is a map of the United States showing average flight delays at different airports. Each circle on the map represents an airport.
-The color of the circle indicates the average delay status: <br>
-- Red suggests that flights at this airport tend to be delayed. <br>
-- Yellow/orange suggests that flights are generally on time. <br>
-- Green suggests that flights tend to be early. <br>
-The size of the circle likely represents the volume of flights at that particular airport; larger circles would indicate a greater number of flights.
-Hovering over or selecting an airport would provide more specific details about its average delay and number of flights.
+This U.S. map displays average flight delays at various airports, with each circle representing a specific airport. The visualization uses color and size to convey information:
+  - Red: Indicates airports where flights tend to be delayed.
+  - Yellow/Orange: Suggests generally on-time performance.
+  - Green: Denotes airports where flights often arrive early.
+
+The circle size reflects the volume of flights at that airport, with larger circles representing higher traffic.
+By hovering over a circle, users can access detailed statistics about that airport's average delay and flight volume.
+This geographic visualization allows users to identify regional patterns in flight delays, highlighting airports that may require operational improvements or those that excel in maintaining schedules.
+
 </div>

@@ -8,7 +8,15 @@ toc: true
 
 <br>
 
-## Flights per Airline (Bar Chart)
+<div>
+The Airline Performance dashboard offers an in-depth analysis of how various U.S. airlines managed their flight operations, focusing on metrics such as punctuality, delays, cancellations, and diversions. By leveraging interactive visualizations, this dashboard provides a comprehensive view of airline performance, enabling users to discern patterns and make informed comparisons.
+
+</div>
+
+
+<br>
+
+## Flights per Airline 
 <br>
 
 ```js
@@ -259,12 +267,26 @@ document.body.appendChild(selectedView);
   <div class="grid grid-cols-1"> <div class="card" style="display: flex; justify-content: center; align-items: center;"><div id="barchart-container"></div> </div> </div>
 </div>
 
-<div>This stacked bar chart displays the flight performance of various airlines, breaking down their flights into four categories: on-time flights (green), delayed flights (yellow), cancelled flights (red), and diverted flights (purple). The height of each bar represents the total number of flights for that specific airline.
-Based on the chart: Southwest Airlines Co. has the highest total bar, indicating that it handles the most flights among the airlines shown. American Airlines Inc. and Delta Air Lines Inc. also show a significant number of flights. To determine which airlines struggle with delays, we need to look at the yellow segment (delayed flights) for each airline. Based on these visualization, American Airlines Inc. and JetBlue Airways seem to experience more issues with delays compared to some other airlines. This interactive bar chart displays the number of flights per airline. It is possible to use the toggle to switch between On-time flights, delayed flights, canceled flights or diverted flights. For see detailed flight stats the cursor have to hover over bars. </div>
+<div>
+
+This interactive stacked bar chart provides a comprehensive overview of flight outcomes across different airlines. Each bar represents an airline's total flight operations, segmented into four distinct categories:
+
+- On-Time Flights (Green): Flights that departed and arrived as scheduled.
+
+- Delayed Flights (Yellow): Flights that experienced departure or arrival delays.
+
+- Cancelled Flights (Red): Flights that were scheduled but did not operate.
+
+- Diverted Flights (Purple): Flights that were rerouted from their original destination to an alternate airport.
+
+The height of each bar indicates the total number of flights operated by the respective airline, while the color segments reveal the proportion of each flight status. For instance, *Southwest Airlines Co.* exhibits the tallest bar, signifying its position as a leading carrier in terms of flight volume. However, a closer examination of the yellow segment within each bar uncovers that *American Airlines Inc.* and *JetBlue Airways* have a notable percentage of delayed flights, highlighting areas where punctuality may be a concern.
+
+Users can interact with the chart by toggling between different flight statuses, allowing for a focused analysis of specific performance metrics. Note that the scale adjusts dynamically when filtering. Hovering over individual bars provides detailed statistics, offering a granular view of each airline's operational outcomes.
+</div>
 
 <br>
 
-## Flight Status Flow (Sankey chart)
+## Flight Status Flow 
 <br>
 
 ```js
@@ -491,8 +513,19 @@ createSankeyChart();
 </div>
 
 <div>
-This visualization follows flights from departure to final status (on-time, delayed, canceled, diverted), showing which airlines struggle. Sankey diagram allows you to easily compare the total flight volume of different airlines and see how those flights are distributed across the various status categories. You can quickly identify which airlines have the most flights overall and how they perform in terms of on-time arrivals, delays, cancellations, and diversions.<br>
-<br>Left Column ("Number of Flights"): This column represents the total number of flights for each airline. The height of each bar in this column corresponds to the total flight volume of that airline. The airlines are listed vertically.
-<br><br>Middle Column ("Airline"): This column lists the names of the different airlines. The flows originating from the left column connect to their respective airline in this middle column. The width of these flows is proportional to the total number of flights for each airline.
-<br><br>Right Column ("Status"): This column shows the different statuses of the flights: On-Time (green), Delayed (yellow), Canceled (red), and Diverted (purple).
-<br><br>Flows: The colored bands flowing from the middle column to the right column represent the breakdown of each airline's flights by their status. The width of each band indicates the proportion of flights that fall into that specific status category. For example, for Southwest Airlines Co., a large green band flows to "On-Time," indicating a high number of on-time flights, while smaller bands of yellow, red, and purple show the number of delayed, canceled, and diverted flights, respectively.</div>
+
+The Sankey diagram offers a dynamic visualization of the journey from flight departure to final status across various airlines. This flow diagram effectively illustrates the distribution of flight outcomes, enabling users to discern patterns and identify which airlines face challenges in specific areas.
+
+The diagram is structured into three columns:
+
+1. Number of Flights: This leftmost column quantifies the total flight volume for each airline, with bar heights corresponding to the number of flights operated.
+
+2. Airline: The central column lists the airlines, serving as a conduit between the total flight volume and the resulting flight statuses.
+
+3. Status: The rightmost column delineates the possible flight outcomes—On-Time, Delayed, Cancelled, and Diverted—each represented by distinct colors (green, yellow, red, and purple, respectively).
+
+Flows between these columns are proportionally sized, reflecting the volume of flights transitioning from each airline to the respective status categories. For example, a substantial green flow from *Southwest Airlines Co.* to the On-Time status indicates a high rate of punctual flights. Conversely, thinner flows in red or purple from other airlines to the Cancelled or Diverted statuses may point to operational challenges.
+
+This visualization facilitates a comparative analysis of airline performance, allowing users to quickly assess which carriers excel in maintaining schedules and which may require improvements in operational reliability.
+
+</div>

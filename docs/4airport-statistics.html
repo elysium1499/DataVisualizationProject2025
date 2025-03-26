@@ -10,17 +10,17 @@
 <link rel="preload" as="style" href="./_observablehq/theme-air,near-midnight,alt,wide.db1cdf55.css">
 <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
 <link rel="stylesheet" type="text/css" href="./_observablehq/theme-air,near-midnight,alt,wide.db1cdf55.css">
-<link rel="modulepreload" href="./_observablehq/client.11d4bb04.js">
+<link rel="modulepreload" href="./_observablehq/client.cd9d3395.js">
 <link rel="modulepreload" href="./_observablehq/runtime.e080113b.js">
-<link rel="modulepreload" href="./_observablehq/stdlib.fc5dbcd7.js">
-<link rel="modulepreload" href="./_npm/d3-dsv@3.0.1/407f7a1f.js">
+<link rel="modulepreload" href="./_observablehq/stdlib.6b9c64a3.js">
+<link rel="modulepreload" href="./_npm/d3-dsv@3.0.1/9f467835.js">
 <link rel="icon" href="./_file/observable.a92c9a52.png" type="image/png" sizes="32x32">
 <script type="module">
 
-import {define} from "./_observablehq/client.11d4bb04.js";
-import {registerFile} from "./_observablehq/stdlib.fc5dbcd7.js";
+import {define} from "./_observablehq/client.cd9d3395.js";
+import {registerFile} from "./_observablehq/stdlib.6b9c64a3.js";
 
-registerFile("./data/flights_data.csv", {"name":"./data/flights_data.csv","mimeType":"text/csv","path":"./_file/data/flights_data.925f7b17.csv","lastModified":1741526889746,"size":13659204});
+registerFile("./data/flights_data.csv", {"name":"./data/flights_data.csv","mimeType":"text/csv","path":"./_file/data/flights_data.925f7b17.csv","lastModified":1742975586506,"size":13659204});
 
 define({id: "fdc15201", inputs: ["FileAttachment"], outputs: ["datasetFlights","d3","airportStateMap","airportFlightCounts","topAirports","filteredDataset","airportStats","sortedAirportStats","width","height","margin","xScale","yScale","baseColors","extraColors","fullColorPalette","colorScale","container","svg","tooltip","stateGroups"], body: async (FileAttachment) => {
 // Load dataset
@@ -443,6 +443,7 @@ return {d3,airportStateMap,selectedAirports,filteredDataset,airportStats,maxDela
     <li class="observablehq-link"><a href="./2airline-performance">Airline performance</a></li>
     <li class="observablehq-link"><a href="./3flight-delays">Flight Delays</a></li>
     <li class="observablehq-link observablehq-link-active"><a href="./4airport-statistics">Airport statistics</a></li>
+    <li class="observablehq-link"><a href="./5navigating-the-skies-through-data">Navigating the Skies Through Data</a></li>
   </ol>
 </nav>
 <script>{const e=document.querySelector("#observablehq-sidebar"),o=document.querySelector("#observablehq-sidebar-toggle"),r=sessionStorage.getItem("observablehq-sidebar");r?o.checked=r==="true":o.indeterminate=!0;for(const t of document.querySelectorAll("#observablehq-sidebar summary")){const s=t.parentElement;switch(sessionStorage.getItem(`observablehq-sidebar:${t.textContent}`)){case"true":s.open=!0;break;case"false":s.classList.contains("observablehq-section-active")||(s.open=!1);break}}addEventListener("beforeunload",()=>sessionStorage.setItem("observablehq-sidebar-scrolly",`${e.scrollTop}`));const a=sessionStorage.getItem("observablehq-sidebar-scrolly");a!=null&&(e.style.cssText="overflow: hidden;",e.scrollTop=+a,e.style.cssText="");}</script>
@@ -451,15 +452,18 @@ return {d3,airportStateMap,selectedAirports,filteredDataset,airportStats,maxDela
 <nav>
 <div>Contents</div>
 <ol>
-<li class="observablehq-secondary-link"><a href="#flight-delay-distribution-by-airport-box-plot">Flight Delay Distribution by Airport (Box plot)</a></li>
-<li class="observablehq-secondary-link"><a href="#airport-performance-on-delays-cancellations-and-diversions-radar-chart">Airport Performance on Delays, Cancellations, and Diversions (Radar chart)</a></li>
+<li class="observablehq-secondary-link"><a href="#flight-delay-distribution-by-airport">Flight Delay Distribution by Airport</a></li>
+<li class="observablehq-secondary-link"><a href="#airport-performance-on-delays-cancellations-and-diversions">Airport Performance on Delays, Cancellations, and Diversions</a></li>
 </ol>
 </nav>
 </aside>
 <main id="observablehq-main" class="observablehq">
 <h1 id="airport-statistics" tabindex="-1"><a class="observablehq-header-anchor" href="#airport-statistics">Airport statistics 📍</a></h1>
 <br>
-<h2 id="flight-delay-distribution-by-airport-box-plot" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delay-distribution-by-airport-box-plot">Flight Delay Distribution by Airport (Box plot)</a></h2>
+<div>
+The "Airport Statistics" dashboard offers an in-depth exploration of flight performance metrics across major U.S. airports. Through interactive visualizations, users can examine the distribution of flight delays and assess airport efficiency concerning delays, cancellations, and diversions. These tools provide valuable insights into the operational dynamics of some of the nation's busiest airports.
+</div>
+<h2 id="flight-delay-distribution-by-airport" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delay-distribution-by-airport">Flight Delay Distribution by Airport</a></h2>
 <h3 id="flight-delay-distribution-of-top-20-busiest-airports-grouped-by-state" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delay-distribution-of-top-20-busiest-airports-grouped-by-state">Flight Delay Distribution of Top 20 Busiest Airports (Grouped by State)</a></h3>
 <div class="observablehq observablehq--block"><!--:fdc15201:--></div>
 <div class="grid grid-cols-1">
@@ -467,20 +471,17 @@ return {d3,airportStateMap,selectedAirports,filteredDataset,airportStats,maxDela
     <div id="boxplot-container"></div> 
   </div>
 </div> 
-<div> This chart is a box plot showing the distribution of flight delays (in minutes) for various airports in the United States.
-The y-axis represents the average delay in minutes where negative values ​​indicate that flights arrived early.
-The x-axis lists several airport codes. Under each airport code, the corresponding status is mentioned.
-Each box plot provides a summary of the delay distribution for a specific airport:<br>
-- The bottom whisker indicates the minimum delay experienced.<br>
-- The bottom of the box represents the first quartile (Q1).<br>
-- The white line inside the box represents the median delay.<br>
-- The top of the box represents the third quartile (Q3).<br>
-- The top of the box represents the maximum delay experienced. <br>
-Hovering over the box shows the previously discussed statistics. <br><br>
-By comparing box plots for different airports, you can see which airports tend to have the most delays, the typical delay time, and the variability of delays.</div>
+<div> This box plot presents the distribution of flight delays, measured in minutes, for various U.S. airports. The x-axis displays airport codes, each accompanied by its corresponding state, while the y-axis represents average delay times. Notably, negative values on the y-axis indicate instances where flights arrived ahead of schedule.
+<p>Each box plot provides a summary of the delay distribution for a specific airport:</p>
+<ul>
+<li>Whiskers: The lower whisker denotes the minimum delay experienced, and the upper whisker indicates the maximum delay.</li>
+<li>Box Edges: The bottom and top edges of the box represent the first quartile (Q1) and third quartile (Q3), respectively, encapsulating the middle 50% of the data.</li>
+<li>Median Line: A white line within the box marks the median delay, offering a central tendency measure.</li>
+</ul>
+<p>By hovering over each box plot, users can view detailed statistics, including specific delay times and quartile values, enhancing the depth of analysis.</p>
+<p>This visualization allows for a comparative assessment of delay patterns across different airports, highlighting those with higher variability or consistently longer delays. Such insights are instrumental for travellers and industry professionals aiming to understand and mitigate delay-related challenges.</p></div><p></p>
 <br>
-<h2 id="airport-performance-on-delays-cancellations-and-diversions-radar-chart" tabindex="-1"><a class="observablehq-header-anchor" href="#airport-performance-on-delays-cancellations-and-diversions-radar-chart">Airport Performance on Delays, Cancellations, and Diversions (Radar chart)</a></h2>
-<div>The chart provides a quick visual comparison of six major U.S. airports by displaying three key metrics related to flight disruptions: the percentage of flights diverted, an area representing the average delay, and the percentage of flights canceled.</div>
+<h2 id="airport-performance-on-delays-cancellations-and-diversions" tabindex="-1"><a class="observablehq-header-anchor" href="#airport-performance-on-delays-cancellations-and-diversions">Airport Performance on Delays, Cancellations, and Diversions</a></h2>
 <div class="observablehq observablehq--block"><!--:70039870:--></div>
 <div class="grid grid-cols-1">
   <div class="card">
@@ -488,18 +489,18 @@ By comparing box plots for different airports, you can see which airports tend t
   </div>
 </div> 
 <div>
-This chart shows radar charts for six of the eight airports selected (ATL, ORD, LAX, SEA, SFO, and MCO).
-Here's what the chart shows for each of these airports, keeping in mind the reasons for their selection:<br>
-- ATL (Hartsfield-Jackson Atlanta Intl, Georgia): As the busiest airport in the United States and a major Delta hub, ATL shows a moderate average delay, a very low percentage of diverted flights, and a very low percentage of cancellations. This suggests that despite its high traffic volume, ATL generally maintains efficient operations with minimal disruption in terms of diversions and cancellations.<br>
-- ORD (Chicago O'Hare Intl, Illinois): Known for high delays and being a major hub for United &amp; American, ORD's chart shows a relatively high average delay compared to the others. It also shows a very low percentage of diverted flights and a low percentage of cancellations. This is consistent with the reason for its selection: high delays.<br>
-- LAX (Los Angeles Intl, California): As one of the busiest hubs on the West Coast, LAX shows a moderate average delay, a low percentage of diverted flights, and a low percentage of cancellations.<br>
-- SEA (Seattle-Tacoma Intl, Washington): A major West Coast gateway, SEA shows a moderate average delay, a low percentage of diverted flights, and a low percentage of cancellations.<br>
-- SFO (San Francisco Intl, California): Selected because of its high delays often caused by fog/weather, SFO's chart shows a moderate average delay. It also shows a low percentage of diverted flights and a low percentage of cancellations. While the delay is not the highest of these six, it is still noticeable.<br>
-- MCO (Orlando Intl, Florida): Selected for its high volume of leisure travel, MCO has a moderate average delay, a low percentage of diverted flights, and a very low percentage of cancellations. This suggests that even with a high volume of leisure travelers, MCO experiences relatively few disruptions.
+The radar chart evaluates nine prominent U.S. airports—ATL (Hartsfield-Jackson Atlanta International), ORD (Chicago O'Hare International), LAX (Los Angeles International), SEA (Seattle-Tacoma International), SFO (San Francisco International), and MCO (Orlando International), DEN (Denver International Airport), JFK (John F. Kennedy International Airport), DFW (Dallas/Fort Worth International Airport)—across three critical performance metrics:
+<ol>
+<li>Average Delay: Depicted as an area within the chart, illustrating the typical delay duration experienced at the airport.</li>
+<li>Percentage of Flights Diverted: Indicates the proportion of flights rerouted to alternate destinations.</li>
+<li>Percentage of Flights Cancelled: Represents the share of scheduled flights that were cancelled.</li>
+</ol>
+<p>Users can juxtapose the performance metrics of the selected airports, observing how each fares concerning delays, cancellations, and diversions.</p>
+<p>For instance, ATL, despite being the busiest airport in the U.S., demonstrates moderate average delays and minimal diversions and cancellations, suggesting robust operational efficiency. Conversely, ORD exhibits relatively higher average delays, aligning with its reputation for congestion challenges. SFO's moderate delays, often attributed to weather conditions like fog, are also evident. These comparative insights assist stakeholders in identifying areas for improvement and recognizing airports that exemplify operational excellence.</p>
 </div></main>
 <footer id="observablehq-footer">
-<nav><a rel="prev" href="./3flight-delays"><span>Flight Delays</span></a></nav>
-<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-24T13:22:26">Mar 24, 2025</a>.</div>
+<nav><a rel="prev" href="./3flight-delays"><span>Flight Delays</span></a><a rel="next" href="./5navigating-the-skies-through-data"><span>Navigating the Skies Through Data</span></a></nav>
+<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-03-26T11:42:16">Mar 26, 2025</a>.</div>
 </footer>
 </div>
 </body>

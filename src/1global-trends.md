@@ -20,10 +20,17 @@ const covidStartDate = new Date("2020-03-01");
 # Global Trends 🌍
 <br>
 
-## Flight Volume Over Time (Line Chart)
+<div>
+The aviation industry is a dynamic indicator of economic activity, global connectivity, and societal change. Through this dashboard, we dive into the story told by U.S. domestic flight data between 2019 and 2023. These interactive visualizations allow us not only to observe how flight volumes evolved over time but also to explore how different regions and airlines experienced these shifts. From the sharp drop during the early days of COVID-19 to the gradual resurgence in air traffic, each plot unpacks a different layer of this complex system.
+</div>
+
+
+## Flight Volume Over Time
 
 <div> 
-The chart shows the monthly flight volume from April 2019 to July 2023. We can observe a clear drop in the number of flights around April 2020, coinciding with the start of the COVID-19 pandemic. After the initial drop, flight volume gradually recovered, showing peaks and troughs, but generally trending upwards towards pre-pandemic levels by mid-2022. In 2023, the flight volume appears to be somewhat lower than the peaks observed in 2019 but is still significantly higher than the low point during the pandemic.
+The first chart presents a time-series line graph that illustrates the number of flights per day over the span of several years. What makes this chart immediately striking is the visible collapse in flight volumes around March–April 2020—corresponding precisely to the global onset of the COVID-19 pandemic. The red dashed line offers a clear temporal anchor, making it easy to contextualize the dramatic dip.
+
+As we progress past this low point, the chart reveals a slow but steady recovery in flight activity. Users can toggle between a smooth and linear line to better discern seasonal fluctuations or general trends. What’s particularly useful is the ability to filter by airline and destination, allowing the viewer to zoom in on how specific carriers or cities were impacted. Note that the scale adjusts dynamically when filtering.
 </div>
 
 ```js
@@ -240,7 +247,7 @@ The blue line shows the number of flights per day. The filters can be use to sel
 <br>
 
 
-## Destination density flight (Map)
+## Destination density Map
 
 <div> 
 This is a geographical view of flight density per state, filtered by year and airline, helps identify the busiest regions. Flight volume fluctuates over time and it is influenced by different conditions: seasons, airline operations, and passenger demand.
@@ -473,12 +480,14 @@ updateMap();
 </div>
 
 <div> 
-This interactive flight map displays USA flight routes, with all airlines currently selected. The map uses color shading to represent flight density across different states. States with a higher volume of flights are shaded in darker blue, while those with fewer flights are in lighter shades. The legend indicates the ranges for the number of flights corresponding to each color intensity. For example, the darkest blue represents states with 665 or more flights. This visualization allows users to quickly identify the most common flight destinations within the United States for the selected year.
+The second visualization shifts focus from time to geography. This U.S. map shades each state based on the number of incoming flights, with deeper colors representing higher volumes. It immediately highlights which regions serve as major hubs—states like California, Texas, and Florida tend to show darker shades, reflecting their high connectivity and central role in domestic travel.
+
+What's compelling here is the temporal filter. By selecting different years or filtering by airline, users can uncover how regional flight activity changed—perhaps observing a temporary dip in traffic to tourist-heavy states in 2020, followed by rebounds in 2021 and beyond. Note that the scale adjusts dynamically when filtering. This map translates abstract numbers into a spatial context, helping users grasp the real-world geography behind the data.
 
 </div><br> 
 
  
- ## Monthly Flight Volume (Radar chart)
+ ## Monthly Flight Volume
 
  ```js
  
@@ -627,5 +636,8 @@ selYear.addEventListener("input", () => {
 
 
 <div>
-The radar chart allows you to view monthly flight volumes. Each point on the circular graph represents a specific month of the year, starting from January at the top and moving clockwise through February, March, and so on, until December. The distance of each point from the center of the circle indicates the number of flights during that month. By hovering over each point, you would be able to see the exact number of flights for that particular month. This type of chart is useful for identifying seasonal trends in air travel. You could also select a different year from the dropdown menu to compare how these monthly flight patterns have changed over time.
+Lastly, the radar chart offers a fresh perspective by displaying monthly flight volumes in a circular, clock-like form. Each "spoke" of the chart represents a month, with the distance from the center indicating flight volume. This design cleverly visualizes seasonality in air travel—highlighting, for instance, the summer peaks or the holiday spikes in November and December.
+
+What’s notable here is the ability to switch between years. This allows viewers to see how certain seasonal patterns persist or shift over time, and how anomalies—like the spring 2020 collapse—stand out starkly. For instance, a comparison between 2019 and 2020 reveals how travel during typically busy months was severely disrupted.
+
 </div>

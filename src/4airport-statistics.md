@@ -8,8 +8,12 @@ toc: true
 
 <br>
 
+<div>
+The "Airport Statistics" dashboard offers an in-depth exploration of flight performance metrics across major U.S. airports. Through interactive visualizations, users can examine the distribution of flight delays and assess airport efficiency concerning delays, cancellations, and diversions. These tools provide valuable insights into the operational dynamics of some of the nation's busiest airports.
+</div>
 
-## Flight Delay Distribution by Airport (Box plot)
+
+## Flight Delay Distribution by Airport
 
 ### Flight Delay Distribution of Top 20 Busiest Airports (Grouped by State)
 
@@ -264,23 +268,20 @@ stateGroups.forEach(([state, airports], i) => {
   </div>
 </div> 
 
-<div> This chart is a box plot showing the distribution of flight delays (in minutes) for various airports in the United States.
-The y-axis represents the average delay in minutes where negative values ​​indicate that flights arrived early.
-The x-axis lists several airport codes. Under each airport code, the corresponding status is mentioned.
-Each box plot provides a summary of the delay distribution for a specific airport:<br>
-- The bottom whisker indicates the minimum delay experienced.<br>
-- The bottom of the box represents the first quartile (Q1).<br>
-- The white line inside the box represents the median delay.<br>
-- The top of the box represents the third quartile (Q3).<br>
-- The top of the box represents the maximum delay experienced. <br>
-Hovering over the box shows the previously discussed statistics. <br><br>
-By comparing box plots for different airports, you can see which airports tend to have the most delays, the typical delay time, and the variability of delays.</div>
+<div> This box plot presents the distribution of flight delays, measured in minutes, for various U.S. airports. The x-axis displays airport codes, each accompanied by its corresponding state, while the y-axis represents average delay times. Notably, negative values on the y-axis indicate instances where flights arrived ahead of schedule.
+
+Each box plot provides a summary of the delay distribution for a specific airport:
+- Whiskers: The lower whisker denotes the minimum delay experienced, and the upper whisker indicates the maximum delay.
+- Box Edges: The bottom and top edges of the box represent the first quartile (Q1) and third quartile (Q3), respectively, encapsulating the middle 50% of the data.
+- Median Line: A white line within the box marks the median delay, offering a central tendency measure.
+
+By hovering over each box plot, users can view detailed statistics, including specific delay times and quartile values, enhancing the depth of analysis.
+
+This visualization allows for a comparative assessment of delay patterns across different airports, highlighting those with higher variability or consistently longer delays. Such insights are instrumental for travellers and industry professionals aiming to understand and mitigate delay-related challenges.</div>
 
 <br>
 
-## Airport Performance on Delays, Cancellations, and Diversions (Radar chart)
-
-<div>The chart provides a quick visual comparison of six major U.S. airports by displaying three key metrics related to flight disruptions: the percentage of flights diverted, an area representing the average delay, and the percentage of flights canceled.</div>
+## Airport Performance on Delays, Cancellations, and Diversions 
 
 ```js
 // Load necessary D3 libraries
@@ -446,12 +447,13 @@ airportStats.forEach((airportData, i) => {
 </div> 
 
 <div>
-This chart shows radar charts for six of the eight airports selected (ATL, ORD, LAX, SEA, SFO, and MCO).
-Here's what the chart shows for each of these airports, keeping in mind the reasons for their selection:<br>
-- ATL (Hartsfield-Jackson Atlanta Intl, Georgia): As the busiest airport in the United States and a major Delta hub, ATL shows a moderate average delay, a very low percentage of diverted flights, and a very low percentage of cancellations. This suggests that despite its high traffic volume, ATL generally maintains efficient operations with minimal disruption in terms of diversions and cancellations.<br>
-- ORD (Chicago O'Hare Intl, Illinois): Known for high delays and being a major hub for United & American, ORD's chart shows a relatively high average delay compared to the others. It also shows a very low percentage of diverted flights and a low percentage of cancellations. This is consistent with the reason for its selection: high delays.<br>
-- LAX (Los Angeles Intl, California): As one of the busiest hubs on the West Coast, LAX shows a moderate average delay, a low percentage of diverted flights, and a low percentage of cancellations.<br>
-- SEA (Seattle-Tacoma Intl, Washington): A major West Coast gateway, SEA shows a moderate average delay, a low percentage of diverted flights, and a low percentage of cancellations.<br>
-- SFO (San Francisco Intl, California): Selected because of its high delays often caused by fog/weather, SFO's chart shows a moderate average delay. It also shows a low percentage of diverted flights and a low percentage of cancellations. While the delay is not the highest of these six, it is still noticeable.<br>
-- MCO (Orlando Intl, Florida): Selected for its high volume of leisure travel, MCO has a moderate average delay, a low percentage of diverted flights, and a very low percentage of cancellations. This suggests that even with a high volume of leisure travelers, MCO experiences relatively few disruptions.
+The radar chart evaluates nine prominent U.S. airports—ATL (Hartsfield-Jackson Atlanta International), ORD (Chicago O'Hare International), LAX (Los Angeles International), SEA (Seattle-Tacoma International), SFO (San Francisco International), and MCO (Orlando International), DEN (Denver International Airport), JFK (John F. Kennedy International Airport), DFW (Dallas/Fort Worth International Airport)—across three critical performance metrics:
+
+1. Average Delay: Depicted as an area within the chart, illustrating the typical delay duration experienced at the airport.
+2. Percentage of Flights Diverted: Indicates the proportion of flights rerouted to alternate destinations.
+3. Percentage of Flights Cancelled: Represents the share of scheduled flights that were cancelled.
+
+Users can juxtapose the performance metrics of the selected airports, observing how each fares concerning delays, cancellations, and diversions.
+
+For instance, ATL, despite being the busiest airport in the U.S., demonstrates moderate average delays and minimal diversions and cancellations, suggesting robust operational efficiency. Conversely, ORD exhibits relatively higher average delays, aligning with its reputation for congestion challenges. SFO's moderate delays, often attributed to weather conditions like fog, are also evident. These comparative insights assist stakeholders in identifying areas for improvement and recognizing airports that exemplify operational excellence.
 </div>
