@@ -21,6 +21,8 @@ Analyzing flight delays offers valuable insights into the operational efficiency
 
 ```js
 const datasetFlights = await FileAttachment("data/flights_data.csv").csv({ typed: true });
+const cordinates = await FileAttachment("data/cordinates.csv").csv({ typed: true });
+
 ```
 
 ```js
@@ -64,7 +66,6 @@ function filterData(year, month) {
     return flightYear === Number(year) && (month === "All" || flightMonth === availableMonths.indexOf(month) - 1);
   });
 }
-
 
 function processHeatmapData(data) {
   const allDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -113,11 +114,18 @@ function drawHeatmap() {
   const xScale = d3.scaleBand().domain(d3.range(0, 24)).range([margin.left, width - margin.right]).padding(0.05);
   const yScale = d3.scaleBand().domain(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]).range([margin.top, height - margin.bottom]).padding(0.05);
 
-  const minDelay = d3.min(heatmapData, d => d.avgDelay);
-  const maxDelay = d3.max(heatmapData, d => d.avgDelay);
-  const colorScale = d3.scaleDiverging().domain([minDelay, 0, maxDelay]).interpolator(d3.interpolateRdYlGn);
+  // Calcola il minimo e il massimo della media dei ritardi
+  const computedAverages = processHeatmapData(datasetFlights);
+  const globalMinAvgDelay = d3.min(computedAverages, d => d.avgDelay);
+  const globalMaxAvgDelay = d3.max(computedAverages, d => d.avgDelay);
+
+  // Usa questi valori nella scala dei colori
+  const colorScale = d3.scaleDiverging()
+    .domain([globalMinAvgDelay, 0, globalMaxAvgDelay])
+    .interpolator(d3.interpolateRdYlGn);
 
   const container = d3.select("#heatmap-container");
+  const legendExists = !container.select(".legend-group").empty();
   container.select("svg").remove();
 
   const svg = container.append("svg")
@@ -168,40 +176,46 @@ function drawHeatmap() {
     .call(d3.axisLeft(yScale));
 
   // Centered Legend
-  const legendWidth = 600, legendHeight = 15;
-  const legendX = (width - legendWidth) / 2;
-  const legendSvg = svg.append("g").attr("transform", `translate(${legendX}, ${margin.top - 90})`);
+  if (!legendExists) {
+    const legendWidth = 600, legendHeight = 15;
+    const legendX = (width - legendWidth) / 2;
+    const legendSvg = svg.append("g").attr("transform", `translate(${legendX}, ${margin.top - 90})`);
 
-  const legendScale = d3.scaleLinear().domain([minDelay, maxDelay]).range([0, legendWidth]);
-  const legendAxis = d3.axisBottom(legendScale)
-    .tickValues([minDelay, Math.round(maxDelay / 2), maxDelay, 0]) // Add 0 to the tick values
-    .tickFormat(d => {
-      return d === 0 ? "" : `${Math.round(d)} min`; // Hide text for 0
-    })
-    .tickSizeOuter(0); // Remove the outer ticks
+    const legendScale = d3.scaleLinear()
+      .domain([globalMinAvgDelay, globalMaxAvgDelay])
+      .range([0, legendWidth]);
+    const legendAxis = d3.axisBottom(legendScale)
+      .tickValues([globalMinAvgDelay, Math.round(globalMaxAvgDelay / 2), globalMaxAvgDelay, 0]) // Add 0 to the tick values
+      .tickFormat(d => {
+        return d === 0 ? "" : `${Math.round(d)} min`; // Hide text for 0
+      })
+      .tickSizeOuter(0); // Remove the outer ticks
 
-  const legendGradient = legendSvg.append("defs").append("linearGradient")
-    .attr("id", "legend-gradient")
-    .attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%");
 
-  legendGradient.append("stop").attr("offset", "0%").attr("stop-color", colorScale(maxDelay));
-  legendGradient.append("stop").attr("offset", "50%").attr("stop-color", colorScale(0));
-  legendGradient.append("stop").attr("offset", "100%").attr("stop-color", colorScale(minDelay));
 
-  legendSvg.append("rect").attr("width", legendWidth).attr("height", legendHeight).style("fill", "url(#legend-gradient)");
+    const legendGradient = legendSvg.append("defs").append("linearGradient")
+      .attr("id", "legend-gradient")
+      .attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%");
 
-  const legendAxisGroup = legendSvg.append("g").attr("transform", `translate(0, ${legendHeight})`).call(legendAxis);
+    legendGradient.append("stop").attr("offset", "0%").attr("stop-color", colorScale(globalMaxAvgDelay));
+    legendGradient.append("stop").attr("offset", "50%").attr("stop-color", colorScale(0));
+    legendGradient.append("stop").attr("offset", "100%").attr("stop-color", colorScale(globalMinAvgDelay));
 
-  // Append a white line for zero
-  legendAxisGroup.selectAll(".tick")
-    .filter(d => d === 0)
-    .append("line")
-    .attr("y1", -legendHeight)
-    .attr("y2", 0)
-    .attr("stroke", "white")
-    .attr("stroke-width", 2);
+    legendSvg.append("rect").attr("width", legendWidth).attr("height", legendHeight).style("fill", "url(#legend-gradient)");
 
-  legendSvg.append("text").attr("x", legendWidth / 2).attr("y", -10).attr("text-anchor", "middle").style("fill", "white").text("Avg Delay (min)");
+    const legendAxisGroup = legendSvg.append("g").attr("transform", `translate(0, ${legendHeight})`).call(legendAxis);
+
+    // Append a white line for zero
+    legendAxisGroup.selectAll(".tick")
+      .filter(d => d === 0)
+      .append("line")
+      .attr("y1", -legendHeight)
+      .attr("y2", 0)
+      .attr("stroke", "white")
+      .attr("stroke-width", 2);
+
+    legendSvg.append("text").attr("x", legendWidth / 2).attr("y", -10).attr("text-anchor", "middle").style("fill", "white").text("Avg Delay (min)");
+  }
 }
 
 function toggleAutoplay() {
@@ -224,7 +238,7 @@ function toggleAutoplay() {
         selectedYear.value = availableYears[0];
       }
       drawHeatmap();
-    }, 1000); // change year every second (1000ms)
+    }, 1500); // change year every second (1000ms)
   }
 }
 
@@ -674,280 +688,243 @@ This chart assists in understanding whether longer flights are more susceptible 
 ## Flight Delays for company 
 
 ```js
-//  Load necessary D3 libraries and US States GeoJSON
+// Load necessary D3 libraries and US States GeoJSON
 const topojson = await import("https://cdn.jsdelivr.net/npm/topojson@3/+esm");
 const usMap = await d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json");
 
-//  Assign Seasons to Flights
+// Assign Seasons to Flights
 function getSeason(date) {
-  const month = new Date(date).getMonth() + 1;
-  if ([12, 1, 2].includes(month)) return "Winter";
-  if ([3, 4, 5].includes(month)) return "Spring";
-  if ([6, 7, 8].includes(month)) return "Summer";
-  return "Fall";
+  const month = new Date(date).getMonth() + 1;
+  if ([12, 1, 2].includes(month)) return "Winter";
+  if ([3, 4, 5].includes(month)) return "Spring";
+  if ([6, 7, 8].includes(month)) return "Summer";
+  return "Fall";
 }
 
 datasetFlights.forEach(d => {
-  d.FL_DATE = new Date(d.FL_DATE);
-  d.SEASON = getSeason(d.FL_DATE);
+  d.FL_DATE = new Date(d.FL_DATE);
+  d.SEASON = getSeason(d.FL_DATE);
 });
 
-//  Compute Average Delay per Airport
+// Compute Average Delay per Airport
 const airportDelays = d3.rollups(
-  datasetFlights,
-  v => ({
-    avgDelay: d3.mean(v, d => d.ARR_DELAY),
-    totalFlights: v.length
-  }),
-  d => d.ORIGIN
+  datasetFlights,
+  v => ({
+    avgDelay: d3.mean(v, d => d.ARR_DELAY),
+    totalFlights: v.length
+  }),
+  d => d.ORIGIN
 ).map(([airport, stats]) => ({
-  airport,
-  avgDelay: stats.avgDelay,
-  totalFlights: stats.totalFlights
+  airport,
+  avgDelay: stats.avgDelay,
+  totalFlights: stats.totalFlights
 }));
 
-//  Load Airport Coordinates (Replace this with an actual airport dataset)
-const airportCoords = {
-  "ATL": [-84.4281, 33.6367], "DFW": [-97.0381, 32.8998], "ORD": [-87.9048, 41.9786],
-  "DEN": [-104.6737, 39.8561], "LAX": [-118.4085, 33.9416], "JFK": [-73.7781, 40.6413],
-  "SFO": [-122.3790, 37.6213], "SEA": [-122.3088, 47.4502], "MIA": [-80.2870, 25.7959],
-  "LAS": [-115.1523, 36.0840], "BOS": [-71.0052, 42.3656], "PHX": [-112.0116, 33.4342],
-  "IAH": [-95.3414, 29.9844], "MSP": [-93.2218, 44.8810], "DTW": [-83.3534, 42.2124],
-  "EWR": [-74.1686, 40.6895], "CLT": [-80.9431, 35.2140], "DCA": [-77.0377, 38.8512],
-  "LGA": [-73.8726, 40.7769], "SLC": [-111.9778, 40.7899], "BWI": [-76.6684, 39.1754],
-  "TPA": [-82.5332, 27.9755], "PDX": [-122.5975, 45.5898], "STL": [-90.3786, 38.7487],
-  "SAN": [-117.1973, 32.7336], "MCO": [-81.3081, 28.4312], "HNL": [-157.9242, 21.3187],
-  "DAL": [-96.8518, 32.8471], "MDW": [-87.7524, 41.7868], "FLL": [-80.1449, 26.0726],
-  "AUS": [-97.6699, 30.1975], "RDU": [-78.7875, 35.8801], "IND": [-86.2944, 39.7173],
-  "BNA": [-86.6782, 36.1263], "CMH": [-82.8813, 39.9979], "PIT": [-80.2329, 40.4915],
-  "MSY": [-90.2580, 29.9934], "SMF": [-121.5908, 38.6951], "SAT": [-98.4727, 29.5337],
-  "SJC": [-121.9290, 37.3626], "CLE": [-81.8498, 41.4101], "HOU": [-95.2789, 29.6454],
-  "JAX": [-81.6879, 30.4940], "OMA": [-95.8941, 41.3032], "OKC": [-97.6007, 35.3931],
-  "MEM": [-89.9767, 35.0424], "SNA": [-117.8674, 33.6757], "ONT": [-117.6012, 34.0560],
-  "BUR": [-118.3527, 34.2007], "RSW": [-81.7552, 26.5362], "TUL": [-95.8881, 36.1984],
-  "BOI": [-116.2229, 43.5644], "ELP": [-106.3778, 31.8072], "RIC": [-77.3232, 37.5052],
-  "MHT": [-71.4382, 42.9326], "LIT": [-92.2243, 34.7294], "PBI": [-80.0956, 26.6832],
-  "SAV": [-81.2021, 32.1276], "GSP": [-82.2189, 34.8956], "ALB": [-73.8017, 42.7483],
-  "CHS": [-80.0405, 32.8986], "TUS": [-110.9410, 32.1161], "GRR": [-85.5228, 42.8809],
-  "PSP": [-116.5085, 33.8297], "PWM": [-70.3093, 43.6462], "MSN": [-89.3375, 43.1399],
-  "COS": [-104.7003, 38.8058], "FAT": [-119.7180, 36.7762], "DAY": [-84.2194, 39.9024],
-  "ICT": [-97.4309, 37.6499], "SDF": [-85.7365, 38.1744], "XNA": [-94.3068, 36.2819],
-  "GEG": [-117.5338, 47.6281], "BTV": [-73.1533, 44.4694], "ABE": [-75.4408, 40.6521],
-  "MOB": [-88.2428, 30.6914], "SRQ": [-82.5530, 27.3954], "TLH": [-84.3504, 30.3965],
-  "TYS": [-83.9933, 35.8128], "AVL": [-82.5418, 35.4362], "SYR": [-76.1071, 43.1112],
-  "BIL": [-108.5429, 45.8077], "CAK": [-81.4422, 40.9161], "LBB": [-101.8234, 33.6636],
-  "GPT": [-89.0720, 30.4120], "ECP": [-85.7956, 30.3571], "BZN": [-111.1524, 45.7770], 
-  "ANC": [-149.9810, 61.1739], "FAI": [-147.8560, 64.8151], "SIT": [-135.3616, 57.0471],
-  "ADK": [-176.6460, 51.8779], "KTN": [-131.7112, 55.3541], "BIL": [-108.5429, 45.8077],
-  "MSO": [-114.0919, 46.9163], "GTF": [-111.3710, 47.4820], "HLN": [-111.9820, 46.6068],
-  "BTM": [-112.4975, 45.9548], "FAR": [-96.8158, 46.9207], "BIS": [-100.7467, 46.7727],
-  "GFK": [-97.1761, 47.9493], "XWA": [-103.7420, 48.2578], "JMS": [-98.6782, 46.9297],
-  "FSD": [-96.7417, 43.5820], "RAP": [-103.0572, 44.0453], "JAC": [-110.7377, 43.6073],  
-  "CPR": [-106.4634, 42.9080], "COD": [-109.0246, 44.5202], "OMA": [-95.8997, 41.3032],  
-  "LNK": [-96.7592, 40.8509], "GRI": [-98.3096, 40.9670], "DEN": [-104.6737, 39.8561],  
-  "COS": [-104.7006, 38.8058], "ASE": [-106.9177, 39.2232], "DSM": [-93.6631, 41.5339],  
-  "CID": [-91.7108, 41.8847], "SUX": [-96.3844, 42.4026], "LAS": [-115.1523, 36.0801],  
-  "RNO": [-119.7681, 39.4991], "PHX": [-112.0116, 33.4342], "TUS": [-110.9410, 32.1161],
-  "ABQ": [-106.6092, 35.0402], "SAF": [-106.0884, 35.6171], "SLC": [-111.9782, 40.7858],  
-  "SGU": [-113.5108, 37.0364]   
-};
+// Create a mapping of airport codes to coordinates from the cordinates CSV
+const airportCoords = cordinates.reduce((acc, d) => {
+  acc[d.NAME] = [d.LONG, d.LAT];
+  return acc;
+}, {});
 
-
-//  Merge Delay Data with Coordinates
+// Merge Delay Data with Coordinates
 const airportData = airportDelays
-  .filter(d => airportCoords[d.airport])
-  .map(d => ({
-    airport: d.airport,
-    avgDelay: d.avgDelay,
-    totalFlights: d.totalFlights,
-    coords: airportCoords[d.airport]
-  }));
+  .filter(d => airportCoords[d.airport])
+  .map(d => ({
+    airport: d.airport,
+    avgDelay: d.avgDelay,
+    totalFlights: d.totalFlights,
+    coords: airportCoords[d.airport]
+  }));
 
-//  Set Map Dimensions
+
+// Set Map Dimensions
 const width = 800, height = 550;
 
-//  Projection & Path Generator
+// Projection & Path Generator
 const projection = d3.geoAlbersUsa().fitSize([width, height], topojson.feature(usMap, usMap.objects.states));
 const path = d3.geoPath().projection(projection);
 
-//  Select Container & Remove Old SVG
+// Select Container & Remove Old SVG
 const container = d3.select("#airport-map-container");
 container.select("svg").remove();
 
-//  Create SVG
+// Create SVG
 const svg = container.append("svg")
-  .attr("width", width)
-  .attr("height", height)
-  .style("font", "12px sans-serif");
+  .attr("width", width)
+  .attr("height", height)
+  .style("font", "12px sans-serif");
 
-//  Tooltip
+// Tooltip
 const tooltip = d3.select("body").append("div")
-  .attr("class", "tooltip")
-  .style("position", "absolute")
-  .style("background", "rgba(0, 0, 0, 0.9)")
-  .style("color", "white")
-  .style("padding", "6px 10px")
-  .style("border-radius", "5px")
-  .style("font-size", "12px")
-  .style("pointer-events", "none")
-  .style("display", "none")
-  .style("text-align", "left"); // Aggiunta per allineare il testo a sinistra
+  .attr("class", "tooltip")
+  .style("position", "absolute")
+  .style("background", "rgba(0, 0, 0, 0.9)")
+  .style("color", "white")
+  .style("padding", "6px 10px")
+  .style("border-radius", "5px")
+  .style("font-size", "12px")
+  .style("pointer-events", "none")
+  .style("display", "none")
+  .style("text-align", "left"); // Aggiunta per allineare il testo a sinistra
 
-//  Draw US States
+// Draw US States
 svg.append("g")
-  .selectAll("path")
-  .data(topojson.feature(usMap, usMap.objects.states).features)
-  .join("path")
-  .attr("d", path)
-  .attr("fill", "#2c3e50") // Dark background for map
-  .attr("stroke", "#fff");
+  .selectAll("path")
+  .data(topojson.feature(usMap, usMap.objects.states).features)
+  .join("path")
+  .attr("d", path)
+  .attr("fill", "#2c3e50") // Dark background for map
+  .attr("stroke", "#fff");
 
-//  Define Color Scale for Delays
+// Define Color Scale for Delays
 const colorScale = d3.scaleDiverging()
-  .domain([30, 0, -10]) // Negative = Early, 0 = On Time, 30+ = Very Late
-  .interpolator(d3.interpolateRdYlGn); // Red = Late, White = On-time, Green = Early
+  .domain([30, 0, -10]) // Negative = Early, 0 = On Time, 30+ = Very Late
+  .interpolator(d3.interpolateRdYlGn); // Red = Late, White = On-time, Green = Early
 
-//  Define Size Scale for Flights
+// Define Size Scale for Flights
 const sizeScale = d3.scaleSqrt()
-  .domain([0, d3.max(airportData, d => d.totalFlights)])
-  .range([5, 30]); // Circle size
+  .domain([0, d3.max(airportData, d => d.totalFlights)])
+  .range([5, 30]); // Circle size
 
-//  Draw Airport Circles
+  airportData.forEach(d => {
+    if (!projection(d.coords)) console.warn("Invalid projection:", d.airport, d.coords);
+  });
+
+// Draw Airport Circles
 svg.append("g")
-  .selectAll("circle")
-  .data(airportData)
-  .join("circle")
-  .attr("cx", d => projection(d.coords)[0])
-  .attr("cy", d => projection(d.coords)[1])
-  .attr("r", d => sizeScale(d.totalFlights))
-  .attr("fill", d => colorScale(d.avgDelay))
-  .attr("stroke", "#222")
-  .attr("opacity", 0.8)
-  .style("pointer-events", "all") // Ensure circles are clickable
-  .sort((a, b) => d3.descending(a.totalFlights, b.totalFlights)) // Ordina in modo decrescente in base al numero totale di voli
-  .on("mouseover", function(event, d) {
-    d3.select(this).attr("stroke", "white");
-    tooltip.style("display", "block")
-      .html(`
-        <strong>${d.airport}</strong><br>
-        ⏳ Avg Delay: ${Math.round(d.avgDelay)} mins<br>
-        ✈ Flights: ${d.totalFlights}
-      `);
-  })
-  .on("mousemove", event => {
-    tooltip.style("top", `${event.pageY + 10}px`).style("left", `${event.pageX - (tooltip.node().offsetWidth / 2) - 10}px`);
-  })
-  .on("mouseout", function() {
-    d3.select(this).attr("stroke", "#222");
-    tooltip.style("display", "none");
-  });
+  .selectAll("circle")
+  .data(airportData)
+  .join("circle")
+  .attr("cx", d => d.coords ? projection(d.coords)[0] : 0) 
+  .attr("cy", d => d.coords ? projection(d.coords)[1] : 0)
+  .attr("r", d => sizeScale(d.totalFlights))
+  .attr("fill", d => colorScale(d.avgDelay))
+  .attr("stroke", "#222")
+  .attr("opacity", 0.8)
+  .style("pointer-events", "all") // Ensure circles are clickable
+  .sort((a, b) => d3.descending(a.totalFlights, b.totalFlights)) // Ordina in modo decrescente in base al numero totale di voli
+  .on("mouseover", function(event, d) {
+    d3.select(this).attr("stroke", "white");
+    tooltip.style("display", "block")
+      .html(`
+        <strong>${d.airport}</strong><br>
+        ⏳ Avg Delay: ${Math.round(d.avgDelay)} mins<br>
+        ✈ Flights: ${d.totalFlights}
+      `);
+  })
+  .on("mousemove", event => {
+    tooltip.style("top", `${event.pageY + 10}px`).style("left", `${event.pageX - (tooltip.node().offsetWidth / 2) - 10}px`);
+  })
+  .on("mouseout", function() {
+    d3.select(this).attr("stroke", "#222");
+    tooltip.style("display", "none");
+  });
 
-//  Create Season Toggle
+// Create Season Toggle
 const selectedSeason = Inputs.radio(["All", "Winter", "Spring", "Summer", "Fall"], {
-  label: "🌍 Select Season",
-  value: "All"
+  label: "🌍 Select Season",
+  value: "All"
 });
 
-//  Function to Update Map Based on Season
+// Function to Update Map Based on Season
 function updateMap() {
-  const filteredData = selectedSeason.value === "All"
-    ? airportData
-    : airportData.filter(d => datasetFlights.some(f => f.ORIGIN === d.airport && f.SEASON === selectedSeason.value));
+  const filteredData = selectedSeason.value === "All"? airportData
+    : airportData.filter(d => datasetFlights.some(f => f.ORIGIN === d.airport && f.SEASON === selectedSeason.value));
 
-  svg.selectAll("circle")
-    .data(filteredData, d => d.airport)
-    .join(
-      enter => enter.append("circle")
-        .attr("cx", d => projection(d.coords)[0])
-        .attr("cy", d => projection(d.coords)[1])
-        .attr("r", d => sizeScale(d.totalFlights))
-        .attr("fill", d => {
-          return colorScale(d.avgDelay); // Ensure avgDelay is correctly mapped to the color scale
-        })
-        .attr("stroke", "#222")
-        .attr("opacity", 0.8)
-        .on("mouseover", function (event, d) {
-          d3.select(this).attr("stroke", "white");
-          tooltip.style("display", "block").html(`
-            <div style="text-align: left;">
-              <strong>${d.airport}</strong><br>
-              ⏳ Avg Delay: ${Math.round(d.avgDelay)} mins<br>
-              ✈ Flights: ${d.totalFlights}
-            </div>
-          `);
-        })
-        .on("mousemove", event => {
-          tooltip.style("top", `${event.pageY + 10}px`).style("left", `${event.pageX - (tooltip.node().offsetWidth / 2) - 10}px`);
-        })
-        .on("mouseout", function () {
-          d3.select(this).attr("stroke", "#222");
-          tooltip.style("display", "none");
-        }),
-      update => update.transition().duration(500)
-        .attr("r", d => sizeScale(d.totalFlights))
-        .attr("fill", d => colorScale(d.avgDelay)), // Use the correct color scale here
-      exit => exit.remove()
-    )
-    .sort((a, b) => d3.descending(a.totalFlights, b.totalFlights)); // Ordina le bolle aggiornate
+  svg.selectAll("circle")
+    .data(filteredData, d => d.airport)
+    .join(
+      enter => enter.append("circle")
+        .attr("cx", d => d.coords ? projection(d.coords)[0] : 0) 
+        .attr("cy", d => d.coords ? projection(d.coords)[1] : 0)
+        .attr("r", d => sizeScale(d.totalFlights))
+        .attr("fill", d => {
+          return colorScale(d.avgDelay); // Ensure avgDelay is correctly mapped to the color scale
+        })
+        .attr("stroke", "#222")
+        .attr("opacity", 0.8)
+        .on("mouseover", function (event, d) {
+          d3.select(this).attr("stroke", "white");
+          tooltip.style("display", "block").html(`
+            <div style="text-align: left;">
+              <strong>${d.airport}</strong><br>
+              ⏳ Avg Delay: ${Math.round(d.avgDelay)} mins<br>
+              ✈ Flights: ${d.totalFlights}
+            </div>
+          `);
+        })
+        .on("mousemove", event => {
+          tooltip.style("top", `${event.pageY + 10}px`).style("left", `${event.pageX - (tooltip.node().offsetWidth / 2) - 10}px`);
+        })
+        .on("mouseout", function () {
+          d3.select(this).attr("stroke", "#222");
+          tooltip.style("display", "none");
+        }),
+      update => update.transition().duration(500)
+        .attr("r", d => sizeScale(d.totalFlights))
+        .attr("fill", d => colorScale(d.avgDelay)), // Use the correct color scale here
+      exit => exit.remove()
+    )
+    .sort((a, b) => d3.descending(a.totalFlights, b.totalFlights)); // Ordina le bolle aggiornate
 
-  //  Define the color scale legend (Update the legend as well)
-  const legend = svg.append("g")
-    .attr("transform", `translate(590 20)`); // Position the legend on the right
+  // Define the color scale legend (Update the legend as well)
+  const legend = svg.append("g")
+    .attr("transform", `translate(590 20)`); // Position the legend on the right
 
-  //  Add a gradient for the color scale
-  legend.append("defs")
-    .append("linearGradient")
-    .attr("id", "color-legend")
-    .attr("x1", "0%")
-    .attr("y1", "0%")
-    .attr("x2", "100%")
-    .attr("y2", "0%")
-    .selectAll("stop")
-    .data([
-      { offset: "0%", color: colorScale(30) }, // Red (Late)
-      { offset: "50%", color: colorScale(0) },  // White (On Time)
-      { offset: "100%", color: colorScale(-10) } // Green (Early)
-    ])
-    .enter().append("stop")
-    .attr("offset", d => d.offset)
-    .attr("stop-color", d => d.color);
+  // Add a gradient for the color scale
+  legend.append("defs")
+    .append("linearGradient")
+    .attr("id", "color-legend")
+    .attr("x1", "0%")
+    .attr("y1", "0%")
+    .attr("x2", "100%")
+    .attr("y2", "0%")
+    .selectAll("stop")
+    .data([
+      { offset: "0%", color: colorScale(30) }, // Red (Late)
+      { offset: "50%", color: colorScale(0) },  // White (On Time)
+      { offset: "100%", color: colorScale(-10) } // Green (Early)
+    ])
+    .enter().append("stop")
+    .attr("offset", d => d.offset)
+    .attr("stop-color", d => d.color);
 
-  //  Add a rectangle to display the color gradient
-  legend.append("rect")
-    .attr("width", 120)
-    .attr("height", 20)
-    .style("fill", "url(#color-legend)");
+  // Add a rectangle to display the color gradient
+  legend.append("rect")
+    .attr("width", 120)
+    .attr("height", 20)
+    .style("fill", "url(#color-legend)");
 
-  //  Add labels to explain the gradient
-  legend.append("text")
-    .attr("x", 0)
-    .attr("y", 40)
-    .attr("text-anchor", "middle")
-    .style("font-size", "12px")
-    .style("fill", "white")
-    .text("Late");
+  // Add labels to explain the gradient
+  legend.append("text")
+    .attr("x", 0)
+    .attr("y", 40)
+    .attr("text-anchor", "middle")
+    .style("font-size", "12px")
+    .style("fill", "white")
+    .text("Late");
 
-  legend.append("text")
-    .attr("x", 60)
-    .attr("y", 40)
-    .attr("text-anchor", "middle")
-    .style("font-size", "12px")
-    .style("fill", "white")
-    .text("On Time");
+  legend.append("text")
+    .attr("x", 60)
+    .attr("y", 40)
+    .attr("text-anchor", "middle")
+    .style("font-size", "12px")
+    .style("fill", "white")
+    .text("On Time");
 
-  legend.append("text")
-    .attr("x", 120)
-    .attr("y", 40)
-    .attr("text-anchor", "middle")
-    .style("font-size", "12px")
-    .style("fill", "white")
-    .text("Early");
+  legend.append("text")
+    .attr("x", 120)
+    .attr("y", 40)
+    .attr("text-anchor", "middle")
+    .style("font-size", "12px")
+    .style("fill", "white")
+    .text("Early");
 }
 
-//  Listen for Season Toggle Changes
+// Listen for Season Toggle Changes
 selectedSeason.addEventListener("input", updateMap);
 
-//  Initial Map Render
+// Initial Map Render
 updateMap();
 ```
 

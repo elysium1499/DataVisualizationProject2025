@@ -495,7 +495,6 @@ What's compelling here is the temporal filter. By selecting different years or f
  ## Monthly Flight Volume
 
  ```js
- 
 // Extract unique years and properly format them
 const years = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).getFullYear()))]
   .sort((a, b) => a - b)
@@ -503,6 +502,40 @@ const years = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).getFullYea
 
 // Dropdown for year selection
 const selYear = Inputs.select(years, { label: "📅 Select Year" });
+const selAutoplay = document.createElement('button');
+selAutoplay.id = "autoplay-btn";
+selAutoplay.innerHTML = '▶ Play';
+selAutoplay.style.background = "none";
+selAutoplay.style.border = "none";
+selAutoplay.style.padding = "0px 20px";
+selAutoplay.style.cursor = "pointer";
+document.querySelector("#autoplay-container").appendChild(selAutoplay);
+
+// Variabili per il controllo dell'autoplay
+let autoplayInterval;
+let autoplayActive = false;
+
+function toggleAutoplay() {
+  const autoplayButton = document.getElementById("autoplay-btn");
+  
+  if (autoplayActive) {
+    clearInterval(autoplayInterval);
+    autoplayActive = false;
+    autoplayButton.innerHTML = '▶  Play';
+  } else {
+    autoplayActive = true;
+    autoplayButton.innerHTML = '■  Stop';
+    autoplayInterval = setInterval(() => {
+      let currentIndex = years.indexOf(selYear.value);
+      currentIndex = (currentIndex + 1) % years.length; 
+      selYear.value = years[currentIndex];
+      document.querySelector("#ridgeline-container").innerHTML = "";
+      document.querySelector("#ridgeline-container").appendChild(radarChart(years[currentIndex]));
+    }, 1500);
+  }
+}
+
+selAutoplay.addEventListener("click", toggleAutoplay);
 
 // Process data: Aggregate monthly flight volumes per year
 function getMonthlyData(year) {
@@ -630,11 +663,13 @@ selYear.addEventListener("input", () => {
   document.querySelector("#ridgeline-container").innerHTML = "";
   document.querySelector("#ridgeline-container").appendChild(radarChart(selYear.value));
 });
+
 ```
 <br>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selYear}</div>
+    <div style="display: inline-block; width: 85px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;"><div id="autoplay-container"></div></div>
   </div>
   <div class="grid grid-cols-1"> <div class="card" style="display: flex; justify-content: center; align-items: center; height: 500px; " id="ridgeline-container"> ${ridgelineChart} </div> </div>
 </div>
