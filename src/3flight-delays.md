@@ -1,5 +1,5 @@
 ---
-theme: dashboard
+theme: dark
 title: Flight Delays
 toc: true
 ---
@@ -12,6 +12,8 @@ toc: true
 <div>
 Analyzing flight delays offers valuable insights into the operational efficiency of airlines and the overall health of the aviation industry. The "Flight Delays" dashboard provides an interactive platform to explore various dimensions of flight delays across U.S. airlines and airports. Through a series of visualizations, users can uncover patterns related to timing, causes, distances, and geographic distribution of delays. Each graph is designed with interactive features that allow for a deeper understanding of the data.
 </div>
+<br>
+<br>
 
 ## Flight Delays by Day & Hour 
 

@@ -1,5 +1,5 @@
 ---
-theme: dashboard
+theme: dark
 title: Airport statistics
 toc: true
 ---
@@ -12,6 +12,8 @@ toc: true
 The "Airport Statistics" dashboard offers an in-depth exploration of flight performance metrics across major U.S. airports. Through interactive visualizations, users can examine the distribution of flight delays and assess airport efficiency concerning delays, cancellations, and diversions. These tools provide valuable insights into the operational dynamics of some of the nation's busiest airports.
 </div>
 
+<br>
+<br>
 
 ## Flight Delay Distribution by Airport
 

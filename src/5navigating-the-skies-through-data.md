@@ -1,5 +1,5 @@
 ---
-theme: dashboard
+theme: dark
 title: Navigating the Skies Through Data
 toc: true
 ---

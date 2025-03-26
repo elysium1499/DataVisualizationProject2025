@@ -21,9 +21,14 @@ export default {
 
   // The path to the source root.
   root: "src",
+  //theme: "slate",
+  theme: "dark",
+  toc : true,
+  footer: ({path}) => `<a href="https://github.com/elysium1499/DataVisualizationProject2025">Source Code</a>`,
+  
 
   // Some additional configuration options and their defaults:
-  theme: "light", // try "light", "dark", "slate", "default", etc.
+  //theme: "dark", // try "light", "dark", "slate", "default", etc.
   // header: "", // what to show in the header (HTML)
   // footer: "Built with Observable.", // what to show in the footer (HTML)
   // sidebar: true, // whether to show the sidebar

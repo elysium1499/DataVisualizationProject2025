@@ -1,5 +1,5 @@
 ---
-theme: dashboard
+theme: dark
 title: Airline performance
 toc: true
 ---

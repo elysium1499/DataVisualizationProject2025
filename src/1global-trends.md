@@ -1,5 +1,5 @@
 ---
-theme: dashboard
+theme: dark
 title: Global Trends
 toc: true
 ---
@@ -24,8 +24,11 @@ const covidStartDate = new Date("2020-03-01");
 The aviation industry is a dynamic indicator of economic activity, global connectivity, and societal change. Through this dashboard, we dive into the story told by U.S. domestic flight data between 2019 and 2023. These interactive visualizations allow us not only to observe how flight volumes evolved over time but also to explore how different regions and airlines experienced these shifts. From the sharp drop during the early days of COVID-19 to the gradual resurgence in air traffic, each plot unpacks a different layer of this complex system.
 </div>
 
+<br>
+<br>
 
 ## Flight Volume Over Time
+<br>
 
 <div> 
 The first chart presents a time-series line graph that illustrates the number of flights per day over the span of several years. What makes this chart immediately striking is the visible collapse in flight volumes around March–April 2020—corresponding precisely to the global onset of the COVID-19 pandemic. The red dashed line offers a clear temporal anchor, making it easy to contextualize the dramatic dip.
@@ -245,9 +248,11 @@ The chart allows for filtering by airline and destination state, so we could pot
 The blue line shows the number of flights per day. The filters can be use to select a specific airline or destination. The red dashed line marks the start of COVID-19 (March 2020) and the toggle Smooth Line can adjust visualization. </div> 
 
 <br>
+<br>
 
 
 ## Destination density Map
+<br>
 
 <div> 
 This is a geographical view of flight density per state, filtered by year and airline, helps identify the busiest regions. Flight volume fluctuates over time and it is influenced by different conditions: seasons, airline operations, and passenger demand.
