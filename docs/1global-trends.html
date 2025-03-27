@@ -518,7 +518,7 @@ selectedAirline1
 ))
 }});
 
-define({id: "e32032a4", inputs: ["datasetFlights","Inputs","d3"], outputs: ["years","selYear","selAutoplay","autoplayInterval","autoplayActive","toggleAutoplay","getMonthlyData","maxFlights","fixedScale","radarChart","ridgelineChart"], body: (datasetFlights,Inputs,d3) => {
+define({id: "ccc46d51", inputs: ["datasetFlights","Inputs","d3"], outputs: ["years","selYear","selAutoplay","autoplayInterval","autoplayActive","toggleAutoplay","getMonthlyData","maxFlights","fixedScale","radarChart","ridgelineChart"], body: (datasetFlights,Inputs,d3) => {
 // Extract unique years and properly format them
 const years = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).getFullYear()))]
  .sort((a, b) => a - b)
@@ -549,17 +549,33 @@ function toggleAutoplay() {
  } else {
    autoplayActive = true;
    autoplayButton.innerHTML = '■  Stop';
-   autoplayInterval = setInterval(() => {
+   
+   function autoplayStep() {
      let currentIndex = years.indexOf(selYear.value);
-     currentIndex = (currentIndex + 1) % years.length; 
-     selYear.value = years[currentIndex];
+     
+     if (currentIndex === years.length - 1) { 
+       setTimeout(() => {
+         selYear.value = years[0]; // Torna al primo anno
+         updateChart();
+         autoplayInterval = setInterval(autoplayStep, 1500);
+       }, 2500); 
+       
+       clearInterval(autoplayInterval); // Ferma temporaneamente il loop
+     } else {
+       currentIndex = (currentIndex + 1) % years.length; 
+       selYear.value = years[currentIndex];
+       updateChart();
+     }
+   }
+   function updateChart() {
      document.querySelector("#ridgeline-container").innerHTML = "";
-     document.querySelector("#ridgeline-container").appendChild(radarChart(years[currentIndex]));
-   }, 1500);
+     document.querySelector("#ridgeline-container").appendChild(radarChart(selYear.value));
+   }
+   autoplayInterval = setInterval(autoplayStep, 1500);
  }
 }
-
 selAutoplay.addEventListener("click", toggleAutoplay);
+
 
 // Process data: Aggregate monthly flight volumes per year
 function getMonthlyData(year) {
@@ -788,7 +804,7 @@ The second visualization shifts focus from time to geography. This U.S. map shad
 <p>What's compelling here is the temporal filter. By selecting different years or filtering by airline, users can uncover how regional flight activity changed—perhaps observing a temporary dip in traffic to tourist-heavy states in 2020, followed by rebounds in 2021 and beyond. Note that the scale adjusts dynamically when filtering. This map translates abstract numbers into a spatial context, helping users grasp the real-world geography behind the data.</p>
 </div><br> 
 <h2 id="monthly-flight-volume" tabindex="-1"><a class="observablehq-header-anchor" href="#monthly-flight-volume">Monthly Flight Volume</a></h2>
-<div class="observablehq observablehq--block"><!--:e32032a4:--></div>
+<div class="observablehq observablehq--block"><!--:ccc46d51:--></div>
 <br>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">

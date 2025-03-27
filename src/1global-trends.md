@@ -525,17 +525,33 @@ function toggleAutoplay() {
   } else {
     autoplayActive = true;
     autoplayButton.innerHTML = '■  Stop';
-    autoplayInterval = setInterval(() => {
+    
+    function autoplayStep() {
       let currentIndex = years.indexOf(selYear.value);
-      currentIndex = (currentIndex + 1) % years.length; 
-      selYear.value = years[currentIndex];
+      
+      if (currentIndex === years.length - 1) { 
+        setTimeout(() => {
+          selYear.value = years[0]; // Torna al primo anno
+          updateChart();
+          autoplayInterval = setInterval(autoplayStep, 1500);
+        }, 2500); 
+        
+        clearInterval(autoplayInterval); // Ferma temporaneamente il loop
+      } else {
+        currentIndex = (currentIndex + 1) % years.length; 
+        selYear.value = years[currentIndex];
+        updateChart();
+      }
+    }
+    function updateChart() {
       document.querySelector("#ridgeline-container").innerHTML = "";
-      document.querySelector("#ridgeline-container").appendChild(radarChart(years[currentIndex]));
-    }, 1500);
+      document.querySelector("#ridgeline-container").appendChild(radarChart(selYear.value));
+    }
+    autoplayInterval = setInterval(autoplayStep, 1500);
   }
 }
-
 selAutoplay.addEventListener("click", toggleAutoplay);
+
 
 // Process data: Aggregate monthly flight volumes per year
 function getMonthlyData(year) {

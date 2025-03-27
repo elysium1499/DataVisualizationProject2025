@@ -109,7 +109,7 @@ function drawHeatmap() {
   const filteredData = filterData(selectedYear.value, selectedMonth.value);
   const heatmapData = processHeatmapData(filteredData);
 
-  const width = 900, height = 500, margin = { top: 120, right: 20, bottom: 50, left: 100 };
+  const width = 900, height = 500, margin = { top: 120, right: 50, bottom: 50, left: 50 };
 
   const xScale = d3.scaleBand().domain(d3.range(0, 24)).range([margin.left, width - margin.right]).padding(0.05);
   const yScale = d3.scaleBand().domain(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]).range([margin.top, height - margin.bottom]).padding(0.05);
@@ -228,19 +228,29 @@ function toggleAutoplay() {
   } else {
     isAutoplayActive = true;
     autoplayButton.innerHTML = '■ Stop';
-    autoplayInterval = setInterval(() => {
+
+    function autoplayStep() {
       d3.select(".tooltip").remove();
 
       let currentYearIndex = availableYears.indexOf(selectedYear.value);
+      
       if (currentYearIndex < availableYears.length - 1) {
         selectedYear.value = availableYears[currentYearIndex + 1];
+        drawHeatmap();
       } else {
-        selectedYear.value = availableYears[0];
+        clearInterval(autoplayInterval);
+        setTimeout(() => {
+          selectedYear.value = availableYears[0];
+          drawHeatmap();
+          autoplayInterval = setInterval(autoplayStep, 1500);
+        }, 2500);
       }
-      drawHeatmap();
-    }, 1500); // change year every second (1000ms)
+    }
+
+    autoplayInterval = setInterval(autoplayStep, 1500);
   }
 }
+
 
 // Event listener for the autoplay button
 document.getElementById("autoplay-btn").addEventListener("click", toggleAutoplay);
@@ -561,7 +571,7 @@ const scatterStats = d3.rollups(
 
 //  Step 1: Set up chart dimensions
 const scatterWidth = 750, scatterHeight = 450;
-const scatterMargin = { top: 50, right: 50, bottom: 80, left: 80 };
+const scatterMargin = { top: 50, right: 50, bottom: 80, left: 50 };
 
 //  Step 2: Define Scales
 const scatterXScale = d3.scaleLinear()
