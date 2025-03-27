@@ -276,9 +276,8 @@ Each box plot provides a summary of the delay distribution for a specific airpor
 - Whiskers: The lower whisker denotes the minimum delay experienced, and the upper whisker indicates the maximum delay.
 - Box Edges: The bottom and top edges of the box represent the first quartile (Q1) and third quartile (Q3), respectively, encapsulating the middle 50% of the data.
 - Median Line: A white line within the box marks the median delay, offering a central tendency measure.
-
-By hovering over each box plot, users can view detailed statistics, including specific delay times and quartile values, enhancing the depth of analysis.
-
+</div><div>
+By hovering over each box plot, users can view detailed statistics, including specific delay times and quartile values, enhancing the depth of analysis.<br><br>
 This visualization allows for a comparative assessment of delay patterns across different airports, highlighting those with higher variability or consistently longer delays. Such insights are instrumental for travellers and industry professionals aiming to understand and mitigate delay-related challenges.</div>
 
 <br>
@@ -454,8 +453,7 @@ The radar chart evaluates nine prominent U.S. airports—ATL (Hartsfield-Jackson
 1. Average Delay: Depicted as an area within the chart, illustrating the typical delay duration experienced at the airport.
 2. Percentage of Flights Diverted: Indicates the proportion of flights rerouted to alternate destinations.
 3. Percentage of Flights Cancelled: Represents the share of scheduled flights that were cancelled.
-
-Users can juxtapose the performance metrics of the selected airports, observing how each fares concerning delays, cancellations, and diversions.
-
+</div><div>
+Users can juxtapose the performance metrics of the selected airports, observing how each fares concerning delays, cancellations, and diversions.<br><br>
 For instance, ATL, despite being the busiest airport in the U.S., demonstrates moderate average delays and minimal diversions and cancellations, suggesting robust operational efficiency. Conversely, ORD exhibits relatively higher average delays, aligning with its reputation for congestion challenges. SFO's moderate delays, often attributed to weather conditions like fog, are also evident. These comparative insights assist stakeholders in identifying areas for improvement and recognizing airports that exemplify operational excellence.
 </div>

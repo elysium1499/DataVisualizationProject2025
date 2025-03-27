@@ -9,9 +9,7 @@ toc: true
 <br>
 
 <div>
-The Airline Performance dashboard offers an in-depth analysis of how various U.S. airlines managed their flight operations, focusing on metrics such as punctuality, delays, cancellations, and diversions. By leveraging interactive visualizations, this dashboard provides a comprehensive view of airline performance, enabling users to discern patterns and make informed comparisons.
-
-</div>
+The Airline Performance dashboard offers an in-depth analysis of how various U.S. airlines managed their flight operations, focusing on metrics such as punctuality, delays, cancellations, and diversions. By leveraging interactive visualizations, this dashboard provides a comprehensive view of airline performance, enabling users to discern patterns and make informed comparisons.</div>
 
 
 <br>
@@ -267,20 +265,15 @@ document.body.appendChild(selectedView);
   <div class="grid grid-cols-1"> <div class="card" style="display: flex; justify-content: center; align-items: center;"><div id="barchart-container"></div> </div> </div>
 </div>
 
-<div>
+<div>This interactive stacked bar chart provides a comprehensive overview of flight outcomes across different airlines. Each bar represents an airline's total flight operations, segmented into four distinct categories:
 
-This interactive stacked bar chart provides a comprehensive overview of flight outcomes across different airlines. Each bar represents an airline's total flight operations, segmented into four distinct categories:
+  - On-Time Flights (Green): Flights that departed and arrived as scheduled.
+  - Delayed Flights (Yellow): Flights that experienced departure or arrival delays.
+  - Cancelled Flights (Red): Flights that were scheduled but did not operate.
+  - Diverted Flights (Purple): Flights that were rerouted from their original destination to an alternate airport.
+</div>
 
-- On-Time Flights (Green): Flights that departed and arrived as scheduled.
-
-- Delayed Flights (Yellow): Flights that experienced departure or arrival delays.
-
-- Cancelled Flights (Red): Flights that were scheduled but did not operate.
-
-- Diverted Flights (Purple): Flights that were rerouted from their original destination to an alternate airport.
-
-The height of each bar indicates the total number of flights operated by the respective airline, while the color segments reveal the proportion of each flight status. For instance, *Southwest Airlines Co.* exhibits the tallest bar, signifying its position as a leading carrier in terms of flight volume. However, a closer examination of the yellow segment within each bar uncovers that *American Airlines Inc.* and *JetBlue Airways* have a notable percentage of delayed flights, highlighting areas where punctuality may be a concern.
-
+<div>The height of each bar indicates the total number of flights operated by the respective airline, while the color segments reveal the proportion of each flight status. For instance, <i>Southwest Airlines Co.</i> exhibits the tallest bar, signifying its position as a leading carrier in terms of flight volume. However, a closer examination of the yellow segment within each bar uncovers that <i>American Airlines Inc.</i> and <i>JetBlue Airways</i> have a notable percentage of delayed flights, highlighting areas where punctuality may be a concern.
 Users can interact with the chart by toggling between different flight statuses, allowing for a focused analysis of specific performance metrics. Note that the scale adjusts dynamically when filtering. Hovering over individual bars provides detailed statistics, offering a granular view of each airline's operational outcomes.
 </div>
 
@@ -512,20 +505,14 @@ createSankeyChart();
   <div class="card" style="display: flex; justify-content: center; align-items: center;"> <div id="sankey-container"></div> </div> 
 </div>
 
-<div>
-
-The Sankey diagram offers a dynamic visualization of the journey from flight departure to final status across various airlines. This flow diagram effectively illustrates the distribution of flight outcomes, enabling users to discern patterns and identify which airlines face challenges in specific areas.
-
-The diagram is structured into three columns:
+<div>The Sankey diagram offers a dynamic visualization of the journey from flight departure to final status across various airlines. This flow diagram effectively illustrates the distribution of flight outcomes, enabling users to discern patterns and identify which airlines face challenges in specific areas.<br> The diagram is structured into three columns:
 
 1. Number of Flights: This leftmost column quantifies the total flight volume for each airline, with bar heights corresponding to the number of flights operated.
 
 2. Airline: The central column lists the airlines, serving as a conduit between the total flight volume and the resulting flight statuses.
 
 3. Status: The rightmost column delineates the possible flight outcomes—On-Time, Delayed, Cancelled, and Diverted—each represented by distinct colors (green, yellow, red, and purple, respectively).
-
-Flows between these columns are proportionally sized, reflecting the volume of flights transitioning from each airline to the respective status categories. For example, a substantial green flow from *Southwest Airlines Co.* to the On-Time status indicates a high rate of punctual flights. Conversely, thinner flows in red or purple from other airlines to the Cancelled or Diverted statuses may point to operational challenges.
-
-This visualization facilitates a comparative analysis of airline performance, allowing users to quickly assess which carriers excel in maintaining schedules and which may require improvements in operational reliability.
-
+</div>
+<div>
+Flows between these columns are proportionally sized, reflecting the volume of flights transitioning from each airline to the respective status categories. For example, a substantial green flow from *Southwest Airlines Co.* to the On-Time status indicates a high rate of punctual flights. Conversely, thinner flows in red or purple from other airlines to the Cancelled or Diverted statuses may point to operational challenges. <br> This visualization facilitates a comparative analysis of airline performance, allowing users to quickly assess which carriers excel in maintaining schedules and which may require improvements in operational reliability.
 </div>

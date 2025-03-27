@@ -31,9 +31,7 @@ The aviation industry is a dynamic indicator of economic activity, global connec
 <br>
 
 <div> 
-The first chart presents a time-series line graph that illustrates the number of flights per day over the span of several years. What makes this chart immediately striking is the visible collapse in flight volumes around March–April 2020—corresponding precisely to the global onset of the COVID-19 pandemic. The red dashed line offers a clear temporal anchor, making it easy to contextualize the dramatic dip.
-
-As we progress past this low point, the chart reveals a slow but steady recovery in flight activity. Users can toggle between a smooth and linear line to better discern seasonal fluctuations or general trends. What’s particularly useful is the ability to filter by airline and destination, allowing the viewer to zoom in on how specific carriers or cities were impacted. Note that the scale adjusts dynamically when filtering.
+The first chart presents a time-series line graph that illustrates the number of flights per day over the span of several years. What makes this chart immediately striking is the visible collapse in flight volumes around March–April 2020—corresponding precisely to the global onset of the COVID-19 pandemic. The red dashed line offers a clear temporal anchor, making it easy to contextualize the dramatic dip. <br>As we progress past this low point, the chart reveals a slow but steady recovery in flight activity. Users can toggle between a smooth and linear line to better discern seasonal fluctuations or general trends. What’s particularly useful is the ability to filter by airline and destination, allowing the viewer to zoom in on how specific carriers or cities were impacted. Note that the scale adjusts dynamically when filtering.
 </div>
 
 ```js
@@ -316,7 +314,7 @@ function computeStateFlightCounts(data) {
 }
 
 // Define map dimensions
-const width = 750, height = 450;
+const width = 700, height = 400;
 
 // Projection & path generator
 const projection = d3.geoAlbersUsa().fitSize([width, height], topojson.feature(usStates, usStates.objects.states));
@@ -421,12 +419,13 @@ function drawMap(data) {
   // Generate range labels ensuring "+1 condition"
   const legendLabels = legendRanges.slice(0, -1).map((d, i) => {
     let nextValue = legendRanges[i + 1] - 1;
-    if (i === legendRanges.length - 2) return `${d} -`; // Ensure last bin fully includes maxCount
-    return `${d}-${nextValue}`;
+    return i === legendRanges.length - 2 ? `${d}` : `${d}-${nextValue}`;
   });
 
+
   const legend = svg.append("g")
-    .attr("transform", `translate(-30, 0)`);
+  .attr("transform", `translate(${width +30}, 0)`);
+
 
   // Draw color boxes
   legend.selectAll("rect")
@@ -478,18 +477,14 @@ updateMap();
     <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selectedAirline1}</div>
   </div>
   <div class="grid grid-cols-1"> 
-    <div class="card" style="display: flex; justify-content: center; align-items: center; height: 500px;"> 
+    <div class="card" style="display: flex; justify-content: center - 100px; align-items: center; height: 500px;"> 
       <div id="map-container"></div> 
     </div> 
   </div>
 </div>
 
 <div> 
-The second visualization shifts focus from time to geography. This U.S. map shades each state based on the number of incoming flights, with deeper colors representing higher volumes. It immediately highlights which regions serve as major hubs—states like California, Texas, and Florida tend to show darker shades, reflecting their high connectivity and central role in domestic travel.
-
-What's compelling here is the temporal filter. By selecting different years or filtering by airline, users can uncover how regional flight activity changed—perhaps observing a temporary dip in traffic to tourist-heavy states in 2020, followed by rebounds in 2021 and beyond. Note that the scale adjusts dynamically when filtering. This map translates abstract numbers into a spatial context, helping users grasp the real-world geography behind the data.
-
-</div><br> 
+The second visualization shifts focus from time to geography. This U.S. map shades each state based on the number of incoming flights, with deeper colors representing higher volumes. It immediately highlights which regions serve as major hubs—states like California, Texas, and Florida tend to show darker shades, reflecting their high connectivity and central role in domestic travel. <br> What's compelling here is the temporal filter. By selecting different years or filtering by airline, users can uncover how regional flight activity changed—perhaps observing a temporary dip in traffic to tourist-heavy states in 2020, followed by rebounds in 2021 and beyond. Note that the scale adjusts dynamically when filtering. This map translates abstract numbers into a spatial context, helping users grasp the real-world geography behind the data.</div><br> 
 
  
  ## Monthly Flight Volume
@@ -692,8 +687,4 @@ selYear.addEventListener("input", () => {
 
 
 <div>
-Lastly, the radar chart offers a fresh perspective by displaying monthly flight volumes in a circular, clock-like form. Each "spoke" of the chart represents a month, with the distance from the center indicating flight volume. This design cleverly visualizes seasonality in air travel—highlighting, for instance, the summer peaks or the holiday spikes in November and December.
-
-What’s notable here is the ability to switch between years. This allows viewers to see how certain seasonal patterns persist or shift over time, and how anomalies—like the spring 2020 collapse—stand out starkly. For instance, a comparison between 2019 and 2020 reveals how travel during typically busy months was severely disrupted.
-
-</div>
+Lastly, the radar chart offers a fresh perspective by displaying monthly flight volumes in a circular, clock-like form. Each "spoke" of the chart represents a month, with the distance from the center indicating flight volume. This design cleverly visualizes seasonality in air travel—highlighting, for instance, the summer peaks or the holiday spikes in November and December.<br>What’s notable here is the ability to switch between years. This allows viewers to see how certain seasonal patterns persist or shift over time, and how anomalies—like the spring 2020 collapse—stand out starkly. For instance, a comparison between 2019 and 2020 reveals how travel during typically busy months was severely disrupted.</div>
