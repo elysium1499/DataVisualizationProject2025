@@ -72,7 +72,7 @@ const covidStartDate = new Date("2020-03-01");
 return {datasetFlights,covidStartDate};
 }});
 
-define({id: "8f0daf98", inputs: ["datasetFlights","Inputs","d3","covidStartDate"], outputs: ["stateNameMap","width","height","margin","airlineOptions","destinationOptions","selectedAirline","selectedDestination","smoothLine","getFilteredData","flightsPerDay","drawChart","flightVolumeChart"], body: (datasetFlights,Inputs,d3,covidStartDate) => {
+define({id: "9537a8f9", inputs: ["datasetFlights","Inputs","d3","covidStartDate"], outputs: ["stateNameMap","width","height","margin","airlineOptions","destinationOptions","selectedAirline","selectedDestination","smoothLine","getFilteredData","flightsPerDay","drawChart","flightVolumeChart"], body: (datasetFlights,Inputs,d3,covidStartDate) => {
 const stateNameMap = {
   "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
   "CA": "California", "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware",
@@ -101,6 +101,7 @@ const destinationOptions = ["All Destinations", ...new Set(datasetFlights.map(d 
 const selectedAirline = Inputs.select(airlineOptions, { label: "✈ Airline" });
 const selectedDestination = Inputs.select(destinationOptions, { label: "📍 Destination" });
 const smoothLine = Inputs.toggle({ label: "📈 Smooth Line" });
+
 
 // Function to filter and aggregate data
 function getFilteredData(airline, destination) {
@@ -292,7 +293,7 @@ flightVolumeChart
 ))
 }});
 
-define({id: "0bb91d87", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usStates","stateAbbreviations","years","selectedYear","airlineOptions","selectedAirline1","filterFlights","computeStateFlightCounts","width","height","projection","path","computeColorScale","drawMap","updateMap"], body: async (d3,datasetFlights,Inputs) => {
+define({id: "5cdb7c9c", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usStates","stateAbbreviations","years","selectedYear","airlineOptions","selectedAirline1","filterFlights","computeStateFlightCounts","width","height","projection","path","airlineColorScales","airlineLegendData","computeAirlineScaleAndLegend","drawMap","updateMap"], body: async (d3,datasetFlights,Inputs) => {
 const topojson = await import("https://cdn.jsdelivr.net/npm/topojson@3/+esm");
 // Load US states GeoJSON
 const usStates = await d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json");
@@ -356,24 +357,47 @@ const width = 700, height = 400;
 const projection = d3.geoAlbersUsa().fitSize([width, height], topojson.feature(usStates, usStates.objects.states));
 const path = d3.geoPath().projection(projection);
 
-// Define color scales. Compute dynamic quantile thresholds based on dataset
-function computeColorScale(data, colorRange) {
-  const stateCounts = Object.values(computeStateFlightCounts(data));
-  return d3.scaleQuantile()
-    .domain(stateCounts)
+// Store color scales for each airline
+const airlineColorScales = {};
+const airlineLegendData = {};
+
+// Function to compute and store color scale and legend data for a given airline
+function computeAirlineScaleAndLegend(airline) {
+  const filteredFlights = airline === "All Airlines"
+    ? datasetFlights
+    : datasetFlights.filter(d => d.AIRLINE === airline);
+  const stateCounts = computeStateFlightCounts(filteredFlights);
+  const stateValues = Object.values(stateCounts);
+  const colorRange = airline === "All Airlines" ? d3.schemeBlues[5] : d3.schemeOranges[5];
+  const colorScale = d3.scaleQuantile()
+    .domain(stateValues)
     .range(colorRange);
+
+  const quantiles = Array.isArray(colorScale.quantiles()) ? colorScale.quantiles() : [];
+  const minCount = stateValues.length > 0 ? Math.min(...stateValues) : 0;
+  const maxCount = stateValues.length > 0 ? Math.max(...stateValues) : 0;
+  const legendRanges = [minCount, ...quantiles.map(d => Math.round(d)), maxCount];
+  if (legendRanges[legendRanges.length - 1] < maxCount) {
+    legendRanges.push(maxCount);
+  }
+  const legendLabels = legendRanges.slice(0, -1).map((d, i) => {
+    let nextValue = legendRanges[i + 1] - 1;
+    return `${d}-${nextValue}`;
+  });
+
+  airlineColorScales[airline] = colorScale;
+  airlineLegendData[airline] = { ranges: legendRanges, labels: legendLabels };
 }
+
+// Compute and store color scales for all airline options
+airlineOptions.forEach(airline => computeAirlineScaleAndLegend(airline));
 
 // Function to draw the map with quantile-based color scaling
 function drawMap(data) {
   const stateCounts = computeStateFlightCounts(data);
-  const isAllAirlines = selectedAirline1.value === "All Airlines";
-
-  // Choose color range
-  const colorRange = isAllAirlines ? d3.schemeBlues[5] : d3.schemeOranges[5];
-
-  // Compute quantile color scale dynamically
-  const colorScale = computeColorScale(data, colorRange);
+  const selectedAirline = selectedAirline1.value;
+  const colorScale = airlineColorScales[selectedAirline];
+  const legendInfo = airlineLegendData[selectedAirline];
 
   // Join state data with flight counts
   const statesWithCounts = topojson.feature(usStates, usStates.objects.states).features.map(d => {
@@ -408,14 +432,13 @@ function drawMap(data) {
     .data(statesWithCounts)
     .join("path")
     .attr("d", path)
-    .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).darker(0.5))
+    .attr("fill", d => colorScale(d.properties.flights))
     .attr("stroke", "#222")
     .on("mouseover", function (event, d) {
       const [x, y] = path.centroid(d); // Calcola il centro dello stato
 
       d3.select(this)
-        .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).brighter(0.5)) // Make it brighter
-        .attr("stroke", "white") // Change stroke color
+        .attr("stroke", "black") // Change stroke color
         .transition().duration(200) // Smooth transition
         .attr("transform", `translate(${x * -0.3}, ${y * -0.3}) scale(1.3)`);
 
@@ -431,7 +454,6 @@ function drawMap(data) {
     })
     .on("mouseout", function (event, d) {
       d3.select(this)
-        .attr("fill", d => colorScale(d.properties.flights)) // Reset to original color
         .attr("stroke", "#222") // Reset stroke color
         .transition().duration(200) // Smooth transition
         .attr("transform", "translate(0,0) scale(1)"); // Ritorna alla dimensione originale
@@ -439,29 +461,8 @@ function drawMap(data) {
       tooltip.style("display", "none");
     });
 
-  const quantiles = Array.isArray(colorScale.quantiles()) ? colorScale.quantiles() : [];
-
-  // Ensure stateCounts is an array before using Math.min() & Math.max()
-  const minCount = stateCounts.length > 0 ? Math.min(...stateCounts) : 0;
-  const maxCount = stateCounts.length > 0 ? Math.max(...stateCounts) : 0;
-
-  // Create bin ranges from quantiles
-  const legendRanges = [minCount, ...quantiles.map(d => Math.round(d)), maxCount];
-
-  if (legendRanges[legendRanges.length - 1] < maxCount) {
-    legendRanges.push(maxCount);
-  }
-
-  // Generate range labels ensuring "+1 condition"
-  const legendLabels = legendRanges.slice(0, -1).map((d, i) => {
-    let nextValue = legendRanges[i + 1] - 1;
-    return i === legendRanges.length - 2 ? `${d}` : `${d}-${nextValue}`;
-  });
-
-
   const legend = svg.append("g")
-  .attr("transform", `translate(${width +30}, 0)`);
-
+    .attr("transform", `translate(${width + 30}, 0)`);
 
   // Draw color boxes
   legend.selectAll("rect")
@@ -475,7 +476,7 @@ function drawMap(data) {
 
   // Draw text labels for ranges
   legend.selectAll("text")
-    .data(legendLabels)
+    .data(legendInfo.labels)
     .join("text")
     .attr("x", 30)
     .attr("y", (d, i) => i * 20 + 15)
@@ -504,7 +505,7 @@ selectedYear.addEventListener("input", updateMap);
 selectedAirline1.addEventListener("input", updateMap);
 
 updateMap();
-return {topojson,usStates,stateAbbreviations,years,selectedYear,airlineOptions,selectedAirline1,filterFlights,computeStateFlightCounts,width,height,projection,path,computeColorScale,drawMap,updateMap};
+return {topojson,usStates,stateAbbreviations,years,selectedYear,airlineOptions,selectedAirline1,filterFlights,computeStateFlightCounts,width,height,projection,path,airlineColorScales,airlineLegendData,computeAirlineScaleAndLegend,drawMap,updateMap};
 }});
 
 define({id: "412119be", mode: "inline", inputs: ["selectedYear","display"], body: async (selectedYear,display) => {
@@ -764,7 +765,7 @@ The aviation industry is a dynamic indicator of economic activity, global connec
 <div> 
 The first chart presents a time-series line graph that illustrates the number of flights per day over the span of several years. What makes this chart immediately striking is the visible collapse in flight volumes around March–April 2020—corresponding precisely to the global onset of the COVID-19 pandemic. The red dashed line offers a clear temporal anchor, making it easy to contextualize the dramatic dip. <br>As we progress past this low point, the chart reveals a slow but steady recovery in flight activity. Users can toggle between a smooth and linear line to better discern seasonal fluctuations or general trends. What’s particularly useful is the ability to filter by airline and destination, allowing the viewer to zoom in on how specific carriers or cities were impacted. Note that the scale adjusts dynamically when filtering.
 </div>
-<div class="observablehq observablehq--block"><!--:8f0daf98:--></div>
+<div class="observablehq observablehq--block"><!--:9537a8f9:--></div>
 <br>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
@@ -786,7 +787,7 @@ The blue line shows the number of flights per day. The filters can be use to sel
 <div> 
 This is a geographical view of flight density per state, filtered by year and airline, helps identify the busiest regions. Flight volume fluctuates over time and it is influenced by different conditions: seasons, airline operations, and passenger demand.
 </div> 
-<div class="observablehq observablehq--block"><!--:0bb91d87:--></div>
+<div class="observablehq observablehq--block"><!--:5cdb7c9c:--></div>
 <br>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">

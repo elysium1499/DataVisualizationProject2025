@@ -25,7 +25,7 @@
 import {define} from "./_observablehq/client.11d4bb04.js";
 import {registerFile} from "./_observablehq/stdlib.fc5dbcd7.js";
 
-registerFile("./data/cordinates.csv", {"name":"./data/cordinates.csv","mimeType":"text/csv","path":"./_file/data/cordinates.2daee0f7.csv","lastModified":1743005627590,"size":8618});
+registerFile("./data/cordinates.csv", {"name":"./data/cordinates.csv","mimeType":"text/csv","path":"./_file/data/cordinates.970c2a80.csv","lastModified":1743201531683,"size":8618});
 registerFile("./data/flights_data.csv", {"name":"./data/flights_data.csv","mimeType":"text/csv","path":"./_file/data/flights_data.925f7b17.csv","lastModified":1741526889746,"size":13659204});
 
 define({id: "2301a8ed", inputs: ["FileAttachment"], outputs: ["datasetFlights","cordinates"], body: async (FileAttachment) => {
@@ -35,7 +35,7 @@ const cordinates = await FileAttachment("./data/cordinates.csv").csv({ typed: tr
 return {datasetFlights,cordinates};
 }});
 
-define({id: "a45925bb", inputs: ["datasetFlights","Inputs"], outputs: ["d3","getHour","getDayOfWeek","availableYears","availableMonths","selectedYear","selectedMonth","autoplayInterval","isAutoplayActive","filterData","processHeatmapData","drawHeatmap","toggleAutoplay"], body: async (datasetFlights,Inputs) => {
+define({id: "f2bd0d72", inputs: ["datasetFlights","Inputs"], outputs: ["d3","getHour","getDayOfWeek","availableYears","availableMonths","selectedYear","selectedMonth","autoplayInterval","isAutoplayActive","filterData","processHeatmapData","drawHeatmap","toggleAutoplay"], body: async (datasetFlights,Inputs) => {
 // Load necessary D3 libraries
 const d3 = await import("https://cdn.jsdelivr.net/npm/d3@7/+esm");
 
@@ -57,7 +57,7 @@ const availableYears = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).g
   .sort((a, b) => a - b)
   .map(String);
 
-const availableMonths = ["All", ...Array.from({ length: 12 }, (_, i) => 
+const availableMonths = ["All", ...Array.from({ length: 12 }, (_, i) =>
   new Date(2000, i, 1).toLocaleString("en-US", { month: "long" })
 )];
 
@@ -72,7 +72,7 @@ function filterData(year, month) {
     const flightDate = new Date(d.FL_DATE);
     const flightYear = flightDate.getFullYear();
     const flightMonth = flightDate.getMonth();
-    
+
     return flightYear === Number(year) && (month === "All" || flightMonth === availableMonths.indexOf(month) - 1);
   });
 }
@@ -81,7 +81,7 @@ function processHeatmapData(data) {
   const allDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const allHours = d3.range(0, 24);
   const heatmapMatrix = [];
-  
+
   allDays.forEach(day => {
     allHours.forEach(hour => {
       heatmapMatrix.push({ day, hour, avgDelay: 0 });
@@ -97,7 +97,7 @@ function processHeatmapData(data) {
     v => d3.mean(v, d => d.delay),
     d => d.day,
     d => d.hour
-  ).map(([day, hours]) => 
+  ).map(([day, hours]) =>
     hours.map(([hour, avgDelay]) => ({
       day, hour, avgDelay: avgDelay || 0
     }))
@@ -113,6 +113,7 @@ function processHeatmapData(data) {
   return heatmapMatrix;
 }
 
+
 function drawHeatmap() {
   d3.select(".tooltip").remove();
 
@@ -123,15 +124,13 @@ function drawHeatmap() {
 
   const xScale = d3.scaleBand().domain(d3.range(0, 24)).range([margin.left, width - margin.right]).padding(0.05);
   const yScale = d3.scaleBand().domain(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]).range([margin.top, height - margin.bottom]).padding(0.05);
-
-  // Calcola il minimo e il massimo della media dei ritardi
-  const computedAverages = processHeatmapData(datasetFlights);
+  
+  const computedAverages = processHeatmapData(filteredData);
   const globalMinAvgDelay = d3.min(computedAverages, d => d.avgDelay);
   const globalMaxAvgDelay = d3.max(computedAverages, d => d.avgDelay);
 
-  // Usa questi valori nella scala dei colori
   const colorScale = d3.scaleDiverging()
-    .domain([globalMinAvgDelay, 0, globalMaxAvgDelay])
+    .domain([globalMaxAvgDelay, 0, globalMinAvgDelay])
     .interpolator(d3.interpolateRdYlGn);
 
   const container = d3.select("#heatmap-container");
@@ -201,15 +200,14 @@ function drawHeatmap() {
       })
       .tickSizeOuter(0); // Remove the outer ticks
 
-
-
     const legendGradient = legendSvg.append("defs").append("linearGradient")
       .attr("id", "legend-gradient")
       .attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%");
 
-    legendGradient.append("stop").attr("offset", "0%").attr("stop-color", colorScale(globalMaxAvgDelay));
-    legendGradient.append("stop").attr("offset", "50%").attr("stop-color", colorScale(0));
-    legendGradient.append("stop").attr("offset", "100%").attr("stop-color", colorScale(globalMinAvgDelay));
+    // Inverti l'ordine dei colori nella legenda per corrispondere all'inversione del dominio
+    legendGradient.append("stop").attr("offset", "0%").attr("stop-color", colorScale(globalMinAvgDelay)); // Rosso (valori positivi)
+    legendGradient.append("stop").attr("offset", "50%").attr("stop-color", colorScale(0));       // Giallo (zero)
+    legendGradient.append("stop").attr("offset", "100%").attr("stop-color", colorScale(globalMaxAvgDelay)); // Verde (valori negativi)
 
     legendSvg.append("rect").attr("width", legendWidth).attr("height", legendHeight).style("fill", "url(#legend-gradient)");
 
@@ -230,7 +228,7 @@ function drawHeatmap() {
 
 function toggleAutoplay() {
   const autoplayButton = document.getElementById("autoplay-btn");
-  
+
   if (isAutoplayActive) {
     clearInterval(autoplayInterval);
     isAutoplayActive = false;
@@ -243,7 +241,7 @@ function toggleAutoplay() {
       d3.select(".tooltip").remove();
 
       let currentYearIndex = availableYears.indexOf(selectedYear.value);
-      
+
       if (currentYearIndex < availableYears.length - 1) {
         selectedYear.value = availableYears[currentYearIndex + 1];
         drawHeatmap();
@@ -285,7 +283,7 @@ selectedMonth
 ))
 }});
 
-define({id: "26028b5d", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","viewToggle","resetZoomButton","width","height","margin","selectedCategory","drawStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
+define({id: "f83c288c", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","viewToggle","resetZoomButton","width","height","margin","selectedCategory","drawStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
 //  Define Seasons
 const seasons = ["Winter", "Spring", "Summer", "Fall"];
 
@@ -337,9 +335,9 @@ function getStackedData(percentageView) {
 }
 
 //  Create View Toggle (Absolute vs Percentage)
-const viewToggle = Inputs.radio(["Absolute Numbers", "Percentage"], {
+const viewToggle = Inputs.radio(["Percentage", "Absolute Numbers"], {
   label: "📊 View Mode",
-  value: "Absolute Numbers" // Default mode
+  value: "Percentage" // Default mode
 });
 
 //  Create Reset Zoom Button
@@ -431,13 +429,11 @@ function drawStackedBarChart() {
     .on("mouseover", function(event, d) {
       const season = d3.select(this.parentNode).datum().key;
       const percentage = Math.round(d[1] - d[0]);
+      const count = d.data[season] || 0;
 
       d3.select(this).style("opacity", 0.7);
       tooltip.style("display", "block")
-        .html(`
-          <strong>${d.data.category}</strong><br>
-          Season: ${season}<br>
-          ${percentageView ? "Percentage: " : "Delays: "} ${percentage}${percentageView ? "%" : ""}
+        .html(`<strong>${d.data.category}</strong><br>Season: ${season}<br>${percentageView ? `Percentage: ${percentage}% <br> Flights: ${count}` : `Delays: ${percentage}`}
         `);
     })
     .on("mousemove", event => {
@@ -503,6 +499,7 @@ drawStackedBarChart();
 
 //  Update Chart when View Changes
 viewToggle.addEventListener("input", drawStackedBarChart);
+
 return {seasons,getSeason,delayCategories,delayCounts,getStackedData,viewToggle,resetZoomButton,width,height,margin,selectedCategory,drawStackedBarChart};
 }});
 
@@ -935,7 +932,7 @@ Analyzing flight delays offers valuable insights into the operational efficiency
 <h2 id="flight-delays-by-day-and-hour" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays-by-day-and-hour">Flight Delays by Day &amp; Hour</a></h2>
 <br>
 <div class="observablehq observablehq--block"><!--:2301a8ed:--></div>
-<div class="observablehq observablehq--block"><!--:a45925bb:--></div>
+<div class="observablehq observablehq--block"><!--:f2bd0d72:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:412119be:--></div>
@@ -961,7 +958,7 @@ By interacting with the heatmap, users can pinpoint specific times and days that
 <br>
 <h2 id="number-or-percentage-of-delays-by-reason" tabindex="-1"><a class="observablehq-header-anchor" href="#number-or-percentage-of-delays-by-reason">Number or Percentage of Delays by Reason</a></h2>
 <br>
-<div class="observablehq observablehq--block"><!--:26028b5d:--></div>
+<div class="observablehq observablehq--block"><!--:f83c288c:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 110px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:fd613d63:--></div>

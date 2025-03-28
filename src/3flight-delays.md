@@ -104,6 +104,7 @@ function processHeatmapData(data) {
   return heatmapMatrix;
 }
 
+
 function drawHeatmap() {
   d3.select(".tooltip").remove();
 
@@ -115,14 +116,12 @@ function drawHeatmap() {
   const xScale = d3.scaleBand().domain(d3.range(0, 24)).range([margin.left, width - margin.right]).padding(0.05);
   const yScale = d3.scaleBand().domain(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]).range([margin.top, height - margin.bottom]).padding(0.05);
   
-  // Calcola il minimo e il massimo della media dei ritardi
-  const computedAverages = processHeatmapData(datasetFlights);
+  const computedAverages = processHeatmapData(filteredData);
   const globalMinAvgDelay = d3.min(computedAverages, d => d.avgDelay);
   const globalMaxAvgDelay = d3.max(computedAverages, d => d.avgDelay);
 
-  // Usa questi valori nella scala dei colori, invertendo il dominio per avere verde per i negativi
   const colorScale = d3.scaleDiverging()
-    .domain([globalMaxAvgDelay, 0, globalMinAvgDelay]) // Inverti il dominio
+    .domain([globalMaxAvgDelay, 0, globalMinAvgDelay])
     .interpolator(d3.interpolateRdYlGn);
 
   const container = d3.select("#heatmap-container");
