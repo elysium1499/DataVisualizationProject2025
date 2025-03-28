@@ -64,6 +64,7 @@ const selectedAirline = Inputs.select(airlineOptions, { label: "✈ Airline" });
 const selectedDestination = Inputs.select(destinationOptions, { label: "📍 Destination" });
 const smoothLine = Inputs.toggle({ label: "📈 Smooth Line" });
 
+
 // Function to filter and aggregate data
 function getFilteredData(airline, destination) {
   return d3.rollups(
@@ -320,24 +321,47 @@ const width = 700, height = 400;
 const projection = d3.geoAlbersUsa().fitSize([width, height], topojson.feature(usStates, usStates.objects.states));
 const path = d3.geoPath().projection(projection);
 
-// Define color scales. Compute dynamic quantile thresholds based on dataset
-function computeColorScale(data, colorRange) {
-  const stateCounts = Object.values(computeStateFlightCounts(data));
-  return d3.scaleQuantile()
-    .domain(stateCounts)
+// Store color scales for each airline
+const airlineColorScales = {};
+const airlineLegendData = {};
+
+// Function to compute and store color scale and legend data for a given airline
+function computeAirlineScaleAndLegend(airline) {
+  const filteredFlights = airline === "All Airlines"
+    ? datasetFlights
+    : datasetFlights.filter(d => d.AIRLINE === airline);
+  const stateCounts = computeStateFlightCounts(filteredFlights);
+  const stateValues = Object.values(stateCounts);
+  const colorRange = airline === "All Airlines" ? d3.schemeBlues[5] : d3.schemeOranges[5];
+  const colorScale = d3.scaleQuantile()
+    .domain(stateValues)
     .range(colorRange);
+
+  const quantiles = Array.isArray(colorScale.quantiles()) ? colorScale.quantiles() : [];
+  const minCount = stateValues.length > 0 ? Math.min(...stateValues) : 0;
+  const maxCount = stateValues.length > 0 ? Math.max(...stateValues) : 0;
+  const legendRanges = [minCount, ...quantiles.map(d => Math.round(d)), maxCount];
+  if (legendRanges[legendRanges.length - 1] < maxCount) {
+    legendRanges.push(maxCount);
+  }
+  const legendLabels = legendRanges.slice(0, -1).map((d, i) => {
+    let nextValue = legendRanges[i + 1] - 1;
+    return `${d}-${nextValue}`;
+  });
+
+  airlineColorScales[airline] = colorScale;
+  airlineLegendData[airline] = { ranges: legendRanges, labels: legendLabels };
 }
+
+// Compute and store color scales for all airline options
+airlineOptions.forEach(airline => computeAirlineScaleAndLegend(airline));
 
 // Function to draw the map with quantile-based color scaling
 function drawMap(data) {
   const stateCounts = computeStateFlightCounts(data);
-  const isAllAirlines = selectedAirline1.value === "All Airlines";
-
-  // Choose color range
-  const colorRange = isAllAirlines ? d3.schemeBlues[5] : d3.schemeOranges[5];
-
-  // Compute quantile color scale dynamically
-  const colorScale = computeColorScale(data, colorRange);
+  const selectedAirline = selectedAirline1.value;
+  const colorScale = airlineColorScales[selectedAirline];
+  const legendInfo = airlineLegendData[selectedAirline];
 
   // Join state data with flight counts
   const statesWithCounts = topojson.feature(usStates, usStates.objects.states).features.map(d => {
@@ -372,14 +396,13 @@ function drawMap(data) {
     .data(statesWithCounts)
     .join("path")
     .attr("d", path)
-    .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).darker(0.5))
+    .attr("fill", d => colorScale(d.properties.flights))
     .attr("stroke", "#222")
     .on("mouseover", function (event, d) {
       const [x, y] = path.centroid(d); // Calcola il centro dello stato
 
       d3.select(this)
-        .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).brighter(0.5)) // Make it brighter
-        .attr("stroke", "white") // Change stroke color
+        .attr("stroke", "black") // Change stroke color
         .transition().duration(200) // Smooth transition
         .attr("transform", `translate(${x * -0.3}, ${y * -0.3}) scale(1.3)`);
 
@@ -395,7 +418,6 @@ function drawMap(data) {
     })
     .on("mouseout", function (event, d) {
       d3.select(this)
-        .attr("fill", d => colorScale(d.properties.flights)) // Reset to original color
         .attr("stroke", "#222") // Reset stroke color
         .transition().duration(200) // Smooth transition
         .attr("transform", "translate(0,0) scale(1)"); // Ritorna alla dimensione originale
@@ -403,29 +425,8 @@ function drawMap(data) {
       tooltip.style("display", "none");
     });
 
-  const quantiles = Array.isArray(colorScale.quantiles()) ? colorScale.quantiles() : [];
-
-  // Ensure stateCounts is an array before using Math.min() & Math.max()
-  const minCount = stateCounts.length > 0 ? Math.min(...stateCounts) : 0;
-  const maxCount = stateCounts.length > 0 ? Math.max(...stateCounts) : 0;
-
-  // Create bin ranges from quantiles
-  const legendRanges = [minCount, ...quantiles.map(d => Math.round(d)), maxCount];
-
-  if (legendRanges[legendRanges.length - 1] < maxCount) {
-    legendRanges.push(maxCount);
-  }
-
-  // Generate range labels ensuring "+1 condition"
-  const legendLabels = legendRanges.slice(0, -1).map((d, i) => {
-    let nextValue = legendRanges[i + 1] - 1;
-    return i === legendRanges.length - 2 ? `${d}` : `${d}-${nextValue}`;
-  });
-
-
   const legend = svg.append("g")
-  .attr("transform", `translate(${width +30}, 0)`);
-
+    .attr("transform", `translate(${width + 30}, 0)`);
 
   // Draw color boxes
   legend.selectAll("rect")
@@ -439,7 +440,7 @@ function drawMap(data) {
 
   // Draw text labels for ranges
   legend.selectAll("text")
-    .data(legendLabels)
+    .data(legendInfo.labels)
     .join("text")
     .attr("x", 30)
     .attr("y", (d, i) => i * 20 + 15)

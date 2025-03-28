@@ -48,7 +48,7 @@ const availableYears = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).g
   .sort((a, b) => a - b)
   .map(String);
 
-const availableMonths = ["All", ...Array.from({ length: 12 }, (_, i) => 
+const availableMonths = ["All", ...Array.from({ length: 12 }, (_, i) =>
   new Date(2000, i, 1).toLocaleString("en-US", { month: "long" })
 )];
 
@@ -63,7 +63,7 @@ function filterData(year, month) {
     const flightDate = new Date(d.FL_DATE);
     const flightYear = flightDate.getFullYear();
     const flightMonth = flightDate.getMonth();
-    
+
     return flightYear === Number(year) && (month === "All" || flightMonth === availableMonths.indexOf(month) - 1);
   });
 }
@@ -72,7 +72,7 @@ function processHeatmapData(data) {
   const allDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const allHours = d3.range(0, 24);
   const heatmapMatrix = [];
-  
+
   allDays.forEach(day => {
     allHours.forEach(hour => {
       heatmapMatrix.push({ day, hour, avgDelay: 0 });
@@ -88,7 +88,7 @@ function processHeatmapData(data) {
     v => d3.mean(v, d => d.delay),
     d => d.day,
     d => d.hour
-  ).map(([day, hours]) => 
+  ).map(([day, hours]) =>
     hours.map(([hour, avgDelay]) => ({
       day, hour, avgDelay: avgDelay || 0
     }))
@@ -114,15 +114,15 @@ function drawHeatmap() {
 
   const xScale = d3.scaleBand().domain(d3.range(0, 24)).range([margin.left, width - margin.right]).padding(0.05);
   const yScale = d3.scaleBand().domain(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]).range([margin.top, height - margin.bottom]).padding(0.05);
-
+  
   // Calcola il minimo e il massimo della media dei ritardi
   const computedAverages = processHeatmapData(datasetFlights);
   const globalMinAvgDelay = d3.min(computedAverages, d => d.avgDelay);
   const globalMaxAvgDelay = d3.max(computedAverages, d => d.avgDelay);
 
-  // Usa questi valori nella scala dei colori
+  // Usa questi valori nella scala dei colori, invertendo il dominio per avere verde per i negativi
   const colorScale = d3.scaleDiverging()
-    .domain([globalMinAvgDelay, 0, globalMaxAvgDelay])
+    .domain([globalMaxAvgDelay, 0, globalMinAvgDelay]) // Inverti il dominio
     .interpolator(d3.interpolateRdYlGn);
 
   const container = d3.select("#heatmap-container");
@@ -192,15 +192,14 @@ function drawHeatmap() {
       })
       .tickSizeOuter(0); // Remove the outer ticks
 
-
-
     const legendGradient = legendSvg.append("defs").append("linearGradient")
       .attr("id", "legend-gradient")
       .attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%");
 
-    legendGradient.append("stop").attr("offset", "0%").attr("stop-color", colorScale(globalMaxAvgDelay));
-    legendGradient.append("stop").attr("offset", "50%").attr("stop-color", colorScale(0));
-    legendGradient.append("stop").attr("offset", "100%").attr("stop-color", colorScale(globalMinAvgDelay));
+    // Inverti l'ordine dei colori nella legenda per corrispondere all'inversione del dominio
+    legendGradient.append("stop").attr("offset", "0%").attr("stop-color", colorScale(globalMinAvgDelay)); // Rosso (valori positivi)
+    legendGradient.append("stop").attr("offset", "50%").attr("stop-color", colorScale(0));       // Giallo (zero)
+    legendGradient.append("stop").attr("offset", "100%").attr("stop-color", colorScale(globalMaxAvgDelay)); // Verde (valori negativi)
 
     legendSvg.append("rect").attr("width", legendWidth).attr("height", legendHeight).style("fill", "url(#legend-gradient)");
 
@@ -221,7 +220,7 @@ function drawHeatmap() {
 
 function toggleAutoplay() {
   const autoplayButton = document.getElementById("autoplay-btn");
-  
+
   if (isAutoplayActive) {
     clearInterval(autoplayInterval);
     isAutoplayActive = false;
@@ -234,7 +233,7 @@ function toggleAutoplay() {
       d3.select(".tooltip").remove();
 
       let currentYearIndex = availableYears.indexOf(selectedYear.value);
-      
+
       if (currentYearIndex < availableYears.length - 1) {
         selectedYear.value = availableYears[currentYearIndex + 1];
         drawHeatmap();
@@ -346,9 +345,9 @@ function getStackedData(percentageView) {
 }
 
 //  Create View Toggle (Absolute vs Percentage)
-const viewToggle = Inputs.radio(["Absolute Numbers", "Percentage"], {
+const viewToggle = Inputs.radio(["Percentage", "Absolute Numbers"], {
   label: "📊 View Mode",
-  value: "Absolute Numbers" // Default mode
+  value: "Percentage" // Default mode
 });
 
 //  Create Reset Zoom Button
@@ -440,13 +439,11 @@ function drawStackedBarChart() {
     .on("mouseover", function(event, d) {
       const season = d3.select(this.parentNode).datum().key;
       const percentage = Math.round(d[1] - d[0]);
+      const count = d.data[season] || 0;
 
       d3.select(this).style("opacity", 0.7);
       tooltip.style("display", "block")
-        .html(`
-          <strong>${d.data.category}</strong><br>
-          Season: ${season}<br>
-          ${percentageView ? "Percentage: " : "Delays: "} ${percentage}${percentageView ? "%" : ""}
+        .html(`<strong>${d.data.category}</strong><br>Season: ${season}<br>${percentageView ? `Percentage: ${percentage}% <br> Flights: ${count}` : `Delays: ${percentage}`}
         `);
     })
     .on("mousemove", event => {
@@ -512,6 +509,7 @@ drawStackedBarChart();
 
 //  Update Chart when View Changes
 viewToggle.addEventListener("input", drawStackedBarChart);
+
 ```
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">

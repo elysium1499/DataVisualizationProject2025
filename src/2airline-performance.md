@@ -499,7 +499,6 @@ async function createSankeyChart() {
 }
 
 createSankeyChart();
-
 ```
 <div class="grid grid-cols-1"> 
   <div class="card" style="display: flex; justify-content: center; align-items: center;"> <div id="sankey-container"></div> </div> 
