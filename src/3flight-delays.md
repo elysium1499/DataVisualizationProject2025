@@ -43,29 +43,31 @@ function getDayOfWeek(date) {
   return days[new Date(date).getDay()];
 }
 
-// Extract Available Years and Months
-const availableYears = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).getFullYear()))]
-  .sort((a, b) => a - b)
-  .map(String);
+function getGlobalDelayRange(month) {
+  const allYears = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).getFullYear()))];
 
-const availableMonths = ["All", ...Array.from({ length: 12 }, (_, i) =>
-  new Date(2000, i, 1).toLocaleString("en-US", { month: "long" })
-)];
+  let globalMinAvgDelay = Infinity;
+  let globalMaxAvgDelay = -Infinity;
 
-const selectedYear = Inputs.select(availableYears, { label: "📆 Select Year" });
-const selectedMonth = Inputs.select(availableMonths, { label: "📅 Select Month" });
+  allYears.forEach(year => {
+    const allDataForYear = datasetFlights.filter(d => {
+      const flightMonth = new Date(d.FL_DATE).getMonth();
+      return (month === "All" || flightMonth === availableMonths.indexOf(month)-1) && new Date(d.FL_DATE).getFullYear() === year;
+    });
 
-let autoplayInterval;
-let isAutoplayActive = false;
+    const computedAverages = processHeatmapData(allDataForYear);
 
-function filterData(year, month) {
-  return datasetFlights.filter(d => {
-    const flightDate = new Date(d.FL_DATE);
-    const flightYear = flightDate.getFullYear();
-    const flightMonth = flightDate.getMonth();
+    const yearMinAvgDelay = d3.min(computedAverages, d => d.avgDelay);
+    const yearMaxAvgDelay = d3.max(computedAverages, d => d.avgDelay);
 
-    return flightYear === Number(year) && (month === "All" || flightMonth === availableMonths.indexOf(month) - 1);
+    globalMinAvgDelay = Math.min(globalMinAvgDelay, yearMinAvgDelay);
+    globalMaxAvgDelay = Math.max(globalMaxAvgDelay, yearMaxAvgDelay);
   });
+
+  return {
+    min: globalMinAvgDelay,
+    max: globalMaxAvgDelay
+  };
 }
 
 function processHeatmapData(data) {
@@ -104,6 +106,30 @@ function processHeatmapData(data) {
   return heatmapMatrix;
 }
 
+// Extract Available Years and Months
+const availableYears = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).getFullYear()))]
+  .sort((a, b) => a - b)
+  .map(String);
+
+const availableMonths = ["All", ...Array.from({ length: 12 }, (_, i) =>
+  new Date(2000, i, 1).toLocaleString("en-US", { month: "long" })
+)];
+
+const selectedYear = Inputs.select(availableYears, { label: "📆 Select Year" });
+const selectedMonth = Inputs.select(availableMonths, { label: "📅 Select Month" });
+
+let autoplayInterval;
+let isAutoplayActive = false;
+
+function filterData(year, month) {
+  return datasetFlights.filter(d => {
+    const flightDate = new Date(d.FL_DATE);
+    const flightYear = flightDate.getFullYear();
+    const flightMonth = flightDate.getMonth();
+
+    return flightYear === Number(year) && (month === "All" || flightMonth === availableMonths.indexOf(month) - 1);
+  });
+}
 
 function drawHeatmap() {
   d3.select(".tooltip").remove();
@@ -111,18 +137,29 @@ function drawHeatmap() {
   const filteredData = filterData(selectedYear.value, selectedMonth.value);
   const heatmapData = processHeatmapData(filteredData);
 
+  let globalMinAvgDelay, globalMaxAvgDelay;
+
+  function updateGlobalLegend(month) {
+    const range = getGlobalDelayRange(month);
+    globalMinAvgDelay = range.min;
+    globalMaxAvgDelay = range.max;
+  }
+
+  updateGlobalLegend(selectedMonth.value);
+
   const width = 900, height = 500, margin = { top: 120, right: 50, bottom: 50, left: 50 };
 
   const xScale = d3.scaleBand().domain(d3.range(0, 24)).range([margin.left, width - margin.right]).padding(0.05);
   const yScale = d3.scaleBand().domain(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]).range([margin.top, height - margin.bottom]).padding(0.05);
   
-  const computedAverages = processHeatmapData(filteredData);
-  const globalMinAvgDelay = d3.min(computedAverages, d => d.avgDelay);
-  const globalMaxAvgDelay = d3.max(computedAverages, d => d.avgDelay);
-
   const colorScale = d3.scaleDiverging()
     .domain([globalMaxAvgDelay, 0, globalMinAvgDelay])
     .interpolator(d3.interpolateRdYlGn);
+
+  selectedMonth.addEventListener("input", () => {
+    updateGlobalLegend(selectedMonth.value);
+    drawHeatmap();
+  });
 
   const container = d3.select("#heatmap-container");
   const legendExists = !container.select(".legend-group").empty();
@@ -181,15 +218,15 @@ function drawHeatmap() {
     const legendX = (width - legendWidth) / 2;
     const legendSvg = svg.append("g").attr("transform", `translate(${legendX}, ${margin.top - 90})`);
 
-    const legendScale = d3.scaleLinear()
-      .domain([globalMinAvgDelay, globalMaxAvgDelay])
-      .range([0, legendWidth]);
-    const legendAxis = d3.axisBottom(legendScale)
-      .tickValues([globalMinAvgDelay, Math.round(globalMaxAvgDelay / 2), globalMaxAvgDelay, 0]) // Add 0 to the tick values
-      .tickFormat(d => {
-        return d === 0 ? "" : `${Math.round(d)} min`; // Hide text for 0
-      })
-      .tickSizeOuter(0); // Remove the outer ticks
+  const legendScale = d3.scaleLinear()
+    .domain([globalMinAvgDelay, globalMaxAvgDelay])
+    .range([0, legendWidth]);
+
+  const legendAxis = d3.axisBottom(legendScale)
+    .tickValues([globalMinAvgDelay, globalMaxAvgDelay, 0])
+    .tickFormat(d => { return d === 0 ? "" : `${Math.round(d)} min`;})
+    .tickSizeOuter(0);
+
 
     const legendGradient = legendSvg.append("defs").append("linearGradient")
       .attr("id", "legend-gradient")
