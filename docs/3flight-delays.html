@@ -35,7 +35,7 @@ const cordinates = await FileAttachment("./data/cordinates.csv").csv({ typed: tr
 return {datasetFlights,cordinates};
 }});
 
-define({id: "270ec232", inputs: ["datasetFlights","Inputs"], outputs: ["d3","getHour","getDayOfWeek","getGlobalDelayRange","processHeatmapData","availableYears","availableMonths","selectedYear","selectedMonth","autoplayInterval","isAutoplayActive","hasDataForMonth","filterData","showNoDataMessage","drawHeatmap","toggleAutoplay"], body: async (datasetFlights,Inputs) => {
+define({id: "d8361380", inputs: ["datasetFlights","Inputs"], outputs: ["d3","getHour","getDayOfWeek","getGlobalDelayRange","processHeatmapData","availableYears","availableMonths","selectedYear","selectedMonth","autoplayInterval","isAutoplayActive","hasDataForMonth","filterData","showNoDataMessage","drawHeatmap","toggleAutoplay"], body: async (datasetFlights,Inputs) => {
 // Load necessary D3 libraries
 const d3 = await import("https://cdn.jsdelivr.net/npm/d3@7/+esm");
 
@@ -300,28 +300,23 @@ function toggleAutoplay() {
       let currentYearIndex = availableYears.indexOf(selectedYear.value);
       let nextYear = availableYears[currentYearIndex + 1];
 
-      // Trova il prossimo mese che ha dati per l'anno successivo
       let nextMonth = selectedMonth.value;
 
-      // Se non ci sono dati per il mese, passiamo all'anno successivo
       while (!hasDataForMonth(nextYear, nextMonth) && nextYear !== availableYears[availableYears.length - 1]) {
-        nextYear = availableYears[availableYears.indexOf(nextYear) + 1]; // Passa al prossimo anno
+        nextYear = availableYears[availableYears.indexOf(nextYear) + 1];
       }
 
-      // Se siamo arrivati all'ultimo anno e non c'è un dato per il mese, ripartiamo dal primo anno disponibile
       if (!hasDataForMonth(nextYear, nextMonth)) {
-        nextYear = availableYears[0]; // Riparti dal primo anno disponibile
+        nextYear = availableYears[0]; 
       }
 
-      // Se c'è un dato valido per l'anno e il mese, aggiorniamo
       if (hasDataForMonth(nextYear, nextMonth)) {
         selectedYear.value = nextYear;
         selectedMonth.value = nextMonth;
         drawHeatmap();
       } else {
-        // Caso in cui non ci siano dati, resetta e riparti dal primo anno disponibile
         selectedYear.value = availableYears[0];
-        selectedMonth.value = "All"; // Puoi anche tornare a "All" se non c'è dato
+        selectedMonth.value = "All";
         drawHeatmap();
       }
     }
@@ -1000,7 +995,7 @@ Analyzing flight delays offers valuable insights into the operational efficiency
 <h2 id="flight-delays-by-day-and-hour" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays-by-day-and-hour">Flight Delays by Day &amp; Hour</a></h2>
 <br>
 <div class="observablehq observablehq--block"><!--:2301a8ed:--></div>
-<div class="observablehq observablehq--block"><!--:270ec232:--></div>
+<div class="observablehq observablehq--block"><!--:d8361380:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:412119be:--></div>

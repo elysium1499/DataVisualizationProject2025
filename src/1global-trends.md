@@ -375,7 +375,7 @@ function drawMap(data) {
 
   // Create SVG element
   const svg = d3.select("#map-container").append("svg")
-    .attr("width", width)
+    .attr("width", width + 150)
     .attr("height", height);
 
   // Tooltip
@@ -399,15 +399,14 @@ function drawMap(data) {
     .attr("fill", d => colorScale(d.properties.flights))
     .attr("stroke", "#222")
     .on("mouseover", function (event, d) {
-      const [x, y] = path.centroid(d); // Calcola il centro dello stato
+      const [x, y] = path.centroid(d);
 
       d3.select(this)
         .attr("stroke", "black") // Change stroke color
         .transition().duration(200) // Smooth transition
         .attr("transform", `translate(${x * -0.3}, ${y * -0.3}) scale(1.3)`);
 
-      // Sposta il path sopra agli altri
-      d3.select(this).raise(); // Usa raise() per spostarlo sopra al gruppo corrente
+      d3.select(this).raise();
 
       tooltip.style("display", "block")
         .html(`<strong>${d.properties.name}</strong><br>✈ Flights: ${d.properties.flights}`);
@@ -420,7 +419,7 @@ function drawMap(data) {
       d3.select(this)
         .attr("stroke", "#222") // Reset stroke color
         .transition().duration(200) // Smooth transition
-        .attr("transform", "translate(0,0) scale(1)"); // Ritorna alla dimensione originale
+        .attr("transform", "translate(0,0) scale(1)");
 
       tooltip.style("display", "none");
     });
@@ -451,13 +450,14 @@ function drawMap(data) {
 
 // Update map when filters change
 function updateMap() {
+  d3.selectAll(".tooltip").remove();
+
   const year = selectedYear.value;
   const airline = selectedAirline1.value;
   const filteredData = filterFlights(year, airline);
 
   if (filteredData.length === 0) {
-    console.warn("⚠ No flight data available for", year, airline);
-    d3.select("#map-container").html("<p style='color:red;'>No data available.</p>");
+    d3.select("#map-container").html("<p style='color:red; font-size: 40px;'> ⚠ No data available.</p>");
     return;
   }
 
@@ -478,7 +478,7 @@ updateMap();
     <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selectedAirline1}</div>
   </div>
   <div class="grid grid-cols-1"> 
-    <div class="card" style="display: flex; justify-content: center - 100px; align-items: center; height: 500px;"> 
+    <div class="card" style="display: flex; justify-content: center; align-items: center; height: 500px;"> 
       <div id="map-container"></div> 
     </div> 
   </div>
