@@ -291,28 +291,23 @@ function toggleAutoplay() {
       let currentYearIndex = availableYears.indexOf(selectedYear.value);
       let nextYear = availableYears[currentYearIndex + 1];
 
-      // Trova il prossimo mese che ha dati per l'anno successivo
       let nextMonth = selectedMonth.value;
 
-      // Se non ci sono dati per il mese, passiamo all'anno successivo
       while (!hasDataForMonth(nextYear, nextMonth) && nextYear !== availableYears[availableYears.length - 1]) {
-        nextYear = availableYears[availableYears.indexOf(nextYear) + 1]; // Passa al prossimo anno
+        nextYear = availableYears[availableYears.indexOf(nextYear) + 1];
       }
 
-      // Se siamo arrivati all'ultimo anno e non c'è un dato per il mese, ripartiamo dal primo anno disponibile
       if (!hasDataForMonth(nextYear, nextMonth)) {
-        nextYear = availableYears[0]; // Riparti dal primo anno disponibile
+        nextYear = availableYears[0]; 
       }
 
-      // Se c'è un dato valido per l'anno e il mese, aggiorniamo
       if (hasDataForMonth(nextYear, nextMonth)) {
         selectedYear.value = nextYear;
         selectedMonth.value = nextMonth;
         drawHeatmap();
       } else {
-        // Caso in cui non ci siano dati, resetta e riparti dal primo anno disponibile
         selectedYear.value = availableYears[0];
-        selectedMonth.value = "All"; // Puoi anche tornare a "All" se non c'è dato
+        selectedMonth.value = "All";
         drawHeatmap();
       }
     }
