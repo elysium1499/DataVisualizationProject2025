@@ -505,7 +505,7 @@ function drawStackedBarChart() {
 
       d3.select(this).style("opacity", 0.7);
       tooltip.style("display", "block")
-        .html(`<strong>${d.data.category}</strong><br>Season: ${season}<br>${percentageView ? `Percentage: ${percentage}% <br> Flights: ${count}` : `Delays: ${percentage}`}
+        .html(`<strong>${d.data.category}</strong><br>Season: ${season}<br>${percentageView ? `Percentage: ${percentage}% <br> Flights: ${count}` : `Flights: ${percentage}`}
         `);
     })
     .on("mousemove", event => {

@@ -346,7 +346,7 @@ selectedMonth
 ))
 }});
 
-define({id: "f83c288c", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","viewToggle","resetZoomButton","width","height","margin","selectedCategory","drawStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
+define({id: "96bf59cd", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","viewToggle","resetZoomButton","width","height","margin","selectedCategory","drawStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
 //  Define Seasons
 const seasons = ["Winter", "Spring", "Summer", "Fall"];
 
@@ -496,7 +496,7 @@ function drawStackedBarChart() {
 
       d3.select(this).style("opacity", 0.7);
       tooltip.style("display", "block")
-        .html(`<strong>${d.data.category}</strong><br>Season: ${season}<br>${percentageView ? `Percentage: ${percentage}% <br> Flights: ${count}` : `Delays: ${percentage}`}
+        .html(`<strong>${d.data.category}</strong><br>Season: ${season}<br>${percentageView ? `Percentage: ${percentage}% <br> Flights: ${count}` : `Flights: ${percentage}`}
         `);
     })
     .on("mousemove", event => {
@@ -1021,7 +1021,7 @@ By interacting with the heatmap, users can pinpoint specific times and days that
 <br>
 <h2 id="number-or-percentage-of-delays-by-reason" tabindex="-1"><a class="observablehq-header-anchor" href="#number-or-percentage-of-delays-by-reason">Number or Percentage of Delays by Reason</a></h2>
 <br>
-<div class="observablehq observablehq--block"><!--:f83c288c:--></div>
+<div class="observablehq observablehq--block"><!--:96bf59cd:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 110px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:fd613d63:--></div>
