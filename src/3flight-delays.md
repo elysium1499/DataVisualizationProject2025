@@ -214,28 +214,26 @@ function drawHeatmap() {
 
   // Centered Legend
   if (!legendExists) {
-    const legendWidth = 600, legendHeight = 15;
+    const legendWidth = 300, legendHeight = 15;
     const legendX = (width - legendWidth) / 2;
     const legendSvg = svg.append("g").attr("transform", `translate(${legendX}, ${margin.top - 90})`);
 
   const legendScale = d3.scaleLinear()
-    .domain([globalMinAvgDelay, globalMaxAvgDelay])
-    .range([0, legendWidth]);
+    .domain([globalMinAvgDelay, 0, globalMaxAvgDelay]) // 0 è centrato
+    .range([0, legendWidth / 2, legendWidth]);
 
   const legendAxis = d3.axisBottom(legendScale)
     .tickValues([globalMinAvgDelay, globalMaxAvgDelay, 0])
     .tickFormat(d => { return d === 0 ? "" : `${Math.round(d)} min`;})
     .tickSizeOuter(0);
 
-
     const legendGradient = legendSvg.append("defs").append("linearGradient")
       .attr("id", "legend-gradient")
       .attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%");
 
-    // Inverti l'ordine dei colori nella legenda per corrispondere all'inversione del dominio
-    legendGradient.append("stop").attr("offset", "0%").attr("stop-color", colorScale(globalMinAvgDelay)); // Rosso (valori positivi)
-    legendGradient.append("stop").attr("offset", "50%").attr("stop-color", colorScale(0));       // Giallo (zero)
-    legendGradient.append("stop").attr("offset", "100%").attr("stop-color", colorScale(globalMaxAvgDelay)); // Verde (valori negativi)
+    legendGradient.append("stop").attr("offset", "0%").attr("stop-color", colorScale(globalMinAvgDelay));
+    legendGradient.append("stop").attr("offset", "50%").attr("stop-color", colorScale(0));
+    legendGradient.append("stop").attr("offset", "100%").attr("stop-color", colorScale(globalMaxAvgDelay));
 
     legendSvg.append("rect").attr("width", legendWidth).attr("height", legendHeight).style("fill", "url(#legend-gradient)");
 
@@ -247,7 +245,7 @@ function drawHeatmap() {
       .append("line")
       .attr("y1", -legendHeight)
       .attr("y2", 0)
-      .attr("stroke", "white")
+      .attr("stroke", "black")
       .attr("stroke-width", 2);
 
     legendSvg.append("text").attr("x", legendWidth / 2).attr("y", -10).attr("text-anchor", "middle").style("fill", "white").text("Avg Delay (min)");
