@@ -43,36 +43,37 @@ function getDayOfWeek(date) {
   return days[new Date(date).getDay()];
 }
 
-// Extract Available Years and Months
-const availableYears = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).getFullYear()))]
-  .sort((a, b) => a - b)
-  .map(String);
+function getGlobalDelayRange(month) {
+  const allYears = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).getFullYear()))];
 
-const availableMonths = ["All", ...Array.from({ length: 12 }, (_, i) => 
-  new Date(2000, i, 1).toLocaleString("en-US", { month: "long" })
-)];
+  let globalMinAvgDelay = Infinity;
+  let globalMaxAvgDelay = -Infinity;
 
-const selectedYear = Inputs.select(availableYears, { label: "📆 Select Year" });
-const selectedMonth = Inputs.select(availableMonths, { label: "📅 Select Month" });
+  allYears.forEach(year => {
+    const allDataForYear = datasetFlights.filter(d => {
+      const flightMonth = new Date(d.FL_DATE).getMonth();
+      return (month === "All" || flightMonth === availableMonths.indexOf(month)-1) && new Date(d.FL_DATE).getFullYear() === year;
+    });
 
-let autoplayInterval;
-let isAutoplayActive = false;
+    const computedAverages = processHeatmapData(allDataForYear);
+    const yearMinAvgDelay = d3.min(computedAverages, d => d.avgDelay);
+    const yearMaxAvgDelay = d3.max(computedAverages, d => d.avgDelay);
 
-function filterData(year, month) {
-  return datasetFlights.filter(d => {
-    const flightDate = new Date(d.FL_DATE);
-    const flightYear = flightDate.getFullYear();
-    const flightMonth = flightDate.getMonth();
-    
-    return flightYear === Number(year) && (month === "All" || flightMonth === availableMonths.indexOf(month) - 1);
+    globalMinAvgDelay = Math.min(globalMinAvgDelay, yearMinAvgDelay);
+    globalMaxAvgDelay = Math.max(globalMaxAvgDelay, yearMaxAvgDelay);
   });
+
+  return {
+    min: globalMinAvgDelay,
+    max: globalMaxAvgDelay
+  };
 }
 
 function processHeatmapData(data) {
   const allDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const allHours = d3.range(0, 24);
   const heatmapMatrix = [];
-  
+
   allDays.forEach(day => {
     allHours.forEach(hour => {
       heatmapMatrix.push({ day, hour, avgDelay: 0 });
@@ -88,7 +89,7 @@ function processHeatmapData(data) {
     v => d3.mean(v, d => d.delay),
     d => d.day,
     d => d.hour
-  ).map(([day, hours]) => 
+  ).map(([day, hours]) =>
     hours.map(([hour, avgDelay]) => ({
       day, hour, avgDelay: avgDelay || 0
     }))
@@ -104,26 +105,83 @@ function processHeatmapData(data) {
   return heatmapMatrix;
 }
 
+// Extract Available Years and Months
+const availableYears = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).getFullYear()))]
+  .sort((a, b) => a - b)
+  .map(String);
+
+const availableMonths = ["All", ...Array.from({ length: 12 }, (_, i) =>
+  new Date(2000, i, 1).toLocaleString("en-US", { month: "long" })
+)];
+
+const selectedYear = Inputs.select(availableYears, { label: "📆 Select Year" });
+const selectedMonth = Inputs.select(availableMonths, { label: "📅 Select Month" });
+
+let autoplayInterval;
+let isAutoplayActive = false;
+
+function hasDataForMonth(year, month) {
+  const filteredData = filterData(year, month);
+  return filteredData.length > 0;
+}
+
+function filterData(year, month) {
+  const filtered = datasetFlights.filter(d => {
+    const flightDate = new Date(d.FL_DATE);
+    const flightYear = flightDate.getFullYear();
+    const flightMonth = flightDate.getMonth();
+    return flightYear === Number(year) && (month === "All" || flightMonth === availableMonths.indexOf(month) - 1);
+  });
+  return filtered;
+}
+
+function showNoDataMessage() {
+  const container = d3.select("#heatmap-container");
+  container.html("");
+  container.append("div")
+    .attr("class", "no-data-message")
+    .style("text-align", "center")
+    .style("color", "red")
+    .style("font-size", "20px")
+    .text("No data for this month");
+}
+
 function drawHeatmap() {
+  d3.select(".no-data-message").remove();
   d3.select(".tooltip").remove();
 
   const filteredData = filterData(selectedYear.value, selectedMonth.value);
+
+  if (filteredData.length === 0) {
+    showNoDataMessage();
+    return;
+  }
+
   const heatmapData = processHeatmapData(filteredData);
 
-  const width = 900, height = 500, margin = { top: 120, right: 50, bottom: 50, left: 50 };
+  let globalMinAvgDelay, globalMaxAvgDelay;
+
+  function updateGlobalLegend(month) {
+    const range = getGlobalDelayRange(month);
+    globalMinAvgDelay = range.min;
+    globalMaxAvgDelay = range.max;
+  }
+
+  updateGlobalLegend(selectedMonth.value);
+
+  const width = 900, height = 450, margin = { top: 120, right: 50, bottom: 50, left: 50 };
 
   const xScale = d3.scaleBand().domain(d3.range(0, 24)).range([margin.left, width - margin.right]).padding(0.05);
   const yScale = d3.scaleBand().domain(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]).range([margin.top, height - margin.bottom]).padding(0.05);
-
-  // Calcola il minimo e il massimo della media dei ritardi
-  const computedAverages = processHeatmapData(datasetFlights);
-  const globalMinAvgDelay = d3.min(computedAverages, d => d.avgDelay);
-  const globalMaxAvgDelay = d3.max(computedAverages, d => d.avgDelay);
-
-  // Usa questi valori nella scala dei colori
+  
   const colorScale = d3.scaleDiverging()
-    .domain([globalMinAvgDelay, 0, globalMaxAvgDelay])
+    .domain([globalMaxAvgDelay, 0, globalMinAvgDelay])
     .interpolator(d3.interpolateRdYlGn);
+
+  selectedMonth.addEventListener("input", () => {
+    updateGlobalLegend(selectedMonth.value);
+    drawHeatmap();
+  });
 
   const container = d3.select("#heatmap-container");
   const legendExists = !container.select(".legend-group").empty();
@@ -178,29 +236,26 @@ function drawHeatmap() {
 
   // Centered Legend
   if (!legendExists) {
-    const legendWidth = 600, legendHeight = 15;
+    const legendWidth = 300, legendHeight = 15;
     const legendX = (width - legendWidth) / 2;
     const legendSvg = svg.append("g").attr("transform", `translate(${legendX}, ${margin.top - 90})`);
 
     const legendScale = d3.scaleLinear()
-      .domain([globalMinAvgDelay, globalMaxAvgDelay])
-      .range([0, legendWidth]);
+      .domain([globalMinAvgDelay, 0, globalMaxAvgDelay]) // 0 è centrato
+      .range([0, legendWidth / 2, legendWidth]);
+
     const legendAxis = d3.axisBottom(legendScale)
-      .tickValues([globalMinAvgDelay, Math.round(globalMaxAvgDelay / 2), globalMaxAvgDelay, 0]) // Add 0 to the tick values
-      .tickFormat(d => {
-        return d === 0 ? "" : `${Math.round(d)} min`; // Hide text for 0
-      })
-      .tickSizeOuter(0); // Remove the outer ticks
-
-
+      .tickValues([globalMinAvgDelay, globalMaxAvgDelay, 0])
+      .tickFormat(d => { return d === 0 ? "" : `${Math.round(d)} min`;} )
+      .tickSizeOuter(0);
 
     const legendGradient = legendSvg.append("defs").append("linearGradient")
       .attr("id", "legend-gradient")
       .attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%");
 
-    legendGradient.append("stop").attr("offset", "0%").attr("stop-color", colorScale(globalMaxAvgDelay));
+    legendGradient.append("stop").attr("offset", "0%").attr("stop-color", colorScale(globalMinAvgDelay));
     legendGradient.append("stop").attr("offset", "50%").attr("stop-color", colorScale(0));
-    legendGradient.append("stop").attr("offset", "100%").attr("stop-color", colorScale(globalMinAvgDelay));
+    legendGradient.append("stop").attr("offset", "100%").attr("stop-color", colorScale(globalMaxAvgDelay));
 
     legendSvg.append("rect").attr("width", legendWidth).attr("height", legendHeight).style("fill", "url(#legend-gradient)");
 
@@ -212,7 +267,7 @@ function drawHeatmap() {
       .append("line")
       .attr("y1", -legendHeight)
       .attr("y2", 0)
-      .attr("stroke", "white")
+      .attr("stroke", "black")
       .attr("stroke-width", 2);
 
     legendSvg.append("text").attr("x", legendWidth / 2).attr("y", -10).attr("text-anchor", "middle").style("fill", "white").text("Avg Delay (min)");
@@ -221,7 +276,7 @@ function drawHeatmap() {
 
 function toggleAutoplay() {
   const autoplayButton = document.getElementById("autoplay-btn");
-  
+
   if (isAutoplayActive) {
     clearInterval(autoplayInterval);
     isAutoplayActive = false;
@@ -234,17 +289,26 @@ function toggleAutoplay() {
       d3.select(".tooltip").remove();
 
       let currentYearIndex = availableYears.indexOf(selectedYear.value);
-      
-      if (currentYearIndex < availableYears.length - 1) {
-        selectedYear.value = availableYears[currentYearIndex + 1];
+      let nextYear = availableYears[currentYearIndex + 1];
+
+      let nextMonth = selectedMonth.value;
+
+      while (!hasDataForMonth(nextYear, nextMonth) && nextYear !== availableYears[availableYears.length - 1]) {
+        nextYear = availableYears[availableYears.indexOf(nextYear) + 1];
+      }
+
+      if (!hasDataForMonth(nextYear, nextMonth)) {
+        nextYear = availableYears[0]; 
+      }
+
+      if (hasDataForMonth(nextYear, nextMonth)) {
+        selectedYear.value = nextYear;
+        selectedMonth.value = nextMonth;
         drawHeatmap();
       } else {
-        clearInterval(autoplayInterval);
-        setTimeout(() => {
-          selectedYear.value = availableYears[0];
-          drawHeatmap();
-          autoplayInterval = setInterval(autoplayStep, 1500);
-        }, 2500);
+        selectedYear.value = availableYears[0];
+        selectedMonth.value = "All";
+        drawHeatmap();
       }
     }
 
@@ -253,14 +317,11 @@ function toggleAutoplay() {
 }
 
 
-// Event listener for the autoplay button
 document.getElementById("autoplay-btn").addEventListener("click", toggleAutoplay);
 
-// Initial call to draw the heatmap
 drawHeatmap();
 selectedYear.addEventListener("input", drawHeatmap);
 selectedMonth.addEventListener("input", drawHeatmap);
-
 ```
 
 <div style="font-family: 'Times New Roman', serif;">
@@ -346,9 +407,9 @@ function getStackedData(percentageView) {
 }
 
 //  Create View Toggle (Absolute vs Percentage)
-const viewToggle = Inputs.radio(["Absolute Numbers", "Percentage"], {
+const viewToggle = Inputs.radio(["Percentage", "Absolute Numbers"], {
   label: "📊 View Mode",
-  value: "Absolute Numbers" // Default mode
+  value: "Percentage" // Default mode
 });
 
 //  Create Reset Zoom Button
@@ -440,13 +501,11 @@ function drawStackedBarChart() {
     .on("mouseover", function(event, d) {
       const season = d3.select(this.parentNode).datum().key;
       const percentage = Math.round(d[1] - d[0]);
+      const count = d.data[season] || 0;
 
       d3.select(this).style("opacity", 0.7);
       tooltip.style("display", "block")
-        .html(`
-          <strong>${d.data.category}</strong><br>
-          Season: ${season}<br>
-          ${percentageView ? "Percentage: " : "Delays: "} ${percentage}${percentageView ? "%" : ""}
+        .html(`<strong>${d.data.category}</strong><br>Season: ${season}<br>${percentageView ? `Percentage: ${percentage}% <br> Flights: ${count}` : `Flights: ${percentage}`}
         `);
     })
     .on("mousemove", event => {
@@ -512,6 +571,7 @@ drawStackedBarChart();
 
 //  Update Chart when View Changes
 viewToggle.addEventListener("input", drawStackedBarChart);
+
 ```
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">

@@ -307,11 +307,11 @@ async function createSankeyChart() {
 
   // Define nodes
   const nodes = [{ name: "Total Flights" }];
-  
+
   // Add airlines as nodes
   const airlineNodes = airlineStatusCounts.map(([airline]) => ({ name: airline }));
   nodes.push(...airlineNodes);
-  
+
   // Add flight status categories as nodes
   const statusNodes = ["On-Time", "Delayed", "Cancelled", "Diverted"].map(name => ({ name }));
   nodes.push(...statusNodes);
@@ -345,16 +345,17 @@ async function createSankeyChart() {
   });
 
   // **Set up dimensions**
-  const width = 900, height =600; // Increased height to move the chart down
+  const width = 900, height = 700; // Increased height to move the chart down
 
   // **Define Sankey layout**
   const { nodes: sankeyNodes, links: sankeyLinks } = sankey()
-    .nodeWidth(20)
+    .nodeWidth(30)
     .nodePadding(5)
-    .extent([[100, 50], [width - 100, height - 20]])({ // Increased vertical padding for more space
+    .extent([[100, 50], [width - 100, height]])({ // Increased vertical padding for more space
       nodes: nodes.map(d => Object.assign({}, d)),
       links: links.map(d => Object.assign({}, d))
     });
+
   // **Select the container div**
   const container = d3.select("#sankey-container");
 
@@ -390,7 +391,7 @@ async function createSankeyChart() {
     .style("display", "none");
 
   // **Draw Links**
-  svg.append("g")
+  const link = svg.append("g")
     .selectAll("path")
     .data(sankeyLinks)
     .join("path")
@@ -406,7 +407,7 @@ async function createSankeyChart() {
     .attr("fill", "none")
     .attr("opacity", 0.6)
     .on("mouseover", function (event, d) {
-      d3.select(this).attr("opacity", 1);
+      d3.select(this).transition().duration(150).attr("opacity", 0.9);
       tooltip.style("display", "block")
         .html(
           `<strong>${nodes[d.source.index]?.name || "Unknown"} → ${nodes[d.target.index]?.name || "Unknown"}</strong><br>📊 Flights: ${d.value}`
@@ -423,7 +424,7 @@ async function createSankeyChart() {
       tooltip.style("top", `${yPos}px`).style("left", `${xPos}px`);
     })
     .on("mouseout", function () {
-      d3.select(this).attr("opacity", 0.6);
+      d3.select(this).transition().duration(150).attr("opacity", 0.6);
       tooltip.style("display", "none");
     });
 
@@ -445,7 +446,27 @@ async function createSankeyChart() {
         return colorScaleStatus(d.name); // Status bar colors (C, D, E, F)
       }
     })
-    .append("title")
+    .on("mouseover", function (event, d) {
+      tooltip.style("display", "block")
+        .html(`<strong>${d.name}</strong>`)
+        .style("left", `${event.pageX + 10}px`)
+        .style("top", `${event.pageY - 20}px`);
+
+      // Highlight incoming and outgoing links
+      link.transition()
+        .duration(150)
+        .attr("opacity", l => l.source.index === d.index || l.target.index === d.index ? 0.9 : 0.3);
+    })
+    .on("mousemove", event => {
+      tooltip.style("left", `${event.pageX + 10}px`)
+        .style("top", `${event.pageY - 20}px`);
+    })
+    .on("mouseout", function () {
+      tooltip.style("display", "none");
+      link.transition()
+        .duration(150)
+        .attr("opacity", 0.6);
+    })
     .text(d => `${d.name}`);
 
   // **Add Labels**
@@ -462,13 +483,13 @@ async function createSankeyChart() {
     .text(d => d.name);
 
   // **Add Column Headers Above the Sankey Diagram**
-  const headerHeight = 30;  // Set a height for the header labels
+  const headerHeight = 30; // Set a height for the header labels
 
   // Add "Number of Flights" header above the "Total Flights" node
   svg.append("text")
     .attr("x", width / 8)
-    .attr("y", 25)  // Position at the top
-    .attr("dy", headerHeight / 2)  // Center vertically
+    .attr("y", 25) // Position at the top
+    .attr("dy", headerHeight / 2) // Center vertically
     .attr("text-anchor", "middle")
     .style("font-size", "14px")
     .style("fill", "white")
@@ -479,19 +500,19 @@ async function createSankeyChart() {
   const airportXPos = width / 2; // Adjust this based on your Sankey layout
   svg.append("text")
     .attr("x", airportXPos)
-    .attr("y", 25)  // Position at the top
-    .attr("dy", headerHeight / 2)  // Center vertically
+    .attr("y", 25) // Position at the top
+    .attr("dy", headerHeight / 2) // Center vertically
     .attr("text-anchor", "middle")
     .style("font-size", "14px")
     .style("fill", "white")
     .text("Airline");
 
   // Add "Status" header above the status nodes (On-Time, Delayed, Cancelled, Diverted)
-  const statusXPos = width;  // You might want to adjust this if status nodes are spread out horizontally
+  const statusXPos = width; // You might want to adjust this if status nodes are spread out horizontally
   svg.append("text")
-    .attr("x", statusXPos-100)
-    .attr("y", 25)  // Position at the top
-    .attr("dy", headerHeight / 2)  // Center vertically
+    .attr("x", statusXPos - 100)
+    .attr("y", 25) // Position at the top
+    .attr("dy", headerHeight / 2) // Center vertically
     .attr("text-anchor", "middle")
     .style("font-size", "14px")
     .style("fill", "white")
@@ -499,7 +520,6 @@ async function createSankeyChart() {
 }
 
 createSankeyChart();
-
 ```
 <div class="grid grid-cols-1"> 
   <div class="card" style="display: flex; justify-content: center; align-items: center;"> <div id="sankey-container"></div> </div> 
@@ -514,6 +534,5 @@ createSankeyChart();
 3. Status: The rightmost column delineates the possible flight outcomes—On-Time, Delayed, Cancelled, and Diverted—each represented by distinct colors (green, yellow, red, and purple, respectively).
 </div>
 <div>
-
-Flows between these columns are proportionally sized, reflecting the volume of flights transitioning from each airline to the respective status categories. For example, a substantial green flow from *Southwest Airlines Co.* to the On-Time status indicates a high rate of punctual flights. Conversely, thinner flows in red or purple from other airlines to the Cancelled or Diverted statuses may point to operational challenges. <br> This visualization facilitates a comparative analysis of airline performance, allowing users to quickly assess which carriers excel in maintaining schedules and which may require improvements in operational reliability.
+Flows between these columns are proportionally sized, reflecting the volume of flights transitioning from each airline to the respective status categories. For example, a substantial green flow from <i>Southwest Airlines Co.</i> to the On-Time status indicates a high rate of punctual flights. Conversely, thinner flows in red or purple from other airlines to the Cancelled or Diverted statuses may point to operational challenges. <br> This visualization facilitates a comparative analysis of airline performance, allowing users to quickly assess which carriers excel in maintaining schedules and which may require improvements in operational reliability.
 </div>
