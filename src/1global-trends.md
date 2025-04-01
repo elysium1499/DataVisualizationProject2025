@@ -385,25 +385,7 @@ function computeColorScale(data, colorRange) {
   return d3.scaleQuantile()
     .domain(stateCounts)
     .range(colorRange);
-
-  const quantiles = Array.isArray(colorScale.quantiles()) ? colorScale.quantiles() : [];
-  const minCount = stateValues.length > 0 ? Math.min(...stateValues) : 0;
-  const maxCount = stateValues.length > 0 ? Math.max(...stateValues) : 0;
-  const legendRanges = [minCount, ...quantiles.map(d => Math.round(d)), maxCount];
-  if (legendRanges[legendRanges.length - 1] < maxCount) {
-    legendRanges.push(maxCount);
-  }
-  const legendLabels = legendRanges.slice(0, -1).map((d, i) => {
-    let nextValue = legendRanges[i + 1] - 1;
-    return `${d}-${nextValue}`;
-  });
-
-  airlineColorScales[airline] = colorScale;
-  airlineLegendData[airline] = { ranges: legendRanges, labels: legendLabels };
 }
-
-// Compute and store color scales for all airline options
-airlineOptions.forEach(airline => computeAirlineScaleAndLegend(airline));
 
 // Function to draw the map with quantile-based color scaling
 function drawMap(data, colorScale) {
@@ -428,7 +410,7 @@ function drawMap(data, colorScale) {
 
   // Create SVG element
   const svg = d3.select("#map-container").append("svg")
-    .attr("width", width + 150)
+    .attr("width", width)
     .attr("height", height);
 
   // Tooltip
@@ -449,10 +431,10 @@ function drawMap(data, colorScale) {
     .data(statesWithCounts)
     .join("path")
     .attr("d", path)
-    .attr("fill", d => colorScale(d.properties.flights))
+    .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).darker(0.5))
     .attr("stroke", "#222")
     .on("mouseover", function (event, d) {
-      const [x, y] = path.centroid(d);
+      const [x, y] = path.centroid(d); // Calcola il centro dello stato
 
       d3.select(this)
         //.attr("fill", d => d3.rgb(colorScale(d.properties.flights)).brighter(0.5)) // Make it brighter
@@ -461,10 +443,11 @@ function drawMap(data, colorScale) {
         .transition().duration(200) // Smooth transition
         .attr("transform", `translate(${x * -0.3}, ${y * -0.3}) scale(1.3)`);
 
-      d3.select(this).raise();
+      // Sposta il path sopra agli altri
+      d3.select(this).raise(); // Usa raise() per spostarlo sopra al gruppo corrente
 
       tooltip.style("display", "block")
-        .html(`<strong>${d.properties.name}</strong><br>✈ Flights: ${d.properties.flights}`);
+        .html(`<strong>${d.properties.name}</strong><br>? Flights: ${d.properties.flights}`);
     })
     .on("mousemove", event => {
       tooltip.style("top", `${event.pageY + 10}px`)
@@ -475,7 +458,7 @@ function drawMap(data, colorScale) {
         //.attr("fill", d => colorScale(d.properties.flights)) // Reset to original color
         .attr("stroke", "#222") // Reset stroke color
         .transition().duration(200) // Smooth transition
-        .attr("transform", "translate(0,0) scale(1)");
+        .attr("transform", "translate(0,0) scale(1)"); // Ritorna alla dimensione originale
 
       tooltip.style("display", "none");
     });
@@ -535,13 +518,13 @@ d3.select("body").append("div").attr("id", "legend-container");
 
 // Update map when filters change
 function updateMap() {
-  d3.selectAll(".tooltip").remove();
   const year = selectedYear.value;
   const airline = selectedAirline1.value;
   const filteredData = filterFlights(year, airline);
 
   if (filteredData.length === 0) {
-    d3.select("#map-container").html("<p style='color:red; font-size: 40px;'> ⚠ No data available.</p>");
+    console.warn("? No flight data available for", year, airline);
+    d3.select("#map-container").html("<p style='color:red;'>No data available.</p>");
     return;
   }
 /*
@@ -625,7 +608,7 @@ const years = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).getFullYea
   .map(year => year.toString()); // Ensure it's treated as a string without commas
 
 // Dropdown for year selection
-const selYear = Inputs.select(years, { label: "📅 Select Year" });
+const selYear = Inputs.select(years, { label: "📅 Year" });
 const selAutoplay = document.createElement('button');
 selAutoplay.id = "autoplay-btn";
 selAutoplay.innerHTML = '▶ Play';

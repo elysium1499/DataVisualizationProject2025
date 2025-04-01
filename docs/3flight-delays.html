@@ -25,8 +25,8 @@
 import {define} from "./_observablehq/client.cd9d3395.js";
 import {registerFile} from "./_observablehq/stdlib.6b9c64a3.js";
 
-registerFile("./data/cordinates.csv", {"name":"./data/cordinates.csv","mimeType":"text/csv","path":"./_file/data/cordinates.970c2a80.csv","lastModified":1743201531683,"size":8618});
-registerFile("./data/flights_data.csv", {"name":"./data/flights_data.csv","mimeType":"text/csv","path":"./_file/data/flights_data.925f7b17.csv","lastModified":1741526889746,"size":13659204});
+registerFile("./data/cordinates.csv", {"name":"./data/cordinates.csv","mimeType":"text/csv","path":"./_file/data/cordinates.970c2a80.csv","lastModified":1743512154306,"size":8618});
+registerFile("./data/flights_data.csv", {"name":"./data/flights_data.csv","mimeType":"text/csv","path":"./_file/data/flights_data.925f7b17.csv","lastModified":1742975586506,"size":13659204});
 
 define({id: "2301a8ed", inputs: ["FileAttachment"], outputs: ["datasetFlights","cordinates"], body: async (FileAttachment) => {
 const datasetFlights = await FileAttachment("./data/flights_data.csv").csv({ typed: true });

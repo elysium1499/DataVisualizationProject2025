@@ -353,7 +353,7 @@ flightVolumeChart
 ))
 }});
 
-define({id: "956e997c", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usStates","stateAbbreviations","years","selectedYear","airlineOptions","selectedAirline1","filterFlights","computeStateFlightCounts","width","height","projection","path","fixedColorScale","computeColorScale","drawMap","drawLegend","updateMap"], body: async (d3,datasetFlights,Inputs) => {
+define({id: "9fb5adf4", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usStates","stateAbbreviations","years","selectedYear","airlineOptions","selectedAirline1","filterFlights","computeStateFlightCounts","width","height","projection","path","fixedColorScale","computeColorScale","drawMap","drawLegend","updateMap"], body: async (d3,datasetFlights,Inputs) => {
 const topojson = await import("https://cdn.jsdelivr.net/npm/topojson@3/+esm");
 // Load US states GeoJSON
 const usStates = await d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json");
@@ -426,25 +426,7 @@ function computeColorScale(data, colorRange) {
   return d3.scaleQuantile()
     .domain(stateCounts)
     .range(colorRange);
-
-  const quantiles = Array.isArray(colorScale.quantiles()) ? colorScale.quantiles() : [];
-  const minCount = stateValues.length > 0 ? Math.min(...stateValues) : 0;
-  const maxCount = stateValues.length > 0 ? Math.max(...stateValues) : 0;
-  const legendRanges = [minCount, ...quantiles.map(d => Math.round(d)), maxCount];
-  if (legendRanges[legendRanges.length - 1] < maxCount) {
-    legendRanges.push(maxCount);
-  }
-  const legendLabels = legendRanges.slice(0, -1).map((d, i) => {
-    let nextValue = legendRanges[i + 1] - 1;
-    return `${d}-${nextValue}`;
-  });
-
-  airlineColorScales[airline] = colorScale;
-  airlineLegendData[airline] = { ranges: legendRanges, labels: legendLabels };
 }
-
-// Compute and store color scales for all airline options
-airlineOptions.forEach(airline => computeAirlineScaleAndLegend(airline));
 
 // Function to draw the map with quantile-based color scaling
 function drawMap(data, colorScale) {
@@ -469,7 +451,7 @@ function drawMap(data, colorScale) {
 
   // Create SVG element
   const svg = d3.select("#map-container").append("svg")
-    .attr("width", width + 150)
+    .attr("width", width)
     .attr("height", height);
 
   // Tooltip
@@ -490,10 +472,10 @@ function drawMap(data, colorScale) {
     .data(statesWithCounts)
     .join("path")
     .attr("d", path)
-    .attr("fill", d => colorScale(d.properties.flights))
+    .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).darker(0.5))
     .attr("stroke", "#222")
     .on("mouseover", function (event, d) {
-      const [x, y] = path.centroid(d);
+      const [x, y] = path.centroid(d); // Calcola il centro dello stato
 
       d3.select(this)
         //.attr("fill", d => d3.rgb(colorScale(d.properties.flights)).brighter(0.5)) // Make it brighter
@@ -502,10 +484,11 @@ function drawMap(data, colorScale) {
         .transition().duration(200) // Smooth transition
         .attr("transform", `translate(${x * -0.3}, ${y * -0.3}) scale(1.3)`);
 
-      d3.select(this).raise();
+      // Sposta il path sopra agli altri
+      d3.select(this).raise(); // Usa raise() per spostarlo sopra al gruppo corrente
 
       tooltip.style("display", "block")
-        .html(`<strong>${d.properties.name}</strong><br>✈ Flights: ${d.properties.flights}`);
+        .html(`<strong>${d.properties.name}</strong><br>? Flights: ${d.properties.flights}`);
     })
     .on("mousemove", event => {
       tooltip.style("top", `${event.pageY + 10}px`)
@@ -516,7 +499,7 @@ function drawMap(data, colorScale) {
         //.attr("fill", d => colorScale(d.properties.flights)) // Reset to original color
         .attr("stroke", "#222") // Reset stroke color
         .transition().duration(200) // Smooth transition
-        .attr("transform", "translate(0,0) scale(1)");
+        .attr("transform", "translate(0,0) scale(1)"); // Ritorna alla dimensione originale
 
       tooltip.style("display", "none");
     });
@@ -576,13 +559,13 @@ d3.select("body").append("div").attr("id", "legend-container");
 
 // Update map when filters change
 function updateMap() {
-  d3.selectAll(".tooltip").remove();
   const year = selectedYear.value;
   const airline = selectedAirline1.value;
   const filteredData = filterFlights(year, airline);
 
   if (filteredData.length === 0) {
-    d3.select("#map-container").html("<p style='color:red; font-size: 40px;'> ⚠ No data available.</p>");
+    console.warn("? No flight data available for", year, airline);
+    d3.select("#map-container").html("<p style='color:red;'>No data available.</p>");
     return;
   }
 /*
@@ -642,14 +625,14 @@ selectedAirline1
 ))
 }});
 
-define({id: "ee9d9367", inputs: ["datasetFlights","Inputs","d3"], outputs: ["years","selYear","selAutoplay","autoplayInterval","autoplayActive","toggleAutoplay","getMonthlyData","maxFlights","fixedScale","radarChart","ridgelineChart"], body: (datasetFlights,Inputs,d3) => {
+define({id: "72b0e580", inputs: ["datasetFlights","Inputs","d3"], outputs: ["years","selYear","selAutoplay","autoplayInterval","autoplayActive","toggleAutoplay","getMonthlyData","maxFlights","fixedScale","radarChart","ridgelineChart"], body: (datasetFlights,Inputs,d3) => {
 // Extract unique years and properly format them
 const years = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).getFullYear()))]
  .sort((a, b) => a - b)
  .map(year => year.toString()); // Ensure it's treated as a string without commas
 
 // Dropdown for year selection
-const selYear = Inputs.select(years, { label: "📅 Select Year" });
+const selYear = Inputs.select(years, { label: "📅 Year" });
 const selAutoplay = document.createElement('button');
 selAutoplay.id = "autoplay-btn";
 selAutoplay.innerHTML = '▶ Play';
@@ -914,7 +897,7 @@ The blue line shows the number of flights per day. The filters can be use to sel
 <div> 
 This is a geographical view of flight density per state, filtered by year and airline, helps identify the busiest regions. Flight volume fluctuates over time and it is influenced by different conditions: seasons, airline operations, and passenger demand.
 </div> 
-<div class="observablehq observablehq--block"><!--:956e997c:--></div>
+<div class="observablehq observablehq--block"><!--:9fb5adf4:--></div>
 <br>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
@@ -939,7 +922,7 @@ This is a geographical view of flight density per state, filtered by year and ai
 <div> 
 The second visualization shifts focus from time to geography. This U.S. map shades each state based on the number of incoming flights, with deeper colors representing higher volumes. It immediately highlights which regions serve as major hubs—states like California, Texas, and Florida tend to show darker shades, reflecting their high connectivity and central role in domestic travel. <br> What's compelling here is the temporal filter. By selecting different years or filtering by airline, users can uncover how regional flight activity changed—perhaps observing a temporary dip in traffic to tourist-heavy states in 2020, followed by rebounds in 2021 and beyond. Note that the scale adjusts dynamically when filtering. This map translates abstract numbers into a spatial context, helping users grasp the real-world geography behind the data.</div><br> 
 <h2 id="monthly-flight-volume" tabindex="-1"><a class="observablehq-header-anchor" href="#monthly-flight-volume">Monthly Flight Volume</a></h2>
-<div class="observablehq observablehq--block"><!--:ee9d9367:--></div>
+<div class="observablehq observablehq--block"><!--:72b0e580:--></div>
 <br>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
