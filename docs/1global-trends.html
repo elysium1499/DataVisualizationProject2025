@@ -353,7 +353,7 @@ flightVolumeChart
 ))
 }});
 
-define({id: "9fb5adf4", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usStates","stateAbbreviations","years","selectedYear","airlineOptions","selectedAirline1","filterFlights","computeStateFlightCounts","width","height","projection","path","fixedColorScale","computeColorScale","drawMap","drawLegend","updateMap"], body: async (d3,datasetFlights,Inputs) => {
+define({id: "a00c8f2a", inputs: ["d3","datasetFlights","Inputs"], outputs: ["topojson","usStates","stateAbbreviations","years","selectedYear","airlineOptions","selectedAirline1","filterFlights","computeStateFlightCounts","width","height","projection","path","fixedColorScale","computeColorScale","drawMap","drawLegend","updateMap"], body: async (d3,datasetFlights,Inputs) => {
 const topojson = await import("https://cdn.jsdelivr.net/npm/topojson@3/+esm");
 // Load US states GeoJSON
 const usStates = await d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json");
@@ -488,7 +488,7 @@ function drawMap(data, colorScale) {
       d3.select(this).raise(); // Usa raise() per spostarlo sopra al gruppo corrente
 
       tooltip.style("display", "block")
-        .html(`<strong>${d.properties.name}</strong><br>? Flights: ${d.properties.flights}`);
+        .html(`<strong>${d.properties.name}</strong><br>✈ Flights: ${d.properties.flights}`);
     })
     .on("mousemove", event => {
       tooltip.style("top", `${event.pageY + 10}px`)
@@ -564,10 +564,12 @@ function updateMap() {
   const filteredData = filterFlights(year, airline);
 
   if (filteredData.length === 0) {
-    console.warn("? No flight data available for", year, airline);
-    d3.select("#map-container").html("<p style='color:red;'>No data available.</p>");
-    return;
+  console.warn("? No flight data available for", year, airline);
+  d3.select("#map-container").html("<p style='color:red;'>⚠ No Data Available.</p>");
+  d3.select("#legend-container").html(""); // Rimuove la legenda quando non ci sono dati
+  return;
   }
+
 /*
   // If the airline selection changed, update the legend color scale
   if (fixedColorScale === null || airline !== updateMap.lastAirline) {
@@ -877,11 +879,11 @@ The first chart presents a time-series line graph that illustrates the number of
 <div class="observablehq observablehq--block"><!--:e58b5ad3:--></div>
 <br>
 <div style="font-family: 'Times New Roman', serif;">
-  <div style="display: flex; justify-content: center; align-items: center;">
-    <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:bac88d80:--></div>
-    <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;"><observablehq-loading></observablehq-loading><!--:67c88d57:--></div>
-    <div style="display: inline-block; width: 150px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;"><observablehq-loading></observablehq-loading><!--:d24ef87d:--></div>
-    <div style="display: inline-block; width: 150px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;"><observablehq-loading></observablehq-loading><!--:1f78ce6f:--></div>
+  <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center;">
+    <div style="display: flex; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; margin-bottom: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:bac88d80:--></div>
+    <div style="display: flex; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; margin-bottom: 10px; background-color: #292929; color: white;"><observablehq-loading></observablehq-loading><!--:67c88d57:--></div>
+    <div style="display: flex; width: 150px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; margin-bottom: 10px; background-color: #292929; color: white;"><observablehq-loading></observablehq-loading><!--:d24ef87d:--></div>
+    <div style="display: flex; width: 150px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; margin-bottom: 10px; background-color: #292929; color: white;"><observablehq-loading></observablehq-loading><!--:1f78ce6f:--></div>
   </div>
   <div class="grid grid-cols-1"> 
     <div class="card" style="display: flex; justify-content: center; align-items: center; height: 400px;" id="chart-container"><observablehq-loading></observablehq-loading><!--:c8f5ec9a:--></div> 
@@ -897,7 +899,7 @@ The blue line shows the number of flights per day. The filters can be use to sel
 <div> 
 This is a geographical view of flight density per state, filtered by year and airline, helps identify the busiest regions. Flight volume fluctuates over time and it is influenced by different conditions: seasons, airline operations, and passenger demand.
 </div> 
-<div class="observablehq observablehq--block"><!--:9fb5adf4:--></div>
+<div class="observablehq observablehq--block"><!--:a00c8f2a:--></div>
 <br>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">

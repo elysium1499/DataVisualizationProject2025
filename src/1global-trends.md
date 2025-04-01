@@ -285,11 +285,11 @@ adaptiveScale.addEventListener("input", drawChart);
 ```
 <br>
 <div style="font-family: 'Times New Roman', serif;">
-  <div style="display: flex; justify-content: center; align-items: center;">
-    <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;">${selectedAirline}</div>
-    <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selectedDestination}</div>
-    <div style="display: inline-block; width: 150px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${smoothLine}</div>
-    <div style="display: inline-block; width: 150px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${adaptiveScale}</div>
+  <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center;">
+    <div style="display: flex; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; margin-bottom: 10px; background-color:#292929; color: white;">${selectedAirline}</div>
+    <div style="display: flex; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; margin-bottom: 10px; background-color: #292929; color: white;">${selectedDestination}</div>
+    <div style="display: flex; width: 150px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; margin-bottom: 10px; background-color: #292929; color: white;">${smoothLine}</div>
+    <div style="display: flex; width: 150px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; margin-bottom: 10px; background-color: #292929; color: white;">${adaptiveScale}</div>
   </div>
   <div class="grid grid-cols-1"> 
     <div class="card" style="display: flex; justify-content: center; align-items: center; height: 400px;" id="chart-container">${flightVolumeChart}</div> 
@@ -447,7 +447,7 @@ function drawMap(data, colorScale) {
       d3.select(this).raise(); // Usa raise() per spostarlo sopra al gruppo corrente
 
       tooltip.style("display", "block")
-        .html(`<strong>${d.properties.name}</strong><br>? Flights: ${d.properties.flights}`);
+        .html(`<strong>${d.properties.name}</strong><br>✈ Flights: ${d.properties.flights}`);
     })
     .on("mousemove", event => {
       tooltip.style("top", `${event.pageY + 10}px`)
@@ -523,10 +523,12 @@ function updateMap() {
   const filteredData = filterFlights(year, airline);
 
   if (filteredData.length === 0) {
-    console.warn("? No flight data available for", year, airline);
-    d3.select("#map-container").html("<p style='color:red;'>No data available.</p>");
-    return;
+  console.warn("? No flight data available for", year, airline);
+  d3.select("#map-container").html("<p style='color:red;'>⚠ No Data Available.</p>");
+  d3.select("#legend-container").html(""); // Rimuove la legenda quando non ci sono dati
+  return;
   }
+
 /*
   // If the airline selection changed, update the legend color scale
   if (fixedColorScale === null || airline !== updateMap.lastAirline) {
