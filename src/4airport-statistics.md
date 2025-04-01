@@ -17,7 +17,8 @@ The "Airport Statistics" dashboard offers an in-depth exploration of flight perf
 
 ## Flight Delay Distribution by Airport
 
-### Flight Delay Distribution of Top 20 Busiest Airports (Grouped by State)
+### Flight Delay Distribution of Top 10 Busiest Airports 
+<!--(Grouped by State)-->
 
 ```js
 // Load dataset
@@ -34,6 +35,8 @@ const airportStateMap = {
   "EWR": "New Jersey", "DCA": "Virginia", "JFK": "New York", "SLC": "Utah"
 };
 
+
+
 // Count Flights Per Airport
 const airportFlightCounts = d3.rollups(
   datasetFlights,
@@ -41,14 +44,14 @@ const airportFlightCounts = d3.rollups(
   d => d.ORIGIN
 );
 
-// Sort Airports & Select the 20 Busiest Airports
+// Sort Airports & Select the 10 Busiest Airports
 const topAirports = new Set(
   airportFlightCounts.sort((a, b) => b[1] - a[1]) // Sort descending
-    .slice(0, 20) // Take top 20
+    .slice(0, 10) // Take top 10
     .map(d => d[0]) // Extract airport codes
 );
 
-// Filter Dataset to Keep Only the 20 Busiest Airports
+// Filter Dataset to Keep Only the 10 Busiest Airports
 const filteredDataset = datasetFlights.filter(d => topAirports.has(d.ORIGIN));
 
 // Process Data: Compute Summary Statistics for Each Airport
@@ -74,8 +77,10 @@ const sortedAirportStats = airportStats.sort((a, b) =>
 );
 
 // Set up Dimensions
-const width = 950, height = 550, margin = { top: 100, right: 50, bottom: 130, left: 50 };
-
+//const width = 950, height = 550, margin = { top: 100, right: 50, bottom: 130, left: 50 };
+const width = 900 * 0.90;
+const height = 400 * 0.90;
+const margin = { top: 30, right: 40, bottom: 50, left: 70 };
 // Define Scales
 const xScale = d3.scaleBand()
   .domain(sortedAirportStats.map(d => d.airport)) // Sorted Airports
@@ -292,11 +297,11 @@ const d3 = await import("https://cdn.jsdelivr.net/npm/d3@7/+esm");
 const airportStateMap = {
   "ATL": "Georgia", "ORD": "Illinois", "LAX": "California", "DFW": "Texas",
   "JFK": "New York", "DEN": "Colorado", "SFO": "California",
-  "MCO": "Florida", "SEA": "Washington"
+  "MCO": "Florida", "SEA": "Washington", "LGA": "New York"
 };
 
-// Manually Selected 9 Airports
-const selectedAirports = new Set(["ATL", "ORD", "LAX", "DFW", "JFK", "DEN", "SFO", "MCO", "SEA"]);
+// Manually Selected 10 Airports
+const selectedAirports = new Set(["ATL", "ORD", "LAX", "DFW", "JFK", "DEN", "SFO", "MCO", "SEA", "LGA"]);
 
 // Filter Dataset to Keep Only the Selected Airports
 const filteredDataset = datasetFlights.filter(d => selectedAirports.has(d.ORIGIN));
@@ -351,7 +356,7 @@ airportStats.forEach((airportData, i) => {
     .style("color", "white")
     .style("font-size", "12px")
     .style("font-weight", "bold")
-    .style("margin-bottom", "5px") // Space between text and chart
+    .style("margin-bottom", "1px") // Space between text and chart
     .text(airportData.airport);
 
   // Create SVG
@@ -364,23 +369,6 @@ airportStats.forEach((airportData, i) => {
   const g = svg.append("g")
     .attr("transform", `translate(${chartWidth / 2}, ${chartHeight / 2})`);
 
-  // Draw Radar Grid (Circular Grid)
-  for (let level = 1; level <= 5; level++) {
-    g.append("circle")
-      .attr("r", (radius / 5) * level)
-      .attr("stroke", "#ddd")
-      .attr("fill", "none");
-
-    // Label for each level
-    g.append("text")
-      .attr("x", 0)
-      .attr("y", -(radius / 5) * level)
-      .attr("dy", "-4px")
-      .attr("text-anchor", "middle")
-      .style("fill", "white")
-      .style("font-size", "8px")
-      .text(Math.round((level / 5) * 100) + "%");
-  }
 
   // Draw Radar Axes
   const metrics = ["avgDelay", "cancellations", "diverted"];
@@ -390,6 +378,7 @@ airportStats.forEach((airportData, i) => {
     const angle = angleSlice * index;
     const x = Math.cos(angle) * radius;
     const y = Math.sin(angle) * radius;
+    const maxValue = maxValues[metric]; // Get max value for this metric
 
     g.append("line")
       .attr("x1", 0)
@@ -398,14 +387,46 @@ airportStats.forEach((airportData, i) => {
       .attr("y2", y)
       .attr("stroke", "#bbb");
 
+
+    // Draw Radar Grid (Circular Grid)
+    for (let level = 1; level <= 5; level++) {
+      const scaledValue = (level / 5) * maxValue; // Scale based on real max
+      const x = Math.cos(angle) * (radius / 5) * level; // Position along axis
+      const y = Math.sin(angle) * (radius / 5) * level;
+
+
+      g.append("circle")
+        .attr("r", (radius / 5) * level)
+        .attr("stroke", "#ddd")
+        .attr("fill", "none");
+
+      // Label for each level
+      g.append("text")
+        //.attr("x", 0)
+        .attr("x", x)
+        //.attr("y", -(radius / 5) * level)
+        .attr("y", y)
+        .attr("dy", "-4px")
+        .attr("dx", "-2px")
+        //.attr("text-anchor", "middle")
+        .attr("text-anchor", x > 0 ? "start" : x < 0 ? "end" : "middle") // Align correctly
+        .attr("text-anchor", "middle")
+        .style("fill", "yellow")
+        .style("font-size", "8px")
+        //.text(Math.round((level / 5) * 100) + "%");
+        .text(Math.round(scaledValue))
+        .text(metric === "diverted" ? scaledValue.toFixed(1) : Math.round(scaledValue));
+    }
+
     // Axis Labels
     g.append("text")
       .attr("x", x * 1.2)
       .attr("y", y * 1.2)
       .attr("text-anchor", "middle")
-      .attr("dy", "0.35em")
+      .attr("dy", "0.45em")
+      .attr("dx", "0.25em")
       .style("fill", "white")
-      .text(metric === "avgDelay" ? "Avg Delay" : metric === "cancellations" ? "Cancellations" : "Diverted");
+      .text(metric === "avgDelay" ? "Avg Delay (min)" : metric === "cancellations" ? "Cancellations (%)" : "Diverted (%)");
   });
 
   // Draw Radar Chart Shape (Using **MAX VALUES FOR EACH METRIC**)
@@ -427,7 +448,7 @@ airportStats.forEach((airportData, i) => {
           <strong>${airportData.airport} (${airportData.state})</strong><br>
           ⏳ Avg Delay: ${Math.round(airportData.avgDelay)} mins<br>
           ❌ Cancellations: ${Math.round(airportData.cancellations)}%<br>
-          🔄 Diverted: ${Math.round(airportData.diverted)}%
+          🔄 Diverted: ${(+airportData.diverted.toFixed(1))}%
         `);
     })
     .on("mousemove", event => {
@@ -448,7 +469,7 @@ airportStats.forEach((airportData, i) => {
 </div> 
 
 <div>
-The radar chart evaluates nine prominent U.S. airports—ATL (Hartsfield-Jackson Atlanta International), ORD (Chicago O'Hare International), LAX (Los Angeles International), SEA (Seattle-Tacoma International), SFO (San Francisco International), and MCO (Orlando International), DEN (Denver International Airport), JFK (John F. Kennedy International Airport), DFW (Dallas/Fort Worth International Airport)—across three critical performance metrics:
+The radar chart evaluates ten prominent U.S. airports—ATL (Hartsfield-Jackson Atlanta International), ORD (Chicago O'Hare International), LAX (Los Angeles International), SEA (Seattle-Tacoma International), SFO (San Francisco International), and MCO (Orlando International), DEN (Denver International Airport), JFK (John F. Kennedy International Airport), LGA (LaGuardia International Airport), DFW (Dallas/Fort Worth International Airport)—across three critical performance metrics:
 
 1. Average Delay: Depicted as an area within the chart, illustrating the typical delay duration experienced at the airport.
 2. Percentage of Flights Diverted: Indicates the proportion of flights rerouted to alternate destinations.

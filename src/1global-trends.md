@@ -56,37 +56,63 @@ const width = 900 * 0.90;
 const height = 400 * 0.90;
 const margin = { top: 30, right: 40, bottom: 50, left: 70 };
 
-// Create dropdowns and toggle for filtering
-const airlineOptions = ["All Airlines", ...new Set(datasetFlights.map(d => d.AIRLINE))];
-const destinationOptions = ["All Destinations", ...new Set(datasetFlights.map(d => stateNameMap[d.DEST_STATE] || d.DEST_STATE))];
+// Extract and sort initial options
+const allAirlines = [...new Set(datasetFlights.map(d => d.AIRLINE))].sort();
+const allDestinations = [...new Set(datasetFlights.map(d => stateNameMap[d.DEST_STATE] || d.DEST_STATE))].sort();
+
+// Dropdowns
+let airlineOptions = ["All Airlines", ...allAirlines];
+let destinationOptions = ["All Destinations", ...allDestinations];
 
 const selectedAirline = Inputs.select(airlineOptions, { label: "✈ Airline" });
 const selectedDestination = Inputs.select(destinationOptions, { label: "📍 Destination" });
 const smoothLine = Inputs.toggle({ label: "📈 Smooth Line" });
+const adaptiveScale = Inputs.toggle({ label: "🔄 Adaptive Scale" });
+
 
 // Function to filter and aggregate data
 function getFilteredData(airline, destination) {
+  const filteredData = datasetFlights.filter(d =>
+    (airline === "All Airlines" || d.AIRLINE === airline) &&
+    (destination === "All Destinations" || (stateNameMap[d.DEST_STATE] || d.DEST_STATE) === destination)
+  );
+
+  console.log(`Filtered flights: ${filteredData.length} for ${airline} to ${destination}`);
+
   return d3.rollups(
-    datasetFlights.filter(d =>
-      (airline === "All Airlines" || d.AIRLINE === airline) &&
-      (destination === "All Destinations" || stateNameMap[d.DEST_STATE] === destination)
-    ),
+    filteredData,
     v => v.length,
-    d => d.FL_DATE
+    d => new Date(d.FL_DATE)
   ).map(([date, count]) => ({ date, count }))
    .sort((a, b) => a.date - b.date);
 }
 
+// Determine the fixed max count across all data
   // Aggregate flights per day
 const flightsPerDay = d3.rollups(
   datasetFlights,
   v => v.length, // Count flights per day
+  //d => d.AIRLINE, // Group by airline
   d => new Date(d.FL_DATE)
 ).map(([date, count]) => ({ date, count }))
  .sort((a, b) => a.date - b.date);
+ 
+const maxFlightsOverall = d3.max(flightsPerDay, d => d.count);
 
+// Function to calculate max flights per day for a given airline
+function getMaxFlightsForAirline(airline) {
+  const airlineData = datasetFlights.filter(d => d.AIRLINE === airline);
+  const flightsPerDayForAirline = d3.rollups(
+    airlineData,
+    v => v.length,
+    d => new Date(d.FL_DATE)
+  ).map(([date, count]) => ({ date, count }))
+   .sort((a, b) => a.date - b.date);
+  
+  return d3.max(flightsPerDayForAirline, d => d.count); // Max flights for that airline
+}
 
-// Function to draw the chart
+// Draw the chart function
 function drawChart() {
   const airline = selectedAirline.value;
   const destination = selectedDestination.value;
@@ -94,21 +120,50 @@ function drawChart() {
 
   const filteredData = getFilteredData(airline, destination);
 
+  document.querySelector("#chart-container").innerHTML = "";
+
+  if (filteredData.length === 0) {
+    console.warn("No data available for the selected filters.");
+    document.querySelector("#chart-container").innerHTML = `<p style='color:red'>⚠ No Data Available for ${airline} → ${destination}</p>`;
+    return;
+  }
+
+
   // Create scales
   const xScale = d3.scaleTime()
     .domain(d3.extent(filteredData, d => d.date))
     .range([margin.left, width - margin.right]);
 
+  // Determine the max value for Y scale
+  //let maxFlights = maxFlightsOverall; // Default to the global max
+  let maxFlights; // Default to the global max
+  if (airline !== "All Airlines") {
+    maxFlights = getMaxFlightsForAirline(airline); // Adjust if a specific airline is selected
+  }
+
+  if (adaptiveScale.value) {
+    maxFlights = d3.max(filteredData, d => d.count) || 30; 
+  } else {
+    // Fixed mode: 30 se filtrato, altrimenti il massimo globale
+    if (airline !== "All Airlines" || destination !== "All Destinations") {
+        maxFlights = Math.max(d3.max(filteredData, d => d.count) || 30, 30);
+    } else {
+        maxFlights = maxFlightsOverall;
+    }
+  }
+
+  const cappedMaxFlights = (airline === "All Airlines") ? maxFlights : Math.max(maxFlights, 30);
+
   const yScale = d3.scaleLinear()
-    .domain([0, d3.max(filteredData, d => d.count)])
-    .nice()
+    //.domain([0, cappedMaxFlights]).nice()
+    .domain([0, maxFlights]).nice()
     .range([height - margin.bottom, margin.top]);
 
-  // Create line generator
+  // Line generator
   const lineGenerator = d3.line()
     .x(d => xScale(d.date))
     .y(d => yScale(d.count))
-    .curve(smooth ? d3.curveBasis : d3.curveLinear); // Toggle smooth line
+    .curve(smooth ? d3.curveBasis : d3.curveLinear);
 
   // Create SVG container
   const svg = d3.create("svg")
@@ -116,13 +171,20 @@ function drawChart() {
     .attr("height", height);
 
   // Add axes
-  svg.append("g")
-    .attr("transform", `translate(0,${height - margin.bottom})`)
-    .call(d3.axisBottom(xScale));
+  svg.append("g").attr("transform", `translate(0,${height - margin.bottom})`).call(d3.axisBottom(xScale));
 
-  svg.append("g")
-    .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(yScale));
+  svg.append("g").attr("transform", `translate(${margin.left},0)`).call(d3.axisLeft(yScale));
+
+  // Draw line chart
+  svg.append("path")
+    .datum(filteredData)
+    .attr("fill", "none")
+    .attr("stroke", "#3498db")
+    .attr("stroke-width", 2)
+    .attr("d", lineGenerator);
+
+  document.querySelector("#chart-container").appendChild(svg.node());
+
   
   // Add X Axis Label (Bottom)
   svg.append("text")
@@ -173,12 +235,13 @@ function drawChart() {
       
       // Find the closest date
       const dateScale = xScale.invert(mouseX);
-      const closestPoint = flightsPerDay.reduce((prev, curr) => 
+      const closestPoint = filteredData.reduce((prev, curr) => 
         Math.abs(curr.date - dateScale) < Math.abs(prev.date - dateScale) ? curr : prev
       );
 
       tooltip.style("display", "block")
-        .html(`📅 ${closestPoint.date.toDateString()}`)
+        //.html(`📅 ${closestPoint.date.toDateString()}`)
+        .html(`📅 ${closestPoint.date.toDateString()}<br>✈️ Flights: ${closestPoint.count}`)
         .style("top", (event.pageY - 10) + "px")
         .style("left", (event.pageX + 10) + "px");
     })
@@ -206,26 +269,18 @@ function drawChart() {
     .text("COVID-19 Starts");
 
   return svg.node();
+
 }
 
-// Generate chart with interactivity
-const flightVolumeChart = drawChart();
+// Initial render
+drawChart();
 
-// Update chart when filters change
-selectedAirline.addEventListener("input", () => {
-  document.querySelector("#chart-container").innerHTML = "";
-  document.querySelector("#chart-container").appendChild(drawChart());
-});
+// Event Listeners
+selectedAirline.addEventListener("input", drawChart);
+selectedDestination.addEventListener("input", drawChart);
+smoothLine.addEventListener("input", drawChart);
+adaptiveScale.addEventListener("input", drawChart);
 
-selectedDestination.addEventListener("input", () => {
-  document.querySelector("#chart-container").innerHTML = "";
-  document.querySelector("#chart-container").appendChild(drawChart());
-});
-
-smoothLine.addEventListener("input", () => {
-  document.querySelector("#chart-container").innerHTML = "";
-  document.querySelector("#chart-container").appendChild(drawChart());
-});
 
 ```
 <br>
@@ -234,6 +289,7 @@ smoothLine.addEventListener("input", () => {
     <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;">${selectedAirline}</div>
     <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selectedDestination}</div>
     <div style="display: inline-block; width: 150px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${smoothLine}</div>
+    <div style="display: inline-block; width: 150px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${adaptiveScale}</div>
   </div>
   <div class="grid grid-cols-1"> 
     <div class="card" style="display: flex; justify-content: center; align-items: center; height: 400px;" id="chart-container">${flightVolumeChart}</div> 
@@ -289,11 +345,11 @@ const years = [...new Set(datasetFlights.map(d => new Date(d.FL_DATE).getFullYea
   .map(year => year.toString()); // Ensure it's treated as a string without commas
 
 // Dropdown for year selection
-const selectedYear = Inputs.select(years, { label: "📅 Select Year" });
+const selectedYear = Inputs.select(years, { label: "📅 Year" });
 
 // Create dropdowns for filtering
-const airlineOptions = ["All Airlines", ...new Set(datasetFlights.map(d => d.AIRLINE))];
-const selectedAirline1 = Inputs.select(airlineOptions, { label: "✈  Select Airline" });
+const airlineOptions = ["All Airlines", ...[...new Set(datasetFlights.map(d => d.AIRLINE))].sort()];
+const selectedAirline1 = Inputs.select(airlineOptions, { label: "✈ Airline" });
 
 // Function to filter flights by year and airline
 function filterFlights(year, airline) {
@@ -321,6 +377,9 @@ const projection = d3.geoAlbersUsa().fitSize([width, height], topojson.feature(u
 const path = d3.geoPath().projection(projection);
 
 // Define color scales. Compute dynamic quantile thresholds based on dataset
+let fixedColorScale = null; // Store the fixed color scale for the legend
+
+// Function to compute the color scale based on the data
 function computeColorScale(data, colorRange) {
   const stateCounts = Object.values(computeStateFlightCounts(data));
   return d3.scaleQuantile()
@@ -329,7 +388,7 @@ function computeColorScale(data, colorRange) {
 }
 
 // Function to draw the map with quantile-based color scaling
-function drawMap(data) {
+function drawMap(data, colorScale) {
   const stateCounts = computeStateFlightCounts(data);
   const isAllAirlines = selectedAirline1.value === "All Airlines";
 
@@ -337,7 +396,7 @@ function drawMap(data) {
   const colorRange = isAllAirlines ? d3.schemeBlues[5] : d3.schemeOranges[5];
 
   // Compute quantile color scale dynamically
-  const colorScale = computeColorScale(data, colorRange);
+  colorScale = colorScale || computeColorScale(data, colorRange);
 
   // Join state data with flight counts
   const statesWithCounts = topojson.feature(usStates, usStates.objects.states).features.map(d => {
@@ -378,8 +437,9 @@ function drawMap(data) {
       const [x, y] = path.centroid(d); // Calcola il centro dello stato
 
       d3.select(this)
-        .attr("fill", d => d3.rgb(colorScale(d.properties.flights)).brighter(0.5)) // Make it brighter
-        .attr("stroke", "white") // Change stroke color
+        //.attr("fill", d => d3.rgb(colorScale(d.properties.flights)).brighter(0.5)) // Make it brighter
+        //.attr("fill", d => d3.rgb(colorScale(d.properties.flights))) 
+        .attr("stroke", "black") // Change stroke color
         .transition().duration(200) // Smooth transition
         .attr("transform", `translate(${x * -0.3}, ${y * -0.3}) scale(1.3)`);
 
@@ -395,61 +455,70 @@ function drawMap(data) {
     })
     .on("mouseout", function (event, d) {
       d3.select(this)
-        .attr("fill", d => colorScale(d.properties.flights)) // Reset to original color
+        //.attr("fill", d => colorScale(d.properties.flights)) // Reset to original color
         .attr("stroke", "#222") // Reset stroke color
         .transition().duration(200) // Smooth transition
         .attr("transform", "translate(0,0) scale(1)"); // Ritorna alla dimensione originale
 
       tooltip.style("display", "none");
     });
-
-  const quantiles = Array.isArray(colorScale.quantiles()) ? colorScale.quantiles() : [];
-
-  // Ensure stateCounts is an array before using Math.min() & Math.max()
-  const minCount = stateCounts.length > 0 ? Math.min(...stateCounts) : 0;
-  const maxCount = stateCounts.length > 0 ? Math.max(...stateCounts) : 0;
-
-  // Create bin ranges from quantiles
-  const legendRanges = [minCount, ...quantiles.map(d => Math.round(d)), maxCount];
-
-  if (legendRanges[legendRanges.length - 1] < maxCount) {
-    legendRanges.push(maxCount);
-  }
-
-  // Generate range labels ensuring "+1 condition"
-  const legendLabels = legendRanges.slice(0, -1).map((d, i) => {
-    let nextValue = legendRanges[i + 1] - 1;
-    return i === legendRanges.length - 2 ? `${d}` : `${d}-${nextValue}`;
-  });
-
-
-  const legend = svg.append("g")
-  .attr("transform", `translate(${width +30}, 0)`);
-
-
-  // Draw color boxes
-  legend.selectAll("rect")
-    .data(colorScale.range()) // Use quantile colors
-    .join("rect")
-    .attr("x", 0)
-    .attr("y", (d, i) => i * 20)
-    .attr("width", 20)
-    .attr("height", 20)
-    .attr("fill", d => d);
-
-  // Draw text labels for ranges
-  legend.selectAll("text")
-    .data(legendLabels)
-    .join("text")
-    .attr("x", 30)
-    .attr("y", (d, i) => i * 20 + 15)
-    .attr("font-size", "12px")
-    .attr("fill", "white")
-    .text(d => d);
 }
+
+// Function to draw the legend
+function drawLegend(colorScale) {
+  // Check if the legend container exists
+  const legendContainer = d3.select("#legend-container");
+  if (!legendContainer.empty()) {
+    legendContainer.html(""); // Clear previous legend
+
+    const legendSvg = legendContainer.append("svg")
+      .attr("width", 100)
+      .attr("height", 120);
+
+
+    //const legendRanges = [Math.min(...colorScale.domain()), ...colorScale.quantiles().map(Math.round), Math.max(...colorScale.domain())];
+    //const legendRanges = [Math.min(...colorScale.domain()), ...colorScale.quantiles().map(Math.round)];
+    const lastBin = Math.max(...colorScale.domain()) === 2796 ? 903 : 2796;
+    const minBin = Math.min(...colorScale.domain()) === 3 ? 0 : 3;
+    const legendRanges = [minBin, ...colorScale.quantiles().map(Math.round)];
+    
+    legendRanges.push(lastBin);
+
+    const legendLabels = legendRanges.slice(0, -1).map((d, i) => {
+      let nextValue = legendRanges[i + 1] - 1;
+      if (i === legendRanges.length - 2) nextValue = legendRanges[i + 1]; // Ensure last bin fully includes maxCount
+      //if (i === legendRanges.length - 2) return `${d} - 2796` ; // Ensure last bin fully includes maxCount
+      return `${d}-${nextValue}`;
+    });
+
+    // Draw color boxes
+    legendSvg.selectAll("rect")
+      .data(colorScale.range())
+      .join("rect")
+      .attr("x", 0)
+      .attr("y", (d, i) => i * 20)
+      .attr("width", 20)
+      .attr("height", 20)
+      .attr("fill", d => d);
+
+    // Draw labels
+    legendSvg.selectAll("text")
+      .data(legendLabels)
+      .join("text")
+      .attr("x", 30)
+      .attr("y", (d, i) => i * 20 + 15)
+      .attr("font-size", "12px")
+      .attr("fill", "white")
+      .text(d => d);
+  }
+}
+
+// Ensure a div for the legend exists in your HTML:
+d3.select("body").append("div").attr("id", "legend-container");
 
 // Update map when filters change
 function updateMap() {
+  d3.selectAll(".tooltip").remove();
   const year = selectedYear.value;
   const airline = selectedAirline1.value;
   const filteredData = filterFlights(year, airline);
@@ -459,29 +528,73 @@ function updateMap() {
     d3.select("#map-container").html("<p style='color:red;'>No data available.</p>");
     return;
   }
+/*
+  // If the airline selection changed, update the legend color scale
+  if (fixedColorScale === null || airline !== updateMap.lastAirline) {
+    const isAllAirlines = airline === "All Airlines";
+    const colorRange = isAllAirlines ? d3.schemeBlues[5] : d3.schemeOranges[5];
+    fixedColorScale = computeColorScale(filteredData, colorRange);
+    drawLegend(fixedColorScale); // Update legend only when the airline changes
+  }
+*/
+///
 
-  drawMap(filteredData);
+
+  // Compute the blue scale dynamically for "All Airlines"
+  if (!window.blueScale) {
+    window.blueScale = computeColorScale(datasetFlights, d3.schemeBlues[5]); // Only computed once
+  }
+
+  // Compute the orange scale **only once**, based on all airlines (to fix the intervals)
+  if (!window.orangeScale) {
+    const referenceData = filterFlights(years[0], "All Airlines"); // Use all flights from the first year
+    window.orangeScale = computeColorScale(referenceData, d3.schemeOranges[5]); // Fixed intervals
+  }
+
+  // Use the correct scale for the map and legend
+  fixedColorScale = (airline === "All Airlines") ? window.blueScale : window.orangeScale;
+  drawLegend(fixedColorScale); // Update legend based on selection
+  drawMap(filteredData, fixedColorScale);
+
+///
+  
+
+  drawMap(filteredData, fixedColorScale);
+  updateMap.lastAirline = airline; // Store the last selected airline
 }
 
 // Listen for dropdown changes
 selectedYear.addEventListener("input", updateMap);
 selectedAirline1.addEventListener("input", updateMap);
 
+// Initial update
 updateMap();
+
 ```
 
 <br>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
-    <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selectedYear}</div>
-    <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">${selectedAirline1}</div>
+    <!-- Dynamic content for year and airline -->
+    <div style="display: inline-block; width: 200px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">
+      <!-- Injected dynamically with JavaScript -->
+      <span id="selectedYearDisplay">${selectedYear}</span>
+    </div>
+    <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color: #292929; color: white;">
+      <!-- Injected dynamically with JavaScript -->
+      <span id="selectedAirlineDisplay">${selectedAirline1}</span>
+    </div>
   </div>
-  <div class="grid grid-cols-1"> 
-    <div class="card" style="display: flex; justify-content: center - 100px; align-items: center; height: 500px;"> 
-      <div id="map-container"></div> 
-    </div> 
+
+  <!-- Grid layout to contain the map -->
+  <div class="grid grid-cols-1">
+    <div class="card" style="display: flex; justify-content: center; align-items: center; height: 500px;">
+      <div id="map-container"></div>
+      <div id="legend-container" style="display: flex; justify-content: center; margin-top: 20px;"></div>
+    </div>
   </div>
 </div>
+
 
 <div> 
 The second visualization shifts focus from time to geography. This U.S. map shades each state based on the number of incoming flights, with deeper colors representing higher volumes. It immediately highlights which regions serve as major hubs—states like California, Texas, and Florida tend to show darker shades, reflecting their high connectivity and central role in domestic travel. <br> What's compelling here is the temporal filter. By selecting different years or filtering by airline, users can uncover how regional flight activity changed—perhaps observing a temporary dip in traffic to tourist-heavy states in 2020, followed by rebounds in 2021 and beyond. Note that the scale adjusts dynamically when filtering. This map translates abstract numbers into a spatial context, helping users grasp the real-world geography behind the data.</div><br> 
@@ -539,6 +652,8 @@ function toggleAutoplay() {
       }
     }
     function updateChart() {
+      d3.selectAll(".tooltip").remove();
+      
       document.querySelector("#ridgeline-container").innerHTML = "";
       document.querySelector("#ridgeline-container").appendChild(radarChart(selYear.value));
     }
@@ -644,6 +759,8 @@ function radarChart(year, { width = 500, height = 500 } = {}) {
     .attr("stroke", "blue")
     .attr("stroke-width", 2);
 
+  const months2 = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
   // Add interactive dots
   g.selectAll(".dot")
     .data(data)
@@ -657,7 +774,7 @@ function radarChart(year, { width = 500, height = 500 } = {}) {
     .attr("stroke", "blue")
     .on("mouseover", function(event, d) {
       tooltip.style("display", "block")
-        .html(`📅 ${months[data.findIndex(e => e === d)]}<br>✈ Flights: ${d}`)
+        .html(`📅 ${months2[data.findIndex(e => e === d)]}<br>✈ Flights: ${d}`)
         .style("top", (event.pageY - 10) + "px")
         .style("left", (event.pageX + 10) + "px");
     })
