@@ -35,7 +35,7 @@ const cordinates = await FileAttachment("./data/cordinates.csv").csv({ typed: tr
 return {datasetFlights,cordinates};
 }});
 
-define({id: "d8361380", inputs: ["datasetFlights","Inputs"], outputs: ["d3","getHour","getDayOfWeek","getGlobalDelayRange","processHeatmapData","availableYears","availableMonths","selectedYear","selectedMonth","autoplayInterval","isAutoplayActive","hasDataForMonth","filterData","showNoDataMessage","drawHeatmap","toggleAutoplay"], body: async (datasetFlights,Inputs) => {
+define({id: "79e3f670", inputs: ["datasetFlights","Inputs"], outputs: ["d3","getHour","getDayOfWeek","getGlobalDelayRange","processHeatmapData","availableYears","availableMonths","selectedYear","selectedMonth","autoplayInterval","isAutoplayActive","hasDataForMonth","filterData","showNoDataMessage","drawHeatmap","toggleAutoplay"], body: async (datasetFlights,Inputs) => {
 // Load necessary D3 libraries
 const d3 = await import("https://cdn.jsdelivr.net/npm/d3@7/+esm");
 
@@ -157,7 +157,9 @@ function showNoDataMessage() {
 
 function drawHeatmap() {
   d3.select(".no-data-message").remove();
-  d3.select(".tooltip").remove();
+  //d3.select(".tooltip").remove();
+  d3.select("#heatmap-container .tooltip").remove();
+
 
   const filteredData = filterData(selectedYear.value, selectedMonth.value);
 
@@ -295,7 +297,9 @@ function toggleAutoplay() {
     autoplayButton.innerHTML = '■ Stop';
 
     function autoplayStep() {
-      d3.select(".tooltip").remove();
+      //d3.select(".tooltip").remove();
+      d3.select("#heatmap-container .tooltip").remove();
+
 
       let currentYearIndex = availableYears.indexOf(selectedYear.value);
       let nextYear = availableYears[currentYearIndex + 1];
@@ -980,7 +984,7 @@ return {topojson,usMap,getSeason,airportDelays,airportCoords,airportData,width,h
 <li class="observablehq-secondary-link"><a href="#flight-delays-by-day-and-hour">Flight Delays by Day &amp; Hour</a></li>
 <li class="observablehq-secondary-link"><a href="#number-or-percentage-of-delays-by-reason">Number or Percentage of Delays by Reason</a></li>
 <li class="observablehq-secondary-link"><a href="#flight-distance-vs-average-delay-per-airline">Flight distance vs. average delay per airline</a></li>
-<li class="observablehq-secondary-link"><a href="#flight-delays-for-company">Flight Delays for company</a></li>
+<li class="observablehq-secondary-link"><a href="#flight-delays-per-company">Flight Delays per company</a></li>
 </ol>
 </nav>
 </aside>
@@ -995,7 +999,7 @@ Analyzing flight delays offers valuable insights into the operational efficiency
 <h2 id="flight-delays-by-day-and-hour" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays-by-day-and-hour">Flight Delays by Day &amp; Hour</a></h2>
 <br>
 <div class="observablehq observablehq--block"><!--:2301a8ed:--></div>
-<div class="observablehq observablehq--block"><!--:d8361380:--></div>
+<div class="observablehq observablehq--block"><!--:79e3f670:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:412119be:--></div>
@@ -1065,7 +1069,7 @@ Users can hover over each bubble to view specific data points, including the air
 This chart assists in understanding whether longer flights are more susceptible to delays and how each airline's performance compares in this context, offering insights into operational efficiencies related to flight length.</div>
 <br>
 <br>
-<h2 id="flight-delays-for-company" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays-for-company">Flight Delays for company</a></h2>
+<h2 id="flight-delays-per-company" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays-per-company">Flight Delays per company</a></h2>
 <div class="observablehq observablehq--block"><!--:28836461:--></div>
 <div class="grid grid-cols-1">
   <div class="card" style="display: flex; justify-content: center; align-items: center;">

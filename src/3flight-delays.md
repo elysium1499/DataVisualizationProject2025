@@ -148,7 +148,9 @@ function showNoDataMessage() {
 
 function drawHeatmap() {
   d3.select(".no-data-message").remove();
-  d3.select(".tooltip").remove();
+  //d3.select(".tooltip").remove();
+  d3.select("#heatmap-container .tooltip").remove();
+
 
   const filteredData = filterData(selectedYear.value, selectedMonth.value);
 
@@ -286,7 +288,9 @@ function toggleAutoplay() {
     autoplayButton.innerHTML = '■ Stop';
 
     function autoplayStep() {
-      d3.select(".tooltip").remove();
+      //d3.select(".tooltip").remove();
+      d3.select("#heatmap-container .tooltip").remove();
+
 
       let currentYearIndex = availableYears.indexOf(selectedYear.value);
       let nextYear = availableYears[currentYearIndex + 1];
@@ -754,7 +758,7 @@ This chart assists in understanding whether longer flights are more susceptible 
 <br>
 
 
-## Flight Delays for company 
+## Flight Delays per company 
 
 ```js
 // Load necessary D3 libraries and US States GeoJSON
