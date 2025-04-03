@@ -217,8 +217,15 @@ function drawHeatmap() {
     .on("mouseover", function(event, d) {
       tooltip.style("visibility", "visible")
         .text(`Avg Delay: ${d.avgDelay.toFixed(2)} min`)
-        .style("left", `${event.pageX + 10}px`)
-        .style("top", `${event.pageY - 28}px`);
+        .style("position", "absolute")
+        .style("background", "rgba(28, 28, 28, 0.9)")
+        .style("color", "white")
+        .style("padding", "6px 10px")
+        .style("border-radius", "5px")
+        .style("font-size", "13px")
+        .style("pointer-events", "none")
+        .style("left", `${event.pageX + 1}px`)
+        .style("top", `${event.pageY - 1}px`);
     })
     .on("mousemove", function(event) {
       tooltip.style("left", `${event.pageX + 10}px`)

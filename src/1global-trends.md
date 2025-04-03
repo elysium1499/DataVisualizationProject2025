@@ -639,13 +639,14 @@ function toggleAutoplay() {
       let currentIndex = years.indexOf(selYear.value);
       
       if (currentIndex === years.length - 1) { 
+        clearInterval(autoplayInterval);
         setTimeout(() => {
+          if (!autoplayActive) return;
           selYear.value = years[0]; // Torna al primo anno
           updateChart();
           autoplayInterval = setInterval(autoplayStep, 1500);
         }, 2500); 
         
-        clearInterval(autoplayInterval); // Ferma temporaneamente il loop
       } else {
         currentIndex = (currentIndex + 1) % years.length; 
         selYear.value = years[currentIndex];
@@ -653,7 +654,8 @@ function toggleAutoplay() {
       }
     }
     function updateChart() {
-      d3.selectAll(".tooltip").remove();
+      //d3.selectAll(".tooltip").remove();
+      d3.select("#ridgeline-container .tooltip").remove();
       
       document.querySelector("#ridgeline-container").innerHTML = "";
       document.querySelector("#ridgeline-container").appendChild(radarChart(selYear.value));

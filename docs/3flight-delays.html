@@ -35,7 +35,7 @@ const cordinates = await FileAttachment("./data/cordinates.csv").csv({ typed: tr
 return {datasetFlights,cordinates};
 }});
 
-define({id: "79e3f670", inputs: ["datasetFlights","Inputs"], outputs: ["d3","getHour","getDayOfWeek","getGlobalDelayRange","processHeatmapData","availableYears","availableMonths","selectedYear","selectedMonth","autoplayInterval","isAutoplayActive","hasDataForMonth","filterData","showNoDataMessage","drawHeatmap","toggleAutoplay"], body: async (datasetFlights,Inputs) => {
+define({id: "fbc925b9", inputs: ["datasetFlights","Inputs"], outputs: ["d3","getHour","getDayOfWeek","getGlobalDelayRange","processHeatmapData","availableYears","availableMonths","selectedYear","selectedMonth","autoplayInterval","isAutoplayActive","hasDataForMonth","filterData","showNoDataMessage","drawHeatmap","toggleAutoplay"], body: async (datasetFlights,Inputs) => {
 // Load necessary D3 libraries
 const d3 = await import("https://cdn.jsdelivr.net/npm/d3@7/+esm");
 
@@ -226,8 +226,15 @@ function drawHeatmap() {
     .on("mouseover", function(event, d) {
       tooltip.style("visibility", "visible")
         .text(`Avg Delay: ${d.avgDelay.toFixed(2)} min`)
-        .style("left", `${event.pageX + 10}px`)
-        .style("top", `${event.pageY - 28}px`);
+        .style("position", "absolute")
+        .style("background", "rgba(28, 28, 28, 0.9)")
+        .style("color", "white")
+        .style("padding", "6px 10px")
+        .style("border-radius", "5px")
+        .style("font-size", "13px")
+        .style("pointer-events", "none")
+        .style("left", `${event.pageX + 1}px`)
+        .style("top", `${event.pageY - 1}px`);
     })
     .on("mousemove", function(event) {
       tooltip.style("left", `${event.pageX + 10}px`)
@@ -999,7 +1006,7 @@ Analyzing flight delays offers valuable insights into the operational efficiency
 <h2 id="flight-delays-by-day-and-hour" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays-by-day-and-hour">Flight Delays by Day &amp; Hour</a></h2>
 <br>
 <div class="observablehq observablehq--block"><!--:2301a8ed:--></div>
-<div class="observablehq observablehq--block"><!--:79e3f670:--></div>
+<div class="observablehq observablehq--block"><!--:fbc925b9:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:412119be:--></div>
