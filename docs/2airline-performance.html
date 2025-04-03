@@ -65,7 +65,7 @@ const datasetFlights = await FileAttachment("./data/flights_data.csv").csv({ typ
 return {datasetFlights};
 }});
 
-define({id: "e0e70e91", inputs: ["datasetFlights","Inputs","d3"], outputs: ["airlines","selectedView","width","height","margin","computeFlightCounts","flightData","maxOnTimeFlights","maxDelayedFlights","maxCanceledFlights","maxDivertedFlights","maxTotalFlights","drawBarChart","barChart"], body: (datasetFlights,Inputs,d3) => {
+define({id: "a94f7b73", inputs: ["datasetFlights","Inputs","d3"], outputs: ["airlines","selectedView","width","height","margin","computeFlightCounts","flightData","maxOnTimeFlights","maxDelayedFlights","maxCanceledFlights","maxDivertedFlights","maxTotalFlights","drawBarChart","barChart"], body: (datasetFlights,Inputs,d3) => {
 // Airline Names
 const airlines = [...new Set(datasetFlights.map(d => d.AIRLINE))];
 
@@ -76,7 +76,7 @@ const selectedView = Inputs.select(["Total Flights", "On-Time Flights", "Delayed
 });
 
 // Set Dimensions
-const width = 900, height = 500, margin = { top: 30, right: 40, bottom: 100, left: 70 };
+const width = 800, height = 500, margin = { top: 30, right: 40, bottom: 100, left: 70 };
 
 // Function to Compute Flight Data
 function computeFlightCounts() {
@@ -308,7 +308,7 @@ selectedView
 ))
 }});
 
-define({id: "cd7e218a", inputs: ["datasetFlights"], outputs: ["createSankeyChart"], body: (datasetFlights) => {
+define({id: "ec0935c9", inputs: ["datasetFlights"], outputs: ["createSankeyChart"], body: (datasetFlights) => {
 async function createSankeyChart() {
   // Load required libraries
   const [d3, { sankey, sankeyLinkHorizontal }] = await Promise.all([
@@ -371,7 +371,7 @@ async function createSankeyChart() {
   });
 
   // **Set up dimensions**
-  const width = 900, height = 700; // Increased height to move the chart down
+  const width = 1000, height = 700; // Increased height to move the chart down
 
   // **Define Sankey layout**
   const { nodes: sankeyNodes, links: sankeyLinks } = sankey()
@@ -391,8 +391,8 @@ async function createSankeyChart() {
   // **Create SVG element**
   const svg = container.append("svg")
     .attr("viewBox", `0 0 ${width} ${height}`)
-    .attr("width", "100%")
-    .attr("height", height)
+    .attr("width", width - 200)
+    .attr("height", "100%")
     .style("display", "block")
     .style("margin", "0 auto") // Center the entire SVG
     .style("font", "12px sans-serif");
@@ -587,7 +587,7 @@ The Airline Performance dashboard offers an in-depth analysis of how various U.S
 <h2 id="flights-per-airline" tabindex="-1"><a class="observablehq-header-anchor" href="#flights-per-airline">Flights per Airline</a></h2>
 <br>
 <div class="observablehq observablehq--block"><!--:6dc3996e:--></div>
-<div class="observablehq observablehq--block"><!--:e0e70e91:--></div>
+<div class="observablehq observablehq--block"><!--:a94f7b73:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 250px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:1d3e1bb2:--></div>
@@ -608,7 +608,7 @@ Users can interact with the chart by toggling between different flight statuses,
 <br>
 <h2 id="flight-status-flow" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-status-flow">Flight Status Flow</a></h2>
 <br>
-<div class="observablehq observablehq--block"><!--:cd7e218a:--></div>
+<div class="observablehq observablehq--block"><!--:ec0935c9:--></div>
 <div class="grid grid-cols-1"> 
   <div class="card" style="display: flex; justify-content: center; align-items: center;"> <div id="sankey-container"></div> </div> 
 </div>

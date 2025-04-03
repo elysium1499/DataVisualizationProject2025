@@ -33,7 +33,7 @@ const selectedView = Inputs.select(["Total Flights", "On-Time Flights", "Delayed
 });
 
 // Set Dimensions
-const width = 900, height = 500, margin = { top: 30, right: 40, bottom: 100, left: 70 };
+const width = 800, height = 500, margin = { top: 30, right: 40, bottom: 100, left: 70 };
 
 // Function to Compute Flight Data
 function computeFlightCounts() {
@@ -345,7 +345,7 @@ async function createSankeyChart() {
   });
 
   // **Set up dimensions**
-  const width = 900, height = 700; // Increased height to move the chart down
+  const width = 1000, height = 700; // Increased height to move the chart down
 
   // **Define Sankey layout**
   const { nodes: sankeyNodes, links: sankeyLinks } = sankey()
@@ -365,8 +365,8 @@ async function createSankeyChart() {
   // **Create SVG element**
   const svg = container.append("svg")
     .attr("viewBox", `0 0 ${width} ${height}`)
-    .attr("width", "100%")
-    .attr("height", height)
+    .attr("width", width - 200)
+    .attr("height", "100%")
     .style("display", "block")
     .style("margin", "0 auto") // Center the entire SVG
     .style("font", "12px sans-serif");

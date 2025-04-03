@@ -35,7 +35,7 @@ const cordinates = await FileAttachment("./data/cordinates.csv").csv({ typed: tr
 return {datasetFlights,cordinates};
 }});
 
-define({id: "fbc925b9", inputs: ["datasetFlights","Inputs"], outputs: ["d3","getHour","getDayOfWeek","getGlobalDelayRange","processHeatmapData","availableYears","availableMonths","selectedYear","selectedMonth","autoplayInterval","isAutoplayActive","hasDataForMonth","filterData","showNoDataMessage","drawHeatmap","toggleAutoplay"], body: async (datasetFlights,Inputs) => {
+define({id: "5cd47b1f", inputs: ["datasetFlights","Inputs"], outputs: ["d3","getHour","getDayOfWeek","getGlobalDelayRange","processHeatmapData","availableYears","availableMonths","selectedYear","selectedMonth","autoplayInterval","isAutoplayActive","hasDataForMonth","filterData","showNoDataMessage","drawHeatmap","toggleAutoplay"], body: async (datasetFlights,Inputs) => {
 // Load necessary D3 libraries
 const d3 = await import("https://cdn.jsdelivr.net/npm/d3@7/+esm");
 
@@ -180,7 +180,7 @@ function drawHeatmap() {
 
   updateGlobalLegend(selectedMonth.value);
 
-  const width = 900, height = 450, margin = { top: 120, right: 50, bottom: 50, left: 50 };
+  const width = 800, height = 450, margin = { top: 120, right: 50, bottom: 50, left: 50 };
 
   const xScale = d3.scaleBand().domain(d3.range(0, 24)).range([margin.left, width - margin.right]).padding(0.05);
   const yScale = d3.scaleBand().domain(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]).range([margin.top, height - margin.bottom]).padding(0.05);
@@ -357,7 +357,7 @@ selectedMonth
 ))
 }});
 
-define({id: "96bf59cd", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","viewToggle","resetZoomButton","width","height","margin","selectedCategory","drawStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
+define({id: "dcbbbb78", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","viewToggle","resetZoomButton","width","height","margin","selectedCategory","drawStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
 //  Define Seasons
 const seasons = ["Winter", "Spring", "Summer", "Fall"];
 
@@ -418,7 +418,7 @@ const viewToggle = Inputs.radio(["Percentage", "Absolute Numbers"], {
 const resetZoomButton = Inputs.button("🔍 Reset Zoom");
 
 //  Define Chart Dimensions
-const width = 900, height = 500, margin = { top: 50, right: 80, bottom: 80, left: 100 };
+const width = 800, height = 500, margin = { top: 50, right: 80, bottom: 80, left: 100 };
 
 //  Track Selected Category for Zoom
 let selectedCategory = null;
@@ -589,7 +589,7 @@ viewToggle
 ))
 }});
 
-define({id: "7571a297", inputs: ["datasetFlights","d3"], outputs: ["scatterData","processedScatterData","scatterStats","scatterWidth","scatterHeight","scatterMargin","scatterXScale","scatterYScale","scatterSizeScale","scatterColorScale","scatterContainer","scatterSvg","scatterTooltip"], body: (datasetFlights,d3) => {
+define({id: "f786c626", inputs: ["datasetFlights","d3"], outputs: ["scatterData","processedScatterData","scatterStats","scatterWidth","scatterHeight","scatterMargin","scatterXScale","scatterYScale","scatterSizeScale","scatterColorScale","scatterContainer","scatterSvg","scatterTooltip"], body: (datasetFlights,d3) => {
 //  Make a deep copy of dataset to avoid mutations
 const scatterData = JSON.parse(JSON.stringify(datasetFlights));
 
@@ -615,7 +615,7 @@ const scatterStats = d3.rollups(
 }));
 
 //  Step 1: Set up chart dimensions
-const scatterWidth = 750, scatterHeight = 450;
+const scatterWidth = 800, scatterHeight = 450;
 const scatterMargin = { top: 50, right: 50, bottom: 80, left: 50 };
 
 //  Step 2: Define Scales
@@ -1006,7 +1006,7 @@ Analyzing flight delays offers valuable insights into the operational efficiency
 <h2 id="flight-delays-by-day-and-hour" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays-by-day-and-hour">Flight Delays by Day &amp; Hour</a></h2>
 <br>
 <div class="observablehq observablehq--block"><!--:2301a8ed:--></div>
-<div class="observablehq observablehq--block"><!--:fbc925b9:--></div>
+<div class="observablehq observablehq--block"><!--:5cd47b1f:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 300px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:412119be:--></div>
@@ -1032,7 +1032,7 @@ By interacting with the heatmap, users can pinpoint specific times and days that
 <br>
 <h2 id="number-or-percentage-of-delays-by-reason" tabindex="-1"><a class="observablehq-header-anchor" href="#number-or-percentage-of-delays-by-reason">Number or Percentage of Delays by Reason</a></h2>
 <br>
-<div class="observablehq observablehq--block"><!--:96bf59cd:--></div>
+<div class="observablehq observablehq--block"><!--:dcbbbb78:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 110px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:fd613d63:--></div>
@@ -1058,7 +1058,7 @@ This visualization enables users to discern which factors predominantly contribu
 <br>
 <br>
 <h2 id="flight-distance-vs-average-delay-per-airline" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-distance-vs-average-delay-per-airline">Flight distance vs. average delay per airline</a></h2>
-<div class="observablehq observablehq--block"><!--:7571a297:--></div>
+<div class="observablehq observablehq--block"><!--:f786c626:--></div>
 <div class="grid grid-cols-1">  
   <div class="card" style="display: flex; justify-content: center; align-items: center;">
     <div id="scatter-container"></div>

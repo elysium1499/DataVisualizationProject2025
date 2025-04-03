@@ -171,7 +171,7 @@ function drawHeatmap() {
 
   updateGlobalLegend(selectedMonth.value);
 
-  const width = 900, height = 450, margin = { top: 120, right: 50, bottom: 50, left: 50 };
+  const width = 800, height = 450, margin = { top: 120, right: 50, bottom: 50, left: 50 };
 
   const xScale = d3.scaleBand().domain(d3.range(0, 24)).range([margin.left, width - margin.right]).padding(0.05);
   const yScale = d3.scaleBand().domain(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]).range([margin.top, height - margin.bottom]).padding(0.05);
@@ -427,7 +427,7 @@ const viewToggle = Inputs.radio(["Percentage", "Absolute Numbers"], {
 const resetZoomButton = Inputs.button("🔍 Reset Zoom");
 
 //  Define Chart Dimensions
-const width = 900, height = 500, margin = { top: 50, right: 80, bottom: 80, left: 100 };
+const width = 800, height = 500, margin = { top: 50, right: 80, bottom: 80, left: 100 };
 
 //  Track Selected Category for Zoom
 let selectedCategory = null;
@@ -640,7 +640,7 @@ const scatterStats = d3.rollups(
 }));
 
 //  Step 1: Set up chart dimensions
-const scatterWidth = 750, scatterHeight = 450;
+const scatterWidth = 800, scatterHeight = 450;
 const scatterMargin = { top: 50, right: 50, bottom: 80, left: 50 };
 
 //  Step 2: Define Scales
