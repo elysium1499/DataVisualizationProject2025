@@ -882,9 +882,13 @@ svg.append("g")
   .attr("stroke", "#222")
   .attr("opacity", 0.8)
   .style("pointer-events", "all") // Ensure circles are clickable
-  .sort((a, b) => d3.descending(a.totalFlights, b.totalFlights)) // Ordina in modo decrescente in base al numero totale di voli
+  .sort((a, b) => d3.descending(a.totalFlights, b.totalFlights))
   .on("mouseover", function(event, d) {
-    d3.select(this).attr("stroke", "white");
+    d3.selectAll("circle").style("opacity", 0.3); 
+    d3.select(this)
+      .style("opacity", 1) 
+      .attr("stroke", "white");
+
     tooltip.style("display", "block")
       .html(`
         <strong>${d.airport}</strong><br>
@@ -896,9 +900,13 @@ svg.append("g")
     tooltip.style("top", `${event.pageY + 10}px`).style("left", `${event.pageX - (tooltip.node().offsetWidth / 2) - 10}px`);
   })
   .on("mouseout", function() {
-    d3.select(this).attr("stroke", "#222");
+    d3.selectAll("circle")
+      .style("opacity", 0.8)
+      .attr("stroke", "#222");
+
     tooltip.style("display", "none");
   });
+
 
 // Create Season Toggle
 const selectedSeason = Inputs.radio(["All", "Winter", "Spring", "Summer", "Fall"], {
