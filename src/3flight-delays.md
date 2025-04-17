@@ -417,7 +417,7 @@ function getStackedData() {
 
 
 //  Define Chart Dimensions
-const width = 400, height = 500, margin = { top: 60, right: 50, bottom: 60, left: 70 };
+const width = 350, height = 500, margin = { top: 60, right: 50, bottom: 60, left: 70 };
 //  Track Selected Category for Zoom
 let selectedCategory = null;
 //  Create Reset Zoom Button

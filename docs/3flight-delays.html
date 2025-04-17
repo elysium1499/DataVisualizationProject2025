@@ -357,7 +357,7 @@ selectedMonth
 ))
 }});
 
-define({id: "636c2b7c", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","width","height","margin","selectedCategory","resetZoomButton","resetZoom","drawStackedBarChart","selectedSeason","drawInvertedStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
+define({id: "ab4a72ce", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","width","height","margin","selectedCategory","resetZoomButton","resetZoom","drawStackedBarChart","selectedSeason","drawInvertedStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
 //  Define Seasons
 const seasons = ["Winter", "Spring", "Summer", "Fall"];
 
@@ -410,7 +410,7 @@ function getStackedData() {
 
 
 //  Define Chart Dimensions
-const width = 400, height = 500, margin = { top: 60, right: 50, bottom: 60, left: 70 };
+const width = 350, height = 500, margin = { top: 60, right: 50, bottom: 60, left: 70 };
 //  Track Selected Category for Zoom
 let selectedCategory = null;
 //  Create Reset Zoom Button
@@ -1176,7 +1176,7 @@ By interacting with the heatmap, users can pinpoint specific times and days that
 <br>
 <h2 id="number-of-delays-by-reason" tabindex="-1"><a class="observablehq-header-anchor" href="#number-of-delays-by-reason">Number of Delays by Reason</a></h2>
 <br>
-<div class="observablehq observablehq--block"><!--:636c2b7c:--></div>
+<div class="observablehq observablehq--block"><!--:ab4a72ce:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 110px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:fd613d63:--></div>
