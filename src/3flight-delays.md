@@ -563,10 +563,9 @@ function drawStackedBarChart() {
     .selectAll("text")
     .style("fill", "white")
     .style("font-size", "14px")
-    .style("text-anchor", "end")
-    .attr("transform", "rotate(-45)")
-    .attr("dx", "-0.8em")
-    .attr("dy", "0.15em");
+    .style("text-anchor", "middle")
+    .attr("dx", "0em")
+    .attr("dy", "1em");
 
   //  Y Axis (Left - Absolute/Percentage)
   svg.append("g")
@@ -807,7 +806,7 @@ const scatterStats = d3.rollups(
 
 //  Step 1: Set up chart dimensions
 const scatterWidth = 800, scatterHeight = 450;
-const scatterMargin = { top: 50, right: 50, bottom: 80, left: 50 };
+const scatterMargin = { top: 50, right: 50, bottom: 50, left: 70 };
 
 //  Step 2: Define Scales
 const scatterXScale = d3.scaleLinear()

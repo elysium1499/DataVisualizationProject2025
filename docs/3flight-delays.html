@@ -357,7 +357,7 @@ selectedMonth
 ))
 }});
 
-define({id: "8593a948", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","width","height","margin","activeChart","switchChartButton","selectedCategory","resetZoomButton","resetZoom","renderActiveChart","drawStackedBarChart","selectedSeason","drawInvertedStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
+define({id: "afb6e0b5", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","width","height","margin","activeChart","switchChartButton","selectedCategory","resetZoomButton","resetZoom","renderActiveChart","drawStackedBarChart","selectedSeason","drawInvertedStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
 //  Define Seasons
 const seasons = ["Winter", "Spring", "Summer", "Fall"];
 
@@ -556,10 +556,9 @@ function drawStackedBarChart() {
     .selectAll("text")
     .style("fill", "white")
     .style("font-size", "14px")
-    .style("text-anchor", "end")
-    .attr("transform", "rotate(-45)")
-    .attr("dx", "-0.8em")
-    .attr("dy", "0.15em");
+    .style("text-anchor", "middle")
+    .attr("dx", "0em")
+    .attr("dy", "1em");
 
   //  Y Axis (Left - Absolute/Percentage)
   svg.append("g")
@@ -751,7 +750,7 @@ switchChartButton
 ))
 }});
 
-define({id: "f786c626", inputs: ["datasetFlights","d3"], outputs: ["scatterData","processedScatterData","scatterStats","scatterWidth","scatterHeight","scatterMargin","scatterXScale","scatterYScale","scatterSizeScale","scatterColorScale","scatterContainer","scatterSvg","scatterTooltip"], body: (datasetFlights,d3) => {
+define({id: "ddfa14ca", inputs: ["datasetFlights","d3"], outputs: ["scatterData","processedScatterData","scatterStats","scatterWidth","scatterHeight","scatterMargin","scatterXScale","scatterYScale","scatterSizeScale","scatterColorScale","scatterContainer","scatterSvg","scatterTooltip"], body: (datasetFlights,d3) => {
 //  Make a deep copy of dataset to avoid mutations
 const scatterData = JSON.parse(JSON.stringify(datasetFlights));
 
@@ -778,7 +777,7 @@ const scatterStats = d3.rollups(
 
 //  Step 1: Set up chart dimensions
 const scatterWidth = 800, scatterHeight = 450;
-const scatterMargin = { top: 50, right: 50, bottom: 80, left: 50 };
+const scatterMargin = { top: 50, right: 50, bottom: 50, left: 70 };
 
 //  Step 2: Define Scales
 const scatterXScale = d3.scaleLinear()
@@ -1203,7 +1202,7 @@ By interacting with the heatmap, users can pinpoint specific times and days that
 <br>
 <h2 id="number-of-delays-by-reason" tabindex="-1"><a class="observablehq-header-anchor" href="#number-of-delays-by-reason">Number of Delays by Reason</a></h2>
 <br>
-<div class="observablehq observablehq--block"><!--:8593a948:--></div>
+<div class="observablehq observablehq--block"><!--:afb6e0b5:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 110px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:fd613d63:--></div>
@@ -1234,7 +1233,7 @@ This visualization enables users to discern which factors predominantly contribu
 <br>
 <br>
 <h2 id="flight-distance-vs-average-delay-per-airline" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-distance-vs-average-delay-per-airline">Flight distance vs. average delay per airline</a></h2>
-<div class="observablehq observablehq--block"><!--:f786c626:--></div>
+<div class="observablehq observablehq--block"><!--:ddfa14ca:--></div>
 <div class="grid grid-cols-1">  
   <div class="card" style="display: flex; justify-content: center; align-items: center;">
     <div id="scatter-container"></div>
