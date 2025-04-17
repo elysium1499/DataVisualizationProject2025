@@ -357,7 +357,7 @@ selectedMonth
 ))
 }});
 
-define({id: "e69f076f", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","width","height","margin","selectedCategory","resetZoomButton","resetZoom","drawStackedBarChart","selectedSeason","drawInvertedStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
+define({id: "636c2b7c", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","width","height","margin","selectedCategory","resetZoomButton","resetZoom","drawStackedBarChart","selectedSeason","drawInvertedStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
 //  Define Seasons
 const seasons = ["Winter", "Spring", "Summer", "Fall"];
 
@@ -410,7 +410,7 @@ function getStackedData() {
 
 
 //  Define Chart Dimensions
-const width = 400, height = 500, margin = { top: 60, right: 50, bottom: 60, left: 50 };
+const width = 400, height = 500, margin = { top: 60, right: 50, bottom: 60, left: 70 };
 //  Track Selected Category for Zoom
 let selectedCategory = null;
 //  Create Reset Zoom Button
@@ -670,7 +670,7 @@ function drawInvertedStackedBarChart() {
       const clickedSeason = d.data.season;
       selectedSeason = selectedSeason === clickedSeason ? null : clickedSeason;
       tooltip.style("display", "none");
-      drawInvertedStackedBarChart(); // 🔁 Ricalcola e ridisegna
+      drawInvertedStackedBarChart();
     });
 
   // X Axis (stagioni)
@@ -1160,7 +1160,6 @@ Analyzing flight delays offers valuable insights into the operational efficiency
   </div>
   <div class="grid grid-cols-1"><div class="card" style="display: flex; justify-content: center; align-items: center;"><div id="heatmap-container"></div></div>
 </div>
-</div>
 <div>
 This heatmap visualizes the average delay times for U.S. airlines throughout 2022, segmented by days of the week and hours of the day. The y-axis lists the days from Sunday to Saturday, while the x-axis represents the 24-hour clock. Color intensity conveys the average delay duration:
 <ul>
@@ -1177,15 +1176,15 @@ By interacting with the heatmap, users can pinpoint specific times and days that
 <br>
 <h2 id="number-of-delays-by-reason" tabindex="-1"><a class="observablehq-header-anchor" href="#number-of-delays-by-reason">Number of Delays by Reason</a></h2>
 <br>
-<div class="observablehq observablehq--block"><!--:e69f076f:--></div>
+<div class="observablehq observablehq--block"><!--:636c2b7c:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 110px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:fd613d63:--></div>
   </div>
-  <div class="grid grid-cols-1" style="display: flex; justify-content: center; align-items: center;">
-    <div class="card" style="display: flex; flex-direction: row; gap: 40px; align-items: center;">
-      <div id="stacked-chart-container" style="flex: 1;"></div>
-      <div id="stacked-chart-container-inverted" style="flex: 1;"></div>
+  <div class="grid grid-cols-1">
+    <div class="card" style="display: flex; justify-content: center; align-items: center; gap: 40px;">
+      <div id="stacked-chart-container" style="flex: 1; width: 50%;"></div>
+      <div id="stacked-chart-container-inverted" style="flex: 1; width: 50%;"></div>
     </div>
   </div>
 </div>
@@ -1244,7 +1243,7 @@ The circle size reflects the volume of flights at that airport, with larger circ
 By hovering over a circle, users can access detailed statistics about that airport's average delay and flight volume.
 This geographic visualization allows users to identify regional patterns in flight delays, highlighting airports that may require operational improvements or those that excel in maintaining schedules.
 </div>
-</main>
+</div></main>
 <footer id="observablehq-footer">
 <nav><a rel="prev" href="./2airline-performance"><span>Airline performance</span></a><a rel="next" href="./4airport-statistics"><span>Airport statistics</span></a></nav>
 <div><a href="https://github.com/elysium1499/DataVisualizationProject2025" target="_blank" rel="noopener noreferrer">Source Code</a></div>

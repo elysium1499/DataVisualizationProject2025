@@ -343,7 +343,7 @@ selectedMonth.addEventListener("input", drawHeatmap);
   </div>
   <div class="grid grid-cols-1"><div class="card" style="display: flex; justify-content: center; align-items: center;"><div id="heatmap-container"></div></div>
 </div>
-</div>
+
 
 <div>
 This heatmap visualizes the average delay times for U.S. airlines throughout 2022, segmented by days of the week and hours of the day. The y-axis lists the days from Sunday to Saturday, while the x-axis represents the 24-hour clock. Color intensity conveys the average delay duration:
@@ -417,7 +417,7 @@ function getStackedData() {
 
 
 //  Define Chart Dimensions
-const width = 400, height = 500, margin = { top: 60, right: 50, bottom: 60, left: 50 };
+const width = 400, height = 500, margin = { top: 60, right: 50, bottom: 60, left: 70 };
 //  Track Selected Category for Zoom
 let selectedCategory = null;
 //  Create Reset Zoom Button
@@ -677,7 +677,7 @@ function drawInvertedStackedBarChart() {
       const clickedSeason = d.data.season;
       selectedSeason = selectedSeason === clickedSeason ? null : clickedSeason;
       tooltip.style("display", "none");
-      drawInvertedStackedBarChart(); // 🔁 Ricalcola e ridisegna
+      drawInvertedStackedBarChart();
     });
 
   // X Axis (stagioni)
@@ -728,10 +728,10 @@ drawInvertedStackedBarChart();
     <div style="display: inline-block; width: 110px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;">${resetZoomButton}</div>
   </div>
 
-  <div class="grid grid-cols-1" style="display: flex; justify-content: center; align-items: center;">
-    <div class="card" style="display: flex; flex-direction: row; gap: 40px; align-items: center;">
-      <div id="stacked-chart-container" style="flex: 1;"></div>
-      <div id="stacked-chart-container-inverted" style="flex: 1;"></div>
+  <div class="grid grid-cols-1">
+    <div class="card" style="display: flex; justify-content: center; align-items: center; gap: 40px;">
+      <div id="stacked-chart-container" style="flex: 1; width: 50%;"></div>
+      <div id="stacked-chart-container-inverted" style="flex: 1; width: 50%;"></div>
     </div>
   </div>
 
