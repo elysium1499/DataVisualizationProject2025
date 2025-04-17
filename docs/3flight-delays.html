@@ -357,7 +357,7 @@ selectedMonth
 ))
 }});
 
-define({id: "7f4c11d8", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","width","height","margin","selectedCategory","resetZoomButton","resetZoom","drawStackedBarChart","selectedSeason","drawInvertedStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
+define({id: "e69f076f", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","width","height","margin","selectedCategory","resetZoomButton","resetZoom","drawStackedBarChart","selectedSeason","drawInvertedStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
 //  Define Seasons
 const seasons = ["Winter", "Spring", "Summer", "Fall"];
 
@@ -410,7 +410,7 @@ function getStackedData() {
 
 
 //  Define Chart Dimensions
-const width = 450, height = 500, margin = { top: 50, right: 80, bottom: 80, left: 50 };
+const width = 400, height = 500, margin = { top: 60, right: 50, bottom: 60, left: 50 };
 //  Track Selected Category for Zoom
 let selectedCategory = null;
 //  Create Reset Zoom Button
@@ -565,12 +565,6 @@ function drawStackedBarChart() {
       .text(season)
       .style("fill", "white");
   });
-
-  //  Reset Zoom Button
-//   resetZoomButton.onclick = () => {
-//     selectedCategory = null;
-//     drawStackedBarChart();
-//   };
 }
 
 //------------------------------------------------------------------
@@ -694,12 +688,6 @@ function drawInvertedStackedBarChart() {
     .selectAll("text")
     .style("fill", "white")
     .style("font-size", "14px");
-
-  // Reset Zoom Button (opzionale)
-//   resetZoomButton.onclick = () => {
-//     selectedSeason = null;
-//     drawInvertedStackedBarChart();
-//   };
 
   // Legend
   const legend = svg.append("g")
@@ -1146,7 +1134,7 @@ return {topojson,usMap,getSeason,airportDelays,airportCoords,airportData,width,h
 <div>Contents</div>
 <ol>
 <li class="observablehq-secondary-link"><a href="#flight-delays-by-day-and-hour">Flight Delays by Day &amp; Hour</a></li>
-<li class="observablehq-secondary-link"><a href="#number-or-percentage-of-delays-by-reason">Number or Percentage of Delays by Reason</a></li>
+<li class="observablehq-secondary-link"><a href="#number-of-delays-by-reason">Number of Delays by Reason</a></li>
 <li class="observablehq-secondary-link"><a href="#flight-distance-vs-average-delay-per-airline">Flight distance vs. average delay per airline</a></li>
 <li class="observablehq-secondary-link"><a href="#flight-delays-per-company">Flight Delays per company</a></li>
 </ol>
@@ -1187,21 +1175,18 @@ Similarly, examining trends across different days of the week can reveal broader
 By interacting with the heatmap, users can pinpoint specific times and days that are more prone to delays, aiding in strategic planning for travel or operational adjustments.
 </div>
 <br>
-<h2 id="number-or-percentage-of-delays-by-reason" tabindex="-1"><a class="observablehq-header-anchor" href="#number-or-percentage-of-delays-by-reason">Number or Percentage of Delays by Reason</a></h2>
+<h2 id="number-of-delays-by-reason" tabindex="-1"><a class="observablehq-header-anchor" href="#number-of-delays-by-reason">Number of Delays by Reason</a></h2>
 <br>
-<div class="observablehq observablehq--block"><!--:7f4c11d8:--></div>
+<div class="observablehq observablehq--block"><!--:e69f076f:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 110px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:fd613d63:--></div>
   </div>
-  <div class="grid grid-cols-1">
-    <div class="card" style="display: flex; justify-content: left; align-items: left;">
-      <div id="stacked-chart-container">
+  <div class="grid grid-cols-1" style="display: flex; justify-content: center; align-items: center;">
+    <div class="card" style="display: flex; flex-direction: row; gap: 40px; align-items: center;">
+      <div id="stacked-chart-container" style="flex: 1;"></div>
+      <div id="stacked-chart-container-inverted" style="flex: 1;"></div>
     </div>
-    <div id="side-charts" style="display: flex; flex-direction: column; gap: 40px;">
-      <div id="stacked-chart-container-inverted"></div>
-    </div>
-  </div>
   </div>
 </div>
 <div>

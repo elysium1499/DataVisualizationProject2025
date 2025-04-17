@@ -360,11 +360,9 @@ By interacting with the heatmap, users can pinpoint specific times and days that
 </div>
 <br>
 
-## Number or Percentage of Delays by Reason
+## Number of Delays by Reason
 
 <br>
-
-
 
 ```js
 //  Define Seasons
@@ -419,7 +417,7 @@ function getStackedData() {
 
 
 //  Define Chart Dimensions
-const width = 450, height = 500, margin = { top: 50, right: 80, bottom: 80, left: 50 };
+const width = 400, height = 500, margin = { top: 60, right: 50, bottom: 60, left: 50 };
 //  Track Selected Category for Zoom
 let selectedCategory = null;
 //  Create Reset Zoom Button
@@ -574,12 +572,6 @@ function drawStackedBarChart() {
       .text(season)
       .style("fill", "white");
   });
-
-  //  Reset Zoom Button
-//   resetZoomButton.onclick = () => {
-//     selectedCategory = null;
-//     drawStackedBarChart();
-//   };
 }
 
 //------------------------------------------------------------------
@@ -704,12 +696,6 @@ function drawInvertedStackedBarChart() {
     .style("fill", "white")
     .style("font-size", "14px");
 
-  // Reset Zoom Button (opzionale)
-//   resetZoomButton.onclick = () => {
-//     selectedSeason = null;
-//     drawInvertedStackedBarChart();
-//   };
-
   // Legend
   const legend = svg.append("g")
     .attr("transform", `translate(${width - margin.right + 10}, ${margin.top})`)
@@ -741,16 +727,14 @@ drawInvertedStackedBarChart();
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 110px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;">${resetZoomButton}</div>
   </div>
-  <div class="grid grid-cols-1">
-    <div class="card" style="display: flex; justify-content: left; align-items: left;">
-      <div id="stacked-chart-container">
-    </div>
-    <div id="side-charts" style="display: flex; flex-direction: column; gap: 40px;">
-      <div id="stacked-chart-container-inverted"></div>
+
+  <div class="grid grid-cols-1" style="display: flex; justify-content: center; align-items: center;">
+    <div class="card" style="display: flex; flex-direction: row; gap: 40px; align-items: center;">
+      <div id="stacked-chart-container" style="flex: 1;"></div>
+      <div id="stacked-chart-container-inverted" style="flex: 1;"></div>
     </div>
   </div>
 
-  </div>
 </div>
 
 <div>
