@@ -397,7 +397,7 @@ const delayCounts = d3.rollups(
 );
 
 //  Convert Data to Percentage Format
-function getStackedData(percentageView) {
+function getStackedData() {
   const rawData = Object.fromEntries(delayCounts.map(([category, seasons]) => [
     category,
     Object.fromEntries(seasons)
@@ -410,32 +410,25 @@ function getStackedData(percentageView) {
     return {
       category,
       ...categoryData,
-      total: percentageView ? totalDelays : 1, // Normalize for percentage view
+      total: totalDelays
     };
   });
 
   return stackedData;
 }
 
-//  Create View Toggle (Absolute vs Percentage)
-const viewToggle = Inputs.radio(["Percentage", "Absolute Numbers"], {
-  label: "📊 View Mode",
-  value: "Percentage" // Default mode
-});
 
 //  Create Reset Zoom Button
 const resetZoomButton = Inputs.button("🔍 Reset Zoom");
-
 //  Define Chart Dimensions
-const width = 800, height = 500, margin = { top: 50, right: 80, bottom: 80, left: 100 };
-
+const width = 450, height = 500, margin = { top: 50, right: 80, bottom: 80, left: 50 };
 //  Track Selected Category for Zoom
 let selectedCategory = null;
 
+
 //  Create Stacked Chart
 function drawStackedBarChart() {
-  const percentageView = viewToggle.value === "Percentage";
-  let data = getStackedData(percentageView);
+  let data = getStackedData();
 
   //  Filter data if zoomed on a specific category
   if (selectedCategory) {
@@ -451,10 +444,10 @@ function drawStackedBarChart() {
     .range([margin.left, width - margin.right])
     .padding(0.3);
 
-  const yScaleLeft = d3.scaleLinear()
-    .domain([0, percentageView ? 100 : maxTotal]) // Adjust for percentage view
-    .nice()
-    .range([height - margin.bottom, margin.top]);
+    const yScaleLeft = d3.scaleLinear()
+    .domain([0, maxTotal])
+    .nice()
+    .range([height - margin.bottom, margin.top]);
 
   const yScaleRight = d3.scaleLinear()
     .domain([0, 100]) // Percentage always 0-100%
@@ -492,9 +485,9 @@ function drawStackedBarChart() {
 
   //  Stack Data
   const stackedSeries = d3.stack()
-    .keys(seasons)
-    .value((d, key) => (d[key] || 0) / d.total * (percentageView ? 100 : 1)) // Normalize for percentage
-    (data);
+    .keys(seasons)
+    .value((d, key) => d[key] || 0)
+    (data);
 
   //  Draw Stacked Bars
   svg.append("g")
@@ -510,15 +503,15 @@ function drawStackedBarChart() {
     .attr("height", d => yScaleLeft(d[0]) - yScaleLeft(d[1]))
     .attr("width", xScale.bandwidth())
     .on("mouseover", function(event, d) {
-      const season = d3.select(this.parentNode).datum().key;
-      const percentage = Math.round(d[1] - d[0]);
-      const count = d.data[season] || 0;
+      const season = d3.select(this.parentNode).datum().key;
+      const count = d.data[season] || 0;
+      const total = d.data.total || 1;
+      const percentage = ((count / total) * 100).toFixed(1);
 
-      d3.select(this).style("opacity", 0.7);
-      tooltip.style("display", "block")
-        .html(`<strong>${d.data.category}</strong><br>Season: ${season}<br>${percentageView ? `Percentage: ${percentage}% <br> Flights: ${count}` : `Flights: ${percentage}`}
-        `);
-    })
+      d3.select(this).style("opacity", 0.7);
+      tooltip.style("display", "block")
+        .html(`<strong>${d.data.category}</strong><br>Season: ${season}<br>Flights: ${count}<br>Percentage: ${percentage}%`);
+    })
     .on("mousemove", event => {
       tooltip.style("top", `${event.pageY + 10}px`).style("left", `${event.pageX + 10}px`);
     })
@@ -534,17 +527,21 @@ function drawStackedBarChart() {
     });
 
   //  X Axis (Delay Categories)
-  svg.append("g")
-    .attr("transform", `translate(0,${height - margin.bottom})`)
-    .call(d3.axisBottom(xScale))
-    .selectAll("text")
-    .style("fill", "white")
-    .style("font-size", "14px");
+  svg.append("g")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(xScale))
+    .selectAll("text")
+    .style("fill", "white")
+    .style("font-size", "14px")
+    .style("text-anchor", "end")
+    .attr("transform", "rotate(-45)")
+    .attr("dx", "-0.8em")
+    .attr("dy", "0.15em");
 
   //  Y Axis (Left - Absolute/Percentage)
   svg.append("g")
     .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(yScaleLeft).tickFormat(d => percentageView ? `${d}%` : d))
+    .call(d3.axisLeft(yScaleLeft).tickFormat(d => d))
     .selectAll("text")
     .style("fill", "white")
     .style("font-size", "14px");
@@ -577,19 +574,175 @@ function drawStackedBarChart() {
   };
 }
 
+//------------------------------------------------------------------
+let selectedSeason = null; // 👈 Traccia la stagione selezionata
+
+function drawInvertedStackedBarChart() {
+  const percentageView = false;
+
+  const seasonMap = new Map();
+  for (const [category, seasons] of delayCounts) {
+    for (const [season, count] of seasons) {
+      if (!seasonMap.has(season)) seasonMap.set(season, {});
+      seasonMap.get(season)[category] = count;
+    }
+  }
+
+  let data = seasons.map(season => {
+    const categoryData = seasonMap.get(season) || {};
+    const total = d3.sum(delayCategories.map(cat => categoryData[cat] || 0));
+    return {
+      season,
+      ...categoryData,
+      total
+    };
+  });
+
+  // 🔍 Filtra se è selezionata una stagione
+  if (selectedSeason) {
+    data = data.filter(d => d.season === selectedSeason);
+  }
+
+  data.sort((a, b) => b.total - a.total);
+  const maxTotal = d3.max(data, d => d.total);
+
+  const xScale = d3.scaleBand()
+    .domain(data.map(d => d.season))
+    .range([margin.left, width - margin.right - 50])
+    .padding(0.3);
+
+  const yScale = d3.scaleLinear()
+    .domain([0, maxTotal])
+    .nice()
+    .range([height - margin.bottom, margin.top]);
+
+  const colorScale = d3.scaleOrdinal()
+    .domain(delayCategories)
+    .range(d3.schemeSet2);
+
+  const container = d3.select("#stacked-chart-container-inverted");
+  container.select("svg").remove();
+
+  const svg = container.append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .style("font", "12px sans-serif");
+
+  const tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("position", "absolute")
+    .style("background", "rgba(0, 0, 0, 0.8)")
+    .style("color", "white")
+    .style("padding", "6px 10px")
+    .style("border-radius", "5px")
+    .style("font-size", "12px")
+    .style("pointer-events", "none")
+    .style("display", "none");
+
+  const stackedSeries = d3.stack()
+    .keys(delayCategories)
+    .value((d, key) => d[key] || 0)(data);
+
+  svg.append("g")
+    .selectAll("g")
+    .data(stackedSeries)
+    .join("g")
+    .attr("fill", d => colorScale(d.key))
+    .selectAll("rect")
+    .data(d => d)
+    .join("rect")
+    .attr("x", d => xScale(d.data.season))
+    .attr("y", d => yScale(d[1]))
+    .attr("height", d => yScale(d[0]) - yScale(d[1]))
+    .attr("width", xScale.bandwidth())
+    .on("mouseover", function(event, d) {
+      const category = d3.select(this.parentNode).datum().key;
+      const season = d.data.season;
+      const count = d.data[category] || 0;
+      const total = d.data.total || 1;
+      const percentage = ((count / total) * 100).toFixed(1);
+
+      d3.select(this).style("opacity", 0.7);
+      tooltip.style("display", "block")
+        .html(`<strong>${season}</strong><br>Category: ${category}<br>Flights: ${count}<br>Percentage: ${percentage}%`);
+    })
+    .on("mousemove", event => {
+      tooltip.style("top", `${event.pageY + 10}px`).style("left", `${event.pageX + 10}px`);
+    })
+    .on("mouseout", function () {
+      d3.select(this).style("opacity", 1);
+      tooltip.style("display", "none");
+    })
+    .on("click", function (event, d) {
+      const clickedSeason = d.data.season;
+      selectedSeason = selectedSeason === clickedSeason ? null : clickedSeason;
+      tooltip.style("display", "none");
+      drawInvertedStackedBarChart(); // 🔁 Ricalcola e ridisegna
+    });
+
+  // X Axis (stagioni)
+  svg.append("g")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(xScale))
+    .selectAll("text")
+    .style("fill", "white")
+    .style("font-size", "14px");
+
+  // Y Axis
+  svg.append("g")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(yScale))
+    .selectAll("text")
+    .style("fill", "white")
+    .style("font-size", "14px");
+
+  // Reset Zoom Button (opzionale)
+  resetZoomButton.onclick = () => {
+    selectedSeason = null;
+    drawInvertedStackedBarChart();
+  };
+
+  // Legend
+  const legend = svg.append("g")
+    .attr("transform", `translate(${width - margin.right + 10}, ${margin.top})`)
+    .style("font-size", "12px");
+
+  delayCategories.forEach((cat, i) => {
+    const legendRow = legend.append("g")
+      .attr("transform", `translate(-40, ${i * 20})`);
+
+    legendRow.append("rect")
+      .attr("width", 15)
+      .attr("height", 15)
+      .attr("fill", colorScale(cat));
+
+    legendRow.append("text")
+      .attr("x", 20)
+      .attr("y", 13)
+      .text(cat)
+      .style("fill", "white");
+  });
+}
+
 //  Initial Render
 drawStackedBarChart();
-
-//  Update Chart when View Changes
-viewToggle.addEventListener("input", drawStackedBarChart);
+drawInvertedStackedBarChart();
 
 ```
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 110px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;">${resetZoomButton}</div>
-    <div style="display: inline-block; width: 380px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><div class="filter"> ${viewToggle} </div></div>
   </div>
-  <div class="grid grid-cols-1"><div class="card" style="display: flex; justify-content: center; align-items: center;"><div id="stacked-chart-container"></div></div></div>
+  <div class="grid grid-cols-1">
+    <div class="card" style="display: flex; justify-content: left; align-items: left;">
+      <div id="stacked-chart-container">
+    </div>
+    <div id="side-charts" style="display: flex; flex-direction: column; gap: 40px;">
+      <div id="stacked-chart-container-inverted"></div>
+    </div>
+  </div>
+
+  </div>
 </div>
 
 <div>
@@ -858,8 +1011,8 @@ svg.append("g")
 
 // Define Color Scale for Delays
 const colorScale = d3.scaleDiverging()
-  .domain([30, 0, -10]) // Negative = Early, 0 = On Time, 30+ = Very Late
-  .interpolator(d3.interpolateRdYlGn); // Red = Late, White = On-time, Green = Early
+  .domain([-10, 0, 30]) // Early = -10, On Time = 0, Late = 30
+  .interpolator(d3.interpolateRgbBasis(["green", "white", "red"]));
 
 // Define Size Scale for Flights
 const sizeScale = d3.scaleSqrt()
@@ -969,10 +1122,11 @@ function updateMap() {
     .attr("y2", "0%")
     .selectAll("stop")
     .data([
-      { offset: "0%", color: colorScale(30) }, // Red (Late)
-      { offset: "50%", color: colorScale(0) },  // White (On Time)
-      { offset: "100%", color: colorScale(-10) } // Green (Early)
+      { offset: "0%", color: colorScale(-10) },  // Green (Early)
+      { offset: "50%", color: colorScale(0) },   // White (On Time)
+      { offset: "100%", color: colorScale(30) }  // Red (Late)
     ])
+
     .enter().append("stop")
     .attr("offset", d => d.offset)
     .attr("stop-color", d => d.color);
@@ -990,7 +1144,7 @@ function updateMap() {
     .attr("text-anchor", "middle")
     .style("font-size", "12px")
     .style("fill", "white")
-    .text("Late");
+    .text("Early");
 
   legend.append("text")
     .attr("x", 60)
@@ -1006,7 +1160,8 @@ function updateMap() {
     .attr("text-anchor", "middle")
     .style("font-size", "12px")
     .style("fill", "white")
-    .text("Early");
+    .text("Late");
+
 }
 
 // Listen for Season Toggle Changes
