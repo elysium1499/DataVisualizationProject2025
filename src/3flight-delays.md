@@ -418,13 +418,21 @@ function getStackedData() {
 }
 
 
-//  Create Reset Zoom Button
-const resetZoomButton = Inputs.button("🔍 Reset Zoom");
 //  Define Chart Dimensions
 const width = 450, height = 500, margin = { top: 50, right: 80, bottom: 80, left: 50 };
 //  Track Selected Category for Zoom
 let selectedCategory = null;
+//  Create Reset Zoom Button
+const resetZoomButton = Inputs.button("🔍 Reset Zoom");
 
+function resetZoom() {
+  selectedCategory = null;
+  selectedSeason = null;
+  drawStackedBarChart();
+  drawInvertedStackedBarChart();
+}
+
+resetZoomButton.onclick = resetZoom;
 
 //  Create Stacked Chart
 function drawStackedBarChart() {
@@ -568,14 +576,14 @@ function drawStackedBarChart() {
   });
 
   //  Reset Zoom Button
-  resetZoomButton.onclick = () => {
-    selectedCategory = null;
-    drawStackedBarChart();
-  };
+//   resetZoomButton.onclick = () => {
+//     selectedCategory = null;
+//     drawStackedBarChart();
+//   };
 }
 
 //------------------------------------------------------------------
-let selectedSeason = null; // 👈 Traccia la stagione selezionata
+let selectedSeason = null;
 
 function drawInvertedStackedBarChart() {
   const percentageView = false;
@@ -697,10 +705,10 @@ function drawInvertedStackedBarChart() {
     .style("font-size", "14px");
 
   // Reset Zoom Button (opzionale)
-  resetZoomButton.onclick = () => {
-    selectedSeason = null;
-    drawInvertedStackedBarChart();
-  };
+//   resetZoomButton.onclick = () => {
+//     selectedSeason = null;
+//     drawInvertedStackedBarChart();
+//   };
 
   // Legend
   const legend = svg.append("g")

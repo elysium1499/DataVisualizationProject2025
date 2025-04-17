@@ -357,7 +357,7 @@ selectedMonth
 ))
 }});
 
-define({id: "809d814b", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","resetZoomButton","width","height","margin","selectedCategory","drawStackedBarChart","selectedSeason","drawInvertedStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
+define({id: "7f4c11d8", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","width","height","margin","selectedCategory","resetZoomButton","resetZoom","drawStackedBarChart","selectedSeason","drawInvertedStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
 //  Define Seasons
 const seasons = ["Winter", "Spring", "Summer", "Fall"];
 
@@ -409,13 +409,21 @@ function getStackedData() {
 }
 
 
-//  Create Reset Zoom Button
-const resetZoomButton = Inputs.button("🔍 Reset Zoom");
 //  Define Chart Dimensions
 const width = 450, height = 500, margin = { top: 50, right: 80, bottom: 80, left: 50 };
 //  Track Selected Category for Zoom
 let selectedCategory = null;
+//  Create Reset Zoom Button
+const resetZoomButton = Inputs.button("🔍 Reset Zoom");
 
+function resetZoom() {
+  selectedCategory = null;
+  selectedSeason = null;
+  drawStackedBarChart();
+  drawInvertedStackedBarChart();
+}
+
+resetZoomButton.onclick = resetZoom;
 
 //  Create Stacked Chart
 function drawStackedBarChart() {
@@ -559,14 +567,14 @@ function drawStackedBarChart() {
   });
 
   //  Reset Zoom Button
-  resetZoomButton.onclick = () => {
-    selectedCategory = null;
-    drawStackedBarChart();
-  };
+//   resetZoomButton.onclick = () => {
+//     selectedCategory = null;
+//     drawStackedBarChart();
+//   };
 }
 
 //------------------------------------------------------------------
-let selectedSeason = null; // 👈 Traccia la stagione selezionata
+let selectedSeason = null;
 
 function drawInvertedStackedBarChart() {
   const percentageView = false;
@@ -688,10 +696,10 @@ function drawInvertedStackedBarChart() {
     .style("font-size", "14px");
 
   // Reset Zoom Button (opzionale)
-  resetZoomButton.onclick = () => {
-    selectedSeason = null;
-    drawInvertedStackedBarChart();
-  };
+//   resetZoomButton.onclick = () => {
+//     selectedSeason = null;
+//     drawInvertedStackedBarChart();
+//   };
 
   // Legend
   const legend = svg.append("g")
@@ -719,7 +727,7 @@ function drawInvertedStackedBarChart() {
 drawStackedBarChart();
 drawInvertedStackedBarChart();
 
-return {seasons,getSeason,delayCategories,delayCounts,getStackedData,resetZoomButton,width,height,margin,selectedCategory,drawStackedBarChart,selectedSeason,drawInvertedStackedBarChart};
+return {seasons,getSeason,delayCategories,delayCounts,getStackedData,width,height,margin,selectedCategory,resetZoomButton,resetZoom,drawStackedBarChart,selectedSeason,drawInvertedStackedBarChart};
 }});
 
 define({id: "fd613d63", mode: "inline", inputs: ["resetZoomButton","display"], body: async (resetZoomButton,display) => {
@@ -1181,7 +1189,7 @@ By interacting with the heatmap, users can pinpoint specific times and days that
 <br>
 <h2 id="number-or-percentage-of-delays-by-reason" tabindex="-1"><a class="observablehq-header-anchor" href="#number-or-percentage-of-delays-by-reason">Number or Percentage of Delays by Reason</a></h2>
 <br>
-<div class="observablehq observablehq--block"><!--:809d814b:--></div>
+<div class="observablehq observablehq--block"><!--:7f4c11d8:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 110px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:fd613d63:--></div>
