@@ -357,7 +357,7 @@ selectedMonth
 ))
 }});
 
-define({id: "ab4a72ce", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","width","height","margin","selectedCategory","resetZoomButton","resetZoom","drawStackedBarChart","selectedSeason","drawInvertedStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
+define({id: "8593a948", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","width","height","margin","activeChart","switchChartButton","selectedCategory","resetZoomButton","resetZoom","renderActiveChart","drawStackedBarChart","selectedSeason","drawInvertedStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
 //  Define Seasons
 const seasons = ["Winter", "Spring", "Summer", "Fall"];
 
@@ -410,20 +410,44 @@ function getStackedData() {
 
 
 //  Define Chart Dimensions
-const width = 350, height = 500, margin = { top: 60, right: 50, bottom: 60, left: 70 };
+const width = 800, height = 500, margin = { top: 60, right: 100, bottom: 60, left: 100 };
+let activeChart = "stacked";
+const switchChartButton = Inputs.button("🔁 Switch Chart");
+switchChartButton.onclick = () => {
+  activeChart = activeChart === "stacked" ? "inverted" : "stacked";
+  renderActiveChart(); 
+};
+
 //  Track Selected Category for Zoom
 let selectedCategory = null;
 //  Create Reset Zoom Button
 const resetZoomButton = Inputs.button("🔍 Reset Zoom");
 
 function resetZoom() {
-  selectedCategory = null;
-  selectedSeason = null;
-  drawStackedBarChart();
-  drawInvertedStackedBarChart();
+  if (activeChart === "stacked") {
+    selectedCategory = null;
+    drawStackedBarChart();
+  } else {
+    selectedSeason = null;
+    drawInvertedStackedBarChart();
+  }
 }
 
 resetZoomButton.onclick = resetZoom;
+
+
+function renderActiveChart() {
+  if (activeChart === "stacked") {
+    d3.select("#stacked-chart-container").style("display", "block");
+    d3.select("#stacked-chart-container-inverted").style("display", "none");
+    drawStackedBarChart();
+  } else {
+    d3.select("#stacked-chart-container").style("display", "none");
+    d3.select("#stacked-chart-container-inverted").style("display", "block");
+    drawInvertedStackedBarChart();
+  }
+}
+
 
 //  Create Stacked Chart
 function drawStackedBarChart() {
@@ -711,16 +735,19 @@ function drawInvertedStackedBarChart() {
   });
 }
 
-//  Initial Render
-drawStackedBarChart();
-drawInvertedStackedBarChart();
-
-return {seasons,getSeason,delayCategories,delayCounts,getStackedData,width,height,margin,selectedCategory,resetZoomButton,resetZoom,drawStackedBarChart,selectedSeason,drawInvertedStackedBarChart};
+renderActiveChart();
+return {seasons,getSeason,delayCategories,delayCounts,getStackedData,width,height,margin,activeChart,switchChartButton,selectedCategory,resetZoomButton,resetZoom,renderActiveChart,drawStackedBarChart,selectedSeason,drawInvertedStackedBarChart};
 }});
 
 define({id: "fd613d63", mode: "inline", inputs: ["resetZoomButton","display"], body: async (resetZoomButton,display) => {
 display(await(
 resetZoomButton
+))
+}});
+
+define({id: "fdf203e2", mode: "inline", inputs: ["switchChartButton","display"], body: async (switchChartButton,display) => {
+display(await(
+switchChartButton
 ))
 }});
 
@@ -1176,15 +1203,16 @@ By interacting with the heatmap, users can pinpoint specific times and days that
 <br>
 <h2 id="number-of-delays-by-reason" tabindex="-1"><a class="observablehq-header-anchor" href="#number-of-delays-by-reason">Number of Delays by Reason</a></h2>
 <br>
-<div class="observablehq observablehq--block"><!--:ab4a72ce:--></div>
+<div class="observablehq observablehq--block"><!--:8593a948:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 110px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:fd613d63:--></div>
+    <div style="display: inline-block; width: 111px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:fdf203e2:--></div>
   </div>
-  <div class="grid grid-cols-1">
-    <div class="card" style="display: flex; justify-content: center; align-items: center; gap: 40px;">
-      <div id="stacked-chart-container" style="flex: 1; width: 50%;"></div>
-      <div id="stacked-chart-container-inverted" style="flex: 1; width: 50%;"></div>
+  <div class="grid grid-cols-1">  
+    <div class="card" style="display: flex; justify-content: center; align-items: center;">
+      <div id="stacked-chart-container" style="flex: 1;"></div>
+      <div id="stacked-chart-container-inverted" style="flex: 1; display: none;"></div>
     </div>
   </div>
 </div>

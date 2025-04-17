@@ -417,20 +417,44 @@ function getStackedData() {
 
 
 //  Define Chart Dimensions
-const width = 350, height = 500, margin = { top: 60, right: 50, bottom: 60, left: 70 };
+const width = 800, height = 500, margin = { top: 60, right: 100, bottom: 60, left: 100 };
+let activeChart = "stacked";
+const switchChartButton = Inputs.button("🔁 Switch Chart");
+switchChartButton.onclick = () => {
+  activeChart = activeChart === "stacked" ? "inverted" : "stacked";
+  renderActiveChart(); 
+};
+
 //  Track Selected Category for Zoom
 let selectedCategory = null;
 //  Create Reset Zoom Button
 const resetZoomButton = Inputs.button("🔍 Reset Zoom");
 
 function resetZoom() {
-  selectedCategory = null;
-  selectedSeason = null;
-  drawStackedBarChart();
-  drawInvertedStackedBarChart();
+  if (activeChart === "stacked") {
+    selectedCategory = null;
+    drawStackedBarChart();
+  } else {
+    selectedSeason = null;
+    drawInvertedStackedBarChart();
+  }
 }
 
 resetZoomButton.onclick = resetZoom;
+
+
+function renderActiveChart() {
+  if (activeChart === "stacked") {
+    d3.select("#stacked-chart-container").style("display", "block");
+    d3.select("#stacked-chart-container-inverted").style("display", "none");
+    drawStackedBarChart();
+  } else {
+    d3.select("#stacked-chart-container").style("display", "none");
+    d3.select("#stacked-chart-container-inverted").style("display", "block");
+    drawInvertedStackedBarChart();
+  }
+}
+
 
 //  Create Stacked Chart
 function drawStackedBarChart() {
@@ -718,23 +742,20 @@ function drawInvertedStackedBarChart() {
   });
 }
 
-//  Initial Render
-drawStackedBarChart();
-drawInvertedStackedBarChart();
-
+renderActiveChart();
 ```
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 110px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;">${resetZoomButton}</div>
+    <div style="display: inline-block; width: 111px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;">${switchChartButton}</div>
   </div>
 
-  <div class="grid grid-cols-1">
-    <div class="card" style="display: flex; justify-content: center; align-items: center; gap: 40px;">
-      <div id="stacked-chart-container" style="flex: 1; width: 50%;"></div>
-      <div id="stacked-chart-container-inverted" style="flex: 1; width: 50%;"></div>
+  <div class="grid grid-cols-1">  
+    <div class="card" style="display: flex; justify-content: center; align-items: center;">
+      <div id="stacked-chart-container" style="flex: 1;"></div>
+      <div id="stacked-chart-container-inverted" style="flex: 1; display: none;"></div>
     </div>
   </div>
-
 </div>
 
 <div>
