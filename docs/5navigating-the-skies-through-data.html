@@ -34,7 +34,6 @@ import "./_observablehq/client.16fc07f5.js";
     <li class="observablehq-link"><a href="./3flight-delays">Flight Delays</a></li>
     <li class="observablehq-link"><a href="./4airport-statistics">Airport statistics</a></li>
     <li class="observablehq-link observablehq-link-active"><a href="./5navigating-the-skies-through-data">Navigating the Skies Through Data</a></li>
-    <li class="observablehq-link"><a href="./6prova">Flight Delays</a></li>
   </ol>
 </nav>
 <script>{const e=document.querySelector("#observablehq-sidebar"),o=document.querySelector("#observablehq-sidebar-toggle"),r=sessionStorage.getItem("observablehq-sidebar");r?o.checked=r==="true":o.indeterminate=!0;for(const t of document.querySelectorAll("#observablehq-sidebar summary")){const s=t.parentElement;switch(sessionStorage.getItem(`observablehq-sidebar:${t.textContent}`)){case"true":s.open=!0;break;case"false":s.classList.contains("observablehq-section-active")||(s.open=!1);break}}addEventListener("beforeunload",()=>sessionStorage.setItem("observablehq-sidebar-scrolly",`${e.scrollTop}`));const a=sessionStorage.getItem("observablehq-sidebar-scrolly");a!=null&&(e.style.cssText="overflow: hidden;",e.scrollTop=+a,e.style.cssText="");}</script>
@@ -58,7 +57,7 @@ This project unfolds as a multidimensional exploration of the U.S. aviation land
 </div>
 </main>
 <footer id="observablehq-footer">
-<nav><a rel="prev" href="./4airport-statistics"><span>Airport statistics</span></a><a rel="next" href="./6prova"><span>Flight Delays</span></a></nav>
+<nav><a rel="prev" href="./4airport-statistics"><span>Airport statistics</span></a></nav>
 <div><a href="https://github.com/elysium1499/DataVisualizationProject2025" target="_blank" rel="noopener noreferrer">Source Code</a></div>
 </footer>
 </div>
