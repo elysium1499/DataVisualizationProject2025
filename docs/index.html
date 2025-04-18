@@ -10,13 +10,13 @@
 <link rel="preload" as="style" href="./_observablehq/theme-near-midnight.d49e655d.css">
 <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
 <link rel="stylesheet" type="text/css" href="./_observablehq/theme-near-midnight.d49e655d.css">
-<link rel="modulepreload" href="./_observablehq/client.11d4bb04.js">
+<link rel="modulepreload" href="./_observablehq/client.16fc07f5.js">
 <link rel="modulepreload" href="./_observablehq/runtime.e080113b.js">
-<link rel="modulepreload" href="./_observablehq/stdlib.fc5dbcd7.js">
+<link rel="modulepreload" href="./_observablehq/stdlib.82806664.js">
 <link rel="icon" href="./_file/observable.a92c9a52.png" type="image/png" sizes="32x32">
 <script type="module">
 
-import "./_observablehq/client.11d4bb04.js";
+import "./_observablehq/client.16fc07f5.js";
 
 </script>
 </head>
@@ -34,6 +34,7 @@ import "./_observablehq/client.11d4bb04.js";
     <li class="observablehq-link"><a href="./3flight-delays">Flight Delays</a></li>
     <li class="observablehq-link"><a href="./4airport-statistics">Airport statistics</a></li>
     <li class="observablehq-link"><a href="./5navigating-the-skies-through-data">Navigating the Skies Through Data</a></li>
+    <li class="observablehq-link"><a href="./6prova">Flight Delays</a></li>
   </ol>
 </nav>
 <script>{const e=document.querySelector("#observablehq-sidebar"),o=document.querySelector("#observablehq-sidebar-toggle"),r=sessionStorage.getItem("observablehq-sidebar");r?o.checked=r==="true":o.indeterminate=!0;for(const t of document.querySelectorAll("#observablehq-sidebar summary")){const s=t.parentElement;switch(sessionStorage.getItem(`observablehq-sidebar:${t.textContent}`)){case"true":s.open=!0;break;case"false":s.classList.contains("observablehq-section-active")||(s.open=!1);break}}addEventListener("beforeunload",()=>sessionStorage.setItem("observablehq-sidebar-scrolly",`${e.scrollTop}`));const a=sessionStorage.getItem("observablehq-sidebar-scrolly");a!=null&&(e.style.cssText="overflow: hidden;",e.scrollTop=+a,e.style.cssText="");}</script>
@@ -43,6 +44,8 @@ import "./_observablehq/client.11d4bb04.js";
 <div>Contents</div>
 <ol>
 <li class="observablehq-secondary-link"><a href="#welcome-to-flights-analysis">Welcome to Flights Analysis</a></li>
+<li class="observablehq-secondary-link"><a href="#dataset-overview-flight-delay-and-cancellation-data-2019-2023">Dataset Overview: Flight Delay and Cancellation Data (2019–2023)</a></li>
+<li class="observablehq-secondary-link"><a href="#objective-of-the-analysis">Objective of the Analysis</a></li>
 </ol>
 </nav>
 </aside>
@@ -125,17 +128,125 @@ body {
 <ul>
 <li>📊 Interactive Data Visualizations</li>
 <li>🌍 Global Trends Analysis</li>
-<li>✈ Airline Performance Insights</li>
-<li>📍 Airport Statistics</li>
+<li>✈️ Airline Performance Insights</li>
 <li>⏳ Flight Delays &amp; Statistics</li>
+<li>📍 Airport Statistics</li>
 </ul>
 <p>🔎 Start exploring now and gain deeper insights into aviation trends!</p>
 <div class="cards-container">
   <div class="card"><a href="./1global-trends">🌍 Global Trends</a></div>
-  <div class="card"><a href="./2airline-performance">✈ Airline Performance</a></div>
+  <div class="card"><a href="./2airline-performance">✈️ Airline Performance</a></div>
   <div class="card"><a href="./3flight-delays">⏳ Flight Delays</a></div>
   <div class="card"><a href="./4airport-statistics">📍 Airport Statistics</a></div>
 </div>
+<br>
+<br>
+<br>
+<br>
+<h2 id="dataset-overview-flight-delay-and-cancellation-data-2019-2023" tabindex="-1"><a class="observablehq-header-anchor" href="#dataset-overview-flight-delay-and-cancellation-data-2019-2023">Dataset Overview: Flight Delay and Cancellation Data (2019–2023)</a></h2>
+<div>
+<p>The foundation of this project is a curated subset of the publicly available Flight Delay and Cancellation Dataset (2019–2023), compiled by Patrick Zelazko and originally sourced from the U.S. Department of Transportation’s Bureau of Transportation Statistics (BTS). This dataset is publicly accessible via <a href="https://www.kaggle.com/datasets/patrickzel/flight-delay-and-cancellation-dataset-2019-2023" target="_blank" rel="noopener noreferrer">Kaggle</a>, providing researchers, analysts, and enthusiasts with a valuable resource for exploring flight performance metrics.
+While the full dataset contains over 29 million records, our analysis focuses on a representative subset of 99,695 flights selected across various time frames, airlines, and airport routes between January 2019 and August 2023.</p>
+<p>This subset enables meaningful exploratory and explanatory visualizations without requiring intensive computational resources. Although it doesn’t include every U.S. domestic flight within the range, it preserves a diverse and balanced sample sufficient to draw generalizable insights on flight performance, delays, and cancellations.</p>
+<h3 id="data-structure-and-variables" tabindex="-1"><a class="observablehq-header-anchor" href="#data-structure-and-variables">Data Structure and Variables</a></h3>
+<p>Each flight record in the dataset includes 32 structured variables, capturing operational details from scheduling to performance outcomes. The key attributes used in our analysis can be grouped into the following categories:</p>
+<p>🗓 <strong>Temporal Information</strong></p>
+<ul>
+<li>
+<p>FlightDate: The scheduled calendar date of the flight (YYYY-MM-DD format).</p>
+</li>
+<li>
+<p>Year, Month, DayOfWeek: Useful for seasonal and temporal trend analysis.</p>
+</li>
+</ul>
+<p>🛫 <strong>Flight Details</strong></p>
+<ul>
+<li>
+<p>Airline: The marketing carrier operating the flight (e.g., DL for Delta, AA for American Airlines).</p>
+</li>
+<li>
+<p>FlightNumber: Identifies the specific flight.</p>
+</li>
+<li>
+<p>Origin, Destination: IATA airport codes for departure and arrival.</p>
+</li>
+<li>
+<p>Distance: Great-circle distance between the two airports, in miles.</p>
+</li>
+<li>
+<p>Cancelled, Diverted: Boolean fields indicating if a flight was canceled or diverted.</p>
+</li>
+</ul>
+<p>⏱ <strong>Scheduled and Actual Times</strong></p>
+<ul>
+<li>
+<p>ScheduledDepartureTime, ScheduledArrivalTime: Planned takeoff and landing times.</p>
+</li>
+<li>
+<p>ActualDepartureTime, ActualArrivalTime: Real departure and arrival times (if not canceled).</p>
+</li>
+<li>
+<p>TaxiOut, TaxiIn: Time spent on the tarmac before takeoff or after landing.</p>
+</li>
+<li>
+<p>WheelsOff, WheelsOn: Exact airborne and touchdown times.</p>
+</li>
+<li>
+<p>ElapsedTime: Total time in the air.</p>
+</li>
+</ul>
+<p>⏳ <strong>Delay Metrics</strong></p>
+<ul>
+<li>
+<p>DepartureDelay, ArrivalDelay: Minutes late (or early) from schedule.</p>
+</li>
+<li>
+<p>DelayCarrier, DelayWeather, DelayNAS, DelaySecurity, DelayLateAircraft: Delay attribution categories explaining how much time was lost to each cause.</p>
+</li>
+</ul>
+<p>❌ <strong>Cancellation Reasons</strong></p>
+<ul>
+<li>
+<p>CancellationCode: A short categorical code(Carrier, Weather, National Airspace System (NAS), Security)</p>
+</li>
+<li>
+<p>Cancelled: Set to 1 if the flight was canceled, 0 otherwise.</p>
+</li>
+</ul>
+<p>These variables are used throughout the project to explore how flights behave over time, which airlines perform better, how airports differ in reliability, and what causes disruptions in the system.</p>
+</div><br><br>
+<div>
+<h2 id="objective-of-the-analysis" tabindex="-1"><a class="observablehq-header-anchor" href="#objective-of-the-analysis">Objective of the Analysis</a></h2>
+<p>An important practical objective of this project is to <strong>guide users in making better-informed decisions when selecting airports for travel</strong>. By leveraging detailed airport-level metrics, such as average delays, delay variability, and rates of cancellations and diversions, the analysis enables users to:</p>
+<ul>
+<li><strong>Identify airports with consistently low delays</strong>, making them more reliable for tight schedules or connections.</li>
+<li><strong>Avoid airports with high variability in performance</strong>, especially during peak travel seasons.</li>
+<li><strong>Compare performance among major hubs</strong>, which is especially useful when users have options between nearby alternatives (e.g., flying from JFK vs. Newark or LAX vs. Burbank).</li>
+<li><strong>Understand temporal performance trends</strong> (e.g., certain airports might perform better in summer but worse in winter due to weather-related delays).</li>
+</ul>
+<p>The <strong>box plots</strong>, <strong>radar charts</strong>, and <strong>bubble maps</strong> in the project are particularly geared toward highlighting these differences, empowering travelers with data to <strong>reduce risk and plan smarter</strong>.</p>
+<p>Another goal of this analysis is to <strong>uncover patterns and insights</strong> related to flight delays and cancellations within the U.S. domestic airline industry over the specified period. By leveraging the rich dataset, the analysis also aims to:</p>
+<ol>
+<li>
+<p><strong>Identify Temporal Trends:</strong> Examine how flight delays and cancellations have evolved over time, particularly in response to significant events like the COVID-19 pandemic.</p>
+</li>
+<li>
+<p><strong>Assess Airline Performance:</strong> Compare different airlines based on their delay and cancellation rates, providing a benchmark for operational efficiency.</p>
+</li>
+<li>
+<p><strong>Evaluate Airport Efficiency:</strong> Analyze airport-specific data to determine which airports experience higher rates of delays or cancellations, potentially highlighting infrastructural or logistical challenges.</p>
+</li>
+<li>
+<p><strong>Understand Delay Causes:</strong> Delve into the reasons behind flight delays, distinguishing between factors such as weather, carrier-related issues, and air traffic control constraints.</p>
+</li>
+<li>
+<p><strong>Explore Temporal and Seasonal Patterns:</strong> Investigate how delays vary by time of day, day of the week, and season, offering insights into peak periods and potential scheduling optimizations.</p>
+</li>
+<li>
+<p><strong>Inform Stakeholders:</strong> Provide actionable insights for airlines, airport authorities, policymakers, and travelers to improve decision-making and enhance the overall efficiency of air travel.</p>
+</li>
+</ol>
+</div><br>
 <footer style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
   <p>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a>.</p>
   <p>Developed by Elena Martino &amp; Elisa Calza</p>

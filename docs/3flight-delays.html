@@ -12,21 +12,21 @@
 <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
 <link rel="stylesheet" type="text/css" href="./_observablehq/theme-near-midnight.d49e655d.css">
 <link rel="stylesheet" type="text/css" href="./_observablehq/stdlib/inputs.ea9fd553.css">
-<link rel="modulepreload" href="./_observablehq/client.11d4bb04.js">
+<link rel="modulepreload" href="./_observablehq/client.16fc07f5.js">
 <link rel="modulepreload" href="./_observablehq/runtime.e080113b.js">
-<link rel="modulepreload" href="./_observablehq/stdlib.fc5dbcd7.js">
-<link rel="modulepreload" href="./_observablehq/stdlib/inputs.56af3ea0.js">
-<link rel="modulepreload" href="./_npm/d3-dsv@3.0.1/407f7a1f.js">
-<link rel="modulepreload" href="./_npm/htl@0.3.1/063eb405.js">
-<link rel="modulepreload" href="./_npm/isoformat@0.2.1/c68fbd73.js">
+<link rel="modulepreload" href="./_observablehq/stdlib.82806664.js">
+<link rel="modulepreload" href="./_observablehq/stdlib/inputs.6ba3de0b.js">
+<link rel="modulepreload" href="./_npm/d3-dsv@3.0.1/9cffc2bd.js">
+<link rel="modulepreload" href="./_npm/htl@0.3.1/72f4716c.js">
+<link rel="modulepreload" href="./_npm/isoformat@0.2.1/18cbf477.js">
 <link rel="icon" href="./_file/observable.a92c9a52.png" type="image/png" sizes="32x32">
 <script type="module">
 
-import {define} from "./_observablehq/client.11d4bb04.js";
-import {registerFile} from "./_observablehq/stdlib.fc5dbcd7.js";
+import {define} from "./_observablehq/client.16fc07f5.js";
+import {registerFile} from "./_observablehq/stdlib.82806664.js";
 
-registerFile("./data/cordinates.csv", {"name":"./data/cordinates.csv","mimeType":"text/csv","path":"./_file/data/cordinates.970c2a80.csv","lastModified":1743201531683,"size":8618});
-registerFile("./data/flights_data.csv", {"name":"./data/flights_data.csv","mimeType":"text/csv","path":"./_file/data/flights_data.925f7b17.csv","lastModified":1741526889746,"size":13659204});
+registerFile("./data/cordinates.csv", {"name":"./data/cordinates.csv","mimeType":"text/csv","path":"./_file/data/cordinates.970c2a80.csv","lastModified":1744880580355,"size":8618});
+registerFile("./data/flights_data.csv", {"name":"./data/flights_data.csv","mimeType":"text/csv","path":"./_file/data/flights_data.925f7b17.csv","lastModified":1744880580402,"size":13659204});
 
 define({id: "2301a8ed", inputs: ["FileAttachment"], outputs: ["datasetFlights","cordinates"], body: async (FileAttachment) => {
 const datasetFlights = await FileAttachment("./data/flights_data.csv").csv({ typed: true });
@@ -357,7 +357,7 @@ selectedMonth
 ))
 }});
 
-define({id: "dcbbbb78", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","viewToggle","resetZoomButton","width","height","margin","selectedCategory","drawStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
+define({id: "afb6e0b5", inputs: ["datasetFlights","d3","Inputs"], outputs: ["seasons","getSeason","delayCategories","delayCounts","getStackedData","width","height","margin","activeChart","switchChartButton","selectedCategory","resetZoomButton","resetZoom","renderActiveChart","drawStackedBarChart","selectedSeason","drawInvertedStackedBarChart"], body: (datasetFlights,d3,Inputs) => {
 //  Define Seasons
 const seasons = ["Winter", "Spring", "Summer", "Fall"];
 
@@ -388,7 +388,7 @@ const delayCounts = d3.rollups(
 );
 
 //  Convert Data to Percentage Format
-function getStackedData(percentageView) {
+function getStackedData() {
   const rawData = Object.fromEntries(delayCounts.map(([category, seasons]) => [
     category,
     Object.fromEntries(seasons)
@@ -401,32 +401,57 @@ function getStackedData(percentageView) {
     return {
       category,
       ...categoryData,
-      total: percentageView ? totalDelays : 1, // Normalize for percentage view
+      total: totalDelays
     };
   });
 
   return stackedData;
 }
 
-//  Create View Toggle (Absolute vs Percentage)
-const viewToggle = Inputs.radio(["Percentage", "Absolute Numbers"], {
-  label: "📊 View Mode",
-  value: "Percentage" // Default mode
-});
-
-//  Create Reset Zoom Button
-const resetZoomButton = Inputs.button("🔍 Reset Zoom");
 
 //  Define Chart Dimensions
-const width = 800, height = 500, margin = { top: 50, right: 80, bottom: 80, left: 100 };
+const width = 800, height = 500, margin = { top: 60, right: 100, bottom: 60, left: 100 };
+let activeChart = "stacked";
+const switchChartButton = Inputs.button("🔁 Switch Chart");
+switchChartButton.onclick = () => {
+  activeChart = activeChart === "stacked" ? "inverted" : "stacked";
+  renderActiveChart(); 
+};
 
 //  Track Selected Category for Zoom
 let selectedCategory = null;
+//  Create Reset Zoom Button
+const resetZoomButton = Inputs.button("🔍 Reset Zoom");
+
+function resetZoom() {
+  if (activeChart === "stacked") {
+    selectedCategory = null;
+    drawStackedBarChart();
+  } else {
+    selectedSeason = null;
+    drawInvertedStackedBarChart();
+  }
+}
+
+resetZoomButton.onclick = resetZoom;
+
+
+function renderActiveChart() {
+  if (activeChart === "stacked") {
+    d3.select("#stacked-chart-container").style("display", "block");
+    d3.select("#stacked-chart-container-inverted").style("display", "none");
+    drawStackedBarChart();
+  } else {
+    d3.select("#stacked-chart-container").style("display", "none");
+    d3.select("#stacked-chart-container-inverted").style("display", "block");
+    drawInvertedStackedBarChart();
+  }
+}
+
 
 //  Create Stacked Chart
 function drawStackedBarChart() {
-  const percentageView = viewToggle.value === "Percentage";
-  let data = getStackedData(percentageView);
+  let data = getStackedData();
 
   //  Filter data if zoomed on a specific category
   if (selectedCategory) {
@@ -442,10 +467,10 @@ function drawStackedBarChart() {
     .range([margin.left, width - margin.right])
     .padding(0.3);
 
-  const yScaleLeft = d3.scaleLinear()
-    .domain([0, percentageView ? 100 : maxTotal]) // Adjust for percentage view
-    .nice()
-    .range([height - margin.bottom, margin.top]);
+    const yScaleLeft = d3.scaleLinear()
+    .domain([0, maxTotal])
+    .nice()
+    .range([height - margin.bottom, margin.top]);
 
   const yScaleRight = d3.scaleLinear()
     .domain([0, 100]) // Percentage always 0-100%
@@ -483,9 +508,9 @@ function drawStackedBarChart() {
 
   //  Stack Data
   const stackedSeries = d3.stack()
-    .keys(seasons)
-    .value((d, key) => (d[key] || 0) / d.total * (percentageView ? 100 : 1)) // Normalize for percentage
-    (data);
+    .keys(seasons)
+    .value((d, key) => d[key] || 0)
+    (data);
 
   //  Draw Stacked Bars
   svg.append("g")
@@ -501,15 +526,15 @@ function drawStackedBarChart() {
     .attr("height", d => yScaleLeft(d[0]) - yScaleLeft(d[1]))
     .attr("width", xScale.bandwidth())
     .on("mouseover", function(event, d) {
-      const season = d3.select(this.parentNode).datum().key;
-      const percentage = Math.round(d[1] - d[0]);
-      const count = d.data[season] || 0;
+      const season = d3.select(this.parentNode).datum().key;
+      const count = d.data[season] || 0;
+      const total = d.data.total || 1;
+      const percentage = ((count / total) * 100).toFixed(1);
 
-      d3.select(this).style("opacity", 0.7);
-      tooltip.style("display", "block")
-        .html(`<strong>${d.data.category}</strong><br>Season: ${season}<br>${percentageView ? `Percentage: ${percentage}% <br> Flights: ${count}` : `Flights: ${percentage}`}
-        `);
-    })
+      d3.select(this).style("opacity", 0.7);
+      tooltip.style("display", "block")
+        .html(`<strong>${d.data.category}</strong><br>Season: ${season}<br>Flights: ${count}<br>Percentage: ${percentage}%`);
+    })
     .on("mousemove", event => {
       tooltip.style("top", `${event.pageY + 10}px`).style("left", `${event.pageX + 10}px`);
     })
@@ -525,17 +550,20 @@ function drawStackedBarChart() {
     });
 
   //  X Axis (Delay Categories)
-  svg.append("g")
-    .attr("transform", `translate(0,${height - margin.bottom})`)
-    .call(d3.axisBottom(xScale))
-    .selectAll("text")
-    .style("fill", "white")
-    .style("font-size", "14px");
+  svg.append("g")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(xScale))
+    .selectAll("text")
+    .style("fill", "white")
+    .style("font-size", "14px")
+    .style("text-anchor", "middle")
+    .attr("dx", "0em")
+    .attr("dy", "1em");
 
   //  Y Axis (Left - Absolute/Percentage)
   svg.append("g")
     .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(yScaleLeft).tickFormat(d => percentageView ? `${d}%` : d))
+    .call(d3.axisLeft(yScaleLeft).tickFormat(d => d))
     .selectAll("text")
     .style("fill", "white")
     .style("font-size", "14px");
@@ -560,21 +588,154 @@ function drawStackedBarChart() {
       .text(season)
       .style("fill", "white");
   });
-
-  //  Reset Zoom Button
-  resetZoomButton.onclick = () => {
-    selectedCategory = null;
-    drawStackedBarChart();
-  };
 }
 
-//  Initial Render
-drawStackedBarChart();
+//------------------------------------------------------------------
+let selectedSeason = null;
 
-//  Update Chart when View Changes
-viewToggle.addEventListener("input", drawStackedBarChart);
+function drawInvertedStackedBarChart() {
+  const percentageView = false;
 
-return {seasons,getSeason,delayCategories,delayCounts,getStackedData,viewToggle,resetZoomButton,width,height,margin,selectedCategory,drawStackedBarChart};
+  const seasonMap = new Map();
+  for (const [category, seasons] of delayCounts) {
+    for (const [season, count] of seasons) {
+      if (!seasonMap.has(season)) seasonMap.set(season, {});
+      seasonMap.get(season)[category] = count;
+    }
+  }
+
+  let data = seasons.map(season => {
+    const categoryData = seasonMap.get(season) || {};
+    const total = d3.sum(delayCategories.map(cat => categoryData[cat] || 0));
+    return {
+      season,
+      ...categoryData,
+      total
+    };
+  });
+
+  // 🔍 Filtra se è selezionata una stagione
+  if (selectedSeason) {
+    data = data.filter(d => d.season === selectedSeason);
+  }
+
+  data.sort((a, b) => b.total - a.total);
+  const maxTotal = d3.max(data, d => d.total);
+
+  const xScale = d3.scaleBand()
+    .domain(data.map(d => d.season))
+    .range([margin.left, width - margin.right - 50])
+    .padding(0.3);
+
+  const yScale = d3.scaleLinear()
+    .domain([0, maxTotal])
+    .nice()
+    .range([height - margin.bottom, margin.top]);
+
+  const colorScale = d3.scaleOrdinal()
+    .domain(delayCategories)
+    .range(d3.schemeSet2);
+
+  const container = d3.select("#stacked-chart-container-inverted");
+  container.select("svg").remove();
+
+  const svg = container.append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .style("font", "12px sans-serif");
+
+  const tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("position", "absolute")
+    .style("background", "rgba(0, 0, 0, 0.8)")
+    .style("color", "white")
+    .style("padding", "6px 10px")
+    .style("border-radius", "5px")
+    .style("font-size", "12px")
+    .style("pointer-events", "none")
+    .style("display", "none");
+
+  const stackedSeries = d3.stack()
+    .keys(delayCategories)
+    .value((d, key) => d[key] || 0)(data);
+
+  svg.append("g")
+    .selectAll("g")
+    .data(stackedSeries)
+    .join("g")
+    .attr("fill", d => colorScale(d.key))
+    .selectAll("rect")
+    .data(d => d)
+    .join("rect")
+    .attr("x", d => xScale(d.data.season))
+    .attr("y", d => yScale(d[1]))
+    .attr("height", d => yScale(d[0]) - yScale(d[1]))
+    .attr("width", xScale.bandwidth())
+    .on("mouseover", function(event, d) {
+      const category = d3.select(this.parentNode).datum().key;
+      const season = d.data.season;
+      const count = d.data[category] || 0;
+      const total = d.data.total || 1;
+      const percentage = ((count / total) * 100).toFixed(1);
+
+      d3.select(this).style("opacity", 0.7);
+      tooltip.style("display", "block")
+        .html(`<strong>${season}</strong><br>Category: ${category}<br>Flights: ${count}<br>Percentage: ${percentage}%`);
+    })
+    .on("mousemove", event => {
+      tooltip.style("top", `${event.pageY + 10}px`).style("left", `${event.pageX + 10}px`);
+    })
+    .on("mouseout", function () {
+      d3.select(this).style("opacity", 1);
+      tooltip.style("display", "none");
+    })
+    .on("click", function (event, d) {
+      const clickedSeason = d.data.season;
+      selectedSeason = selectedSeason === clickedSeason ? null : clickedSeason;
+      tooltip.style("display", "none");
+      drawInvertedStackedBarChart();
+    });
+
+  // X Axis (stagioni)
+  svg.append("g")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(xScale))
+    .selectAll("text")
+    .style("fill", "white")
+    .style("font-size", "14px");
+
+  // Y Axis
+  svg.append("g")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(yScale))
+    .selectAll("text")
+    .style("fill", "white")
+    .style("font-size", "14px");
+
+  // Legend
+  const legend = svg.append("g")
+    .attr("transform", `translate(${width - margin.right + 10}, ${margin.top})`)
+    .style("font-size", "12px");
+
+  delayCategories.forEach((cat, i) => {
+    const legendRow = legend.append("g")
+      .attr("transform", `translate(-40, ${i * 20})`);
+
+    legendRow.append("rect")
+      .attr("width", 15)
+      .attr("height", 15)
+      .attr("fill", colorScale(cat));
+
+    legendRow.append("text")
+      .attr("x", 20)
+      .attr("y", 13)
+      .text(cat)
+      .style("fill", "white");
+  });
+}
+
+renderActiveChart();
+return {seasons,getSeason,delayCategories,delayCounts,getStackedData,width,height,margin,activeChart,switchChartButton,selectedCategory,resetZoomButton,resetZoom,renderActiveChart,drawStackedBarChart,selectedSeason,drawInvertedStackedBarChart};
 }});
 
 define({id: "fd613d63", mode: "inline", inputs: ["resetZoomButton","display"], body: async (resetZoomButton,display) => {
@@ -583,13 +744,13 @@ resetZoomButton
 ))
 }});
 
-define({id: "daf21b0c", mode: "inline", inputs: ["viewToggle","display"], body: async (viewToggle,display) => {
+define({id: "fdf203e2", mode: "inline", inputs: ["switchChartButton","display"], body: async (switchChartButton,display) => {
 display(await(
-viewToggle
+switchChartButton
 ))
 }});
 
-define({id: "f786c626", inputs: ["datasetFlights","d3"], outputs: ["scatterData","processedScatterData","scatterStats","scatterWidth","scatterHeight","scatterMargin","scatterXScale","scatterYScale","scatterSizeScale","scatterColorScale","scatterContainer","scatterSvg","scatterTooltip"], body: (datasetFlights,d3) => {
+define({id: "3ffb2069", inputs: ["datasetFlights","d3"], outputs: ["scatterData","processedScatterData","scatterStats","scatterWidth","scatterHeight","scatterMargin","scatterXScale","scatterYScale","scatterSizeScale","scatterColorScale","scatterContainer","scatterSvg","scatterTooltip"], body: (datasetFlights,d3) => {
 //  Make a deep copy of dataset to avoid mutations
 const scatterData = JSON.parse(JSON.stringify(datasetFlights));
 
@@ -616,7 +777,7 @@ const scatterStats = d3.rollups(
 
 //  Step 1: Set up chart dimensions
 const scatterWidth = 800, scatterHeight = 450;
-const scatterMargin = { top: 50, right: 50, bottom: 80, left: 50 };
+const scatterMargin = { top: 50, right: 50, bottom: 50, left: 70 };
 
 //  Step 2: Define Scales
 const scatterXScale = d3.scaleLinear()
@@ -669,6 +830,7 @@ scatterSvg.append("g")
   .attr("fill", d => scatterColorScale(d.airline))
   .attr("opacity", 0.9)
   .on("mouseover", function (event, d) {
+    //d3.select("#scatter-container").selectAll("circle").style("opacity", 0.3); 
     d3.select(this).attr("stroke", "white").attr("stroke-width", 2);
     scatterTooltip.style("display", "block")
       .html(`
@@ -722,7 +884,7 @@ scatterSvg.append("line")
 return {scatterData,processedScatterData,scatterStats,scatterWidth,scatterHeight,scatterMargin,scatterXScale,scatterYScale,scatterSizeScale,scatterColorScale,scatterContainer,scatterSvg,scatterTooltip};
 }});
 
-define({id: "af1d8537", inputs: ["d3","datasetFlights","cordinates","Inputs"], outputs: ["topojson","usMap","getSeason","airportDelays","airportCoords","airportData","width","height","projection","path","container","svg","tooltip","colorScale","sizeScale","selectedSeason","updateMap"], body: async (d3,datasetFlights,cordinates,Inputs) => {
+define({id: "1dc46d22", inputs: ["d3","datasetFlights","cordinates","Inputs"], outputs: ["topojson","usMap","getSeason","airportDelays","airportCoords","airportData","width","height","projection","path","container","svg","tooltip","colorScale","sizeScale","selectedSeason","updateMap"], body: async (d3,datasetFlights,cordinates,Inputs) => {
 // Load necessary D3 libraries and US States GeoJSON
 const topojson = await import("https://cdn.jsdelivr.net/npm/topojson@3/+esm");
 const usMap = await d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json");
@@ -813,8 +975,8 @@ svg.append("g")
 
 // Define Color Scale for Delays
 const colorScale = d3.scaleDiverging()
-  .domain([30, 0, -10]) // Negative = Early, 0 = On Time, 30+ = Very Late
-  .interpolator(d3.interpolateRdYlGn); // Red = Late, White = On-time, Green = Early
+  .domain([-10, 0, 30]) // Early = -10, On Time = 0, Late = 30
+  .interpolator(d3.interpolateRgbBasis(["green", "white", "red"]));
 
 // Define Size Scale for Flights
 const sizeScale = d3.scaleSqrt()
@@ -839,7 +1001,7 @@ svg.append("g")
   .style("pointer-events", "all") // Ensure circles are clickable
   .sort((a, b) => d3.descending(a.totalFlights, b.totalFlights))
   .on("mouseover", function(event, d) {
-    d3.selectAll("circle").style("opacity", 0.3); 
+    d3.select("#airport-map-container").selectAll("circle").style("opacity", 0.3);  
     d3.select(this)
       .style("opacity", 1) 
       .attr("stroke", "white");
@@ -924,10 +1086,11 @@ function updateMap() {
     .attr("y2", "0%")
     .selectAll("stop")
     .data([
-      { offset: "0%", color: colorScale(30) }, // Red (Late)
-      { offset: "50%", color: colorScale(0) },  // White (On Time)
-      { offset: "100%", color: colorScale(-10) } // Green (Early)
+      { offset: "0%", color: colorScale(-10) },  // Green (Early)
+      { offset: "50%", color: colorScale(0) },   // White (On Time)
+      { offset: "100%", color: colorScale(30) }  // Red (Late)
     ])
+
     .enter().append("stop")
     .attr("offset", d => d.offset)
     .attr("stop-color", d => d.color);
@@ -945,7 +1108,7 @@ function updateMap() {
     .attr("text-anchor", "middle")
     .style("font-size", "12px")
     .style("fill", "white")
-    .text("Late");
+    .text("Early");
 
   legend.append("text")
     .attr("x", 60)
@@ -961,7 +1124,8 @@ function updateMap() {
     .attr("text-anchor", "middle")
     .style("font-size", "12px")
     .style("fill", "white")
-    .text("Early");
+    .text("Late");
+
 }
 
 // Listen for Season Toggle Changes
@@ -988,6 +1152,7 @@ return {topojson,usMap,getSeason,airportDelays,airportCoords,airportData,width,h
     <li class="observablehq-link observablehq-link-active"><a href="./3flight-delays">Flight Delays</a></li>
     <li class="observablehq-link"><a href="./4airport-statistics">Airport statistics</a></li>
     <li class="observablehq-link"><a href="./5navigating-the-skies-through-data">Navigating the Skies Through Data</a></li>
+    <li class="observablehq-link"><a href="./6prova">Flight Delays</a></li>
   </ol>
 </nav>
 <script>{const e=document.querySelector("#observablehq-sidebar"),o=document.querySelector("#observablehq-sidebar-toggle"),r=sessionStorage.getItem("observablehq-sidebar");r?o.checked=r==="true":o.indeterminate=!0;for(const t of document.querySelectorAll("#observablehq-sidebar summary")){const s=t.parentElement;switch(sessionStorage.getItem(`observablehq-sidebar:${t.textContent}`)){case"true":s.open=!0;break;case"false":s.classList.contains("observablehq-section-active")||(s.open=!1);break}}addEventListener("beforeunload",()=>sessionStorage.setItem("observablehq-sidebar-scrolly",`${e.scrollTop}`));const a=sessionStorage.getItem("observablehq-sidebar-scrolly");a!=null&&(e.style.cssText="overflow: hidden;",e.scrollTop=+a,e.style.cssText="");}</script>
@@ -997,7 +1162,7 @@ return {topojson,usMap,getSeason,airportDelays,airportCoords,airportData,width,h
 <div>Contents</div>
 <ol>
 <li class="observablehq-secondary-link"><a href="#flight-delays-by-day-and-hour">Flight Delays by Day &amp; Hour</a></li>
-<li class="observablehq-secondary-link"><a href="#number-or-percentage-of-delays-by-reason">Number or Percentage of Delays by Reason</a></li>
+<li class="observablehq-secondary-link"><a href="#number-of-delays-by-reason">Number of Delays by Reason</a></li>
 <li class="observablehq-secondary-link"><a href="#flight-distance-vs-average-delay-per-airline">Flight distance vs. average delay per airline</a></li>
 <li class="observablehq-secondary-link"><a href="#flight-delays-per-company">Flight Delays per company</a></li>
 </ol>
@@ -1023,7 +1188,6 @@ Analyzing flight delays offers valuable insights into the operational efficiency
   </div>
   <div class="grid grid-cols-1"><div class="card" style="display: flex; justify-content: center; align-items: center;"><div id="heatmap-container"></div></div>
 </div>
-</div>
 <div>
 This heatmap visualizes the average delay times for U.S. airlines throughout 2022, segmented by days of the week and hours of the day. The y-axis lists the days from Sunday to Saturday, while the x-axis represents the 24-hour clock. Color intensity conveys the average delay duration:
 <ul>
@@ -1038,15 +1202,20 @@ Similarly, examining trends across different days of the week can reveal broader
 By interacting with the heatmap, users can pinpoint specific times and days that are more prone to delays, aiding in strategic planning for travel or operational adjustments.
 </div>
 <br>
-<h2 id="number-or-percentage-of-delays-by-reason" tabindex="-1"><a class="observablehq-header-anchor" href="#number-or-percentage-of-delays-by-reason">Number or Percentage of Delays by Reason</a></h2>
+<h2 id="number-of-delays-by-reason" tabindex="-1"><a class="observablehq-header-anchor" href="#number-of-delays-by-reason">Number of Delays by Reason</a></h2>
 <br>
-<div class="observablehq observablehq--block"><!--:dcbbbb78:--></div>
+<div class="observablehq observablehq--block"><!--:afb6e0b5:--></div>
 <div style="font-family: 'Times New Roman', serif;">
   <div style="display: flex; justify-content: center; align-items: center;">
     <div style="display: inline-block; width: 110px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:fd613d63:--></div>
-    <div style="display: inline-block; width: 380px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><div class="filter"> <observablehq-loading></observablehq-loading><!--:daf21b0c:--> </div></div>
+    <div style="display: inline-block; width: 111px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:fdf203e2:--></div>
   </div>
-  <div class="grid grid-cols-1"><div class="card" style="display: flex; justify-content: center; align-items: center;"><div id="stacked-chart-container"></div></div></div>
+  <div class="grid grid-cols-1">  
+    <div class="card" style="display: flex; justify-content: center; align-items: center;">
+      <div id="stacked-chart-container" style="flex: 1;"></div>
+      <div id="stacked-chart-container-inverted" style="flex: 1; display: none;"></div>
+    </div>
+  </div>
 </div>
 <div>
 This bar chart breaks down the causes of flight delays into five main categories:
@@ -1066,7 +1235,7 @@ This visualization enables users to discern which factors predominantly contribu
 <br>
 <br>
 <h2 id="flight-distance-vs-average-delay-per-airline" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-distance-vs-average-delay-per-airline">Flight distance vs. average delay per airline</a></h2>
-<div class="observablehq observablehq--block"><!--:f786c626:--></div>
+<div class="observablehq observablehq--block"><!--:3ffb2069:--></div>
 <div class="grid grid-cols-1">  
   <div class="card" style="display: flex; justify-content: center; align-items: center;">
     <div id="scatter-container"></div>
@@ -1085,7 +1254,7 @@ This chart assists in understanding whether longer flights are more susceptible 
 <br>
 <br>
 <h2 id="flight-delays-per-company" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-delays-per-company">Flight Delays per company</a></h2>
-<div class="observablehq observablehq--block"><!--:af1d8537:--></div>
+<div class="observablehq observablehq--block"><!--:1dc46d22:--></div>
 <div class="grid grid-cols-1">
   <div class="card" style="display: flex; justify-content: center; align-items: center;">
     <div id="airport-map-container"></div>
@@ -1102,8 +1271,7 @@ This U.S. map displays average flight delays at various airports, with each circ
 The circle size reflects the volume of flights at that airport, with larger circles representing higher traffic.
 By hovering over a circle, users can access detailed statistics about that airport's average delay and flight volume.
 This geographic visualization allows users to identify regional patterns in flight delays, highlighting airports that may require operational improvements or those that excel in maintaining schedules.
-</div>
-</main>
+</div></div></main>
 <footer id="observablehq-footer">
 <nav><a rel="prev" href="./2airline-performance"><span>Airline performance</span></a><a rel="next" href="./4airport-statistics"><span>Airport statistics</span></a></nav>
 <div><a href="https://github.com/elysium1499/DataVisualizationProject2025" target="_blank" rel="noopener noreferrer">Source Code</a></div>

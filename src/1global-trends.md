@@ -298,7 +298,7 @@ adaptiveScale.addEventListener("input", drawChart);
 
 
 <div>
-The chart allows for filtering by airline and destination state, so we could potentially identify if air travel increases in certain months or if specific airlines dominate particular destinations by applying those filters
+This chart aims to highlight how flight traffic evolved over time and allows comparisons across airlines or destinations. By filtering by airline or state, viewers can identify seasonal patterns, industry recoveries, or declines, such as drops during holiday periods or spikes in summer months.
 The blue line shows the number of flights per day. The filters can be use to select a specific airline or destination. The red dashed line marks the start of COVID-19 (March 2020) and the toggle Smooth Line can adjust visualization. </div> 
 
 <br>
