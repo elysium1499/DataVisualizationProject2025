@@ -10,7 +10,11 @@ toc: true
 <br>
 
 <div>
-Analyzing flight delays offers valuable insights into the operational efficiency of airlines and the overall health of the aviation industry. The "Flight Delays" dashboard provides an interactive platform to explore various dimensions of flight delays across U.S. airlines and airports. Through a series of visualizations, users can uncover patterns related to timing, causes, distances, and geographic distribution of delays. Each graph is designed with interactive features that allow for a deeper understanding of the data.
+Analyzing the reasons behind flight delays is essential for improving the efficiency, reliability, and resilience of air travel. Delays not only affect individual passengers but also disrupt broader airline operations, leading to increased operational costs and reduced customer satisfaction.
+
+By examining the underlying causes — such as weather conditions, late aircraft, air traffic control, and carrier-related issues — we can identify systemic challenges and areas for intervention. This analysis becomes even more critical in the context of large-scale disruptions like the COVID-19 pandemic, which significantly altered travel patterns and operational stability across the industry.
+
+A clear understanding of delay drivers supports data-informed decisions and long-term planning for a more robust aviation ecosystem.
 </div>
 
 <br>
@@ -134,14 +138,10 @@ function drawHeatmap() {
 
   //const min = d3.min(avgDelays);
   //const max = d3.max(avgDelays);
-
-  const globalDelays = processHeatmapData(datasetFlights).map(d => d.avgDelay);
-  const min = d3.min(globalDelays);
-  const max = d3.max(globalDelays);
+  const min = -40.0;
+  const max = 641.0;
 
   // Define custom thresholds
-  //const thresholds = [min, (min + 0) / 2, 0, (0 + max) / 2, max];
-  //const thresholds = [min, min / 2, min / 4, 0, 0, max / 4, max / 2, max];
   const thresholds = [min, min / 2, min / 4, 0, 5, max / 4, max / 2, max];
 
   // Define custom color bins
@@ -215,21 +215,8 @@ function drawHeatmap() {
     .attr("class", "legend-group")
     .attr("transform", `translate(${(width - 420) / 2}, ${margin.top - 80})`);
 
-  //const legendData = [0, ...percentiles, d3.max(avgDelays)];
-  //const legendThresholds = [min, (min + 0) / 2, 0, (0 + max) / 2, max];
-  //const legendThresholds = [min, min / 2, min / 4, 0, 0, max / 4, max / 2, max];
   const legendThresholds = [min, min / 2, min / 4, 0, 5, max / 4, max / 2, max];
-/*
-  const legendData = legendThresholds.map((t, i) => ({
-    label: (() => {
-        //if (t === 0)  return '0';  
-        if (i === 0) return ` ${min.toFixed(1)} - ${legendThresholds[1].toFixed(1)}`;
-        if (i === legendThresholds.length - 1) return ` ${legendThresholds[i - 1].toFixed(1)} - ${max.toFixed(1)} `;
-        return `${legendThresholds[i].toFixed(1)} - ${legendThresholds[i + 1].toFixed(1)} `;
-  })(),
-  color: delayColors[i]
-  }));
-*/
+
 const legendData = [];
 
 for (let i = 0; i < thresholds.length - 1; i++) {
@@ -243,12 +230,11 @@ for (let i = 0; i < thresholds.length - 1; i++) {
   if (isZeroRange) {
     label = "0";
   } else if (start < 0 && end === 0) {
-    label = `${start.toFixed(1)} to 0`;
+    label = `${(start).toFixed(0)} to 0`;
   } else if (start === 0 && end > 0) {
-    label = `0 to ${end.toFixed(1)}`;
+    label = `0 to ${end.toFixed(0)}`;
   } else if (start !== 0 && end !== 0) {
-    const adjustedStart = i === 0 ? start : (start + 0.1);
-    label = `${start.toFixed(1)} to ${end.toFixed(1)}`;
+    label = `${(start).toFixed(0)} to ${end.toFixed(0)}`;
   }
 
   legendData.push({ label, color: delayColors[i] });
@@ -322,7 +308,7 @@ selectedMonth.addEventListener("input", drawHeatmap);
 
 
 <div>
-This heatmap visualizes the average delay times for U.S. airlines throughout 2022, segmented by days of the week and hours of the day. The y-axis lists the days from Sunday to Saturday, while the x-axis represents the 24-hour clock. Color intensity conveys the average delay duration:
+This heatmap visualizes the average delay times for U.S. airlines from 2019 to 2023, segmented by days of the week and hours of the day. The y-axis lists the days from Sunday to Saturday, while the x-axis represents the 24-hour clock. Color intensity conveys the average delay duration:
 
 - Green Shades: Indicate shorter delays or early arrivals.
 - White Line: Represents zero delay, marking on-time departures.

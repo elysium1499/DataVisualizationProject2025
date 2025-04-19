@@ -807,4 +807,13 @@ selYear.addEventListener("input", () => {
 
 
 <div>
-Lastly, the radar chart offers a fresh perspective by displaying monthly flight volumes in a circular, clock-like form. Each "spoke" of the chart represents a month, with the distance from the center indicating flight volume. This design cleverly visualizes seasonality in air travel—highlighting, for instance, the summer peaks or the holiday spikes in November and December.<br>What’s notable here is the ability to switch between years. This allows viewers to see how certain seasonal patterns persist or shift over time, and how anomalies—like the spring 2020 collapse—stand out starkly. For instance, a comparison between 2019 and 2020 reveals how travel during typically busy months was severely disrupted.</div>
+
+The *Monthly Flight Volume* chart provides a clear view of how air travel demand fluctuates over the course of the year. By analyzing this chart, we can identify seasonal patterns and trends in the aviation industry, such as peak travel periods during the summer and winter holidays. This data is crucial for airlines and airports to forecast capacity needs, optimize staffing, and plan for potential delays.
+
+Several factors influence these fluctuations, including weather conditions, public holidays, school vacations, and broader global events. For example, you might notice an uptick in flight volumes during the summer months, driven by increased leisure travel, and a dip during the winter months, possibly linked to lower demand or weather-related disruptions.
+
+The **COVID-19 pandemic** had a profound impact on air travel. In 2020, the global travel restrictions and lockdowns led to a significant decline in flight volume. This chart also helps visualize the recovery trajectory as the world moves past the pandemic. You can observe how flight volumes gradually rebounded in 2021 and 2022, driven by easing travel restrictions and the resumption of international travel.
+
+Understanding these fluctuations helps stakeholders in the aviation sector to adapt and respond to changes in demand, ensuring efficient operations even in times of uncertainty.
+
+</div>
