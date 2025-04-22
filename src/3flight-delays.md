@@ -119,15 +119,26 @@ function showNoDataMessage() {
 function findHighDelayFlights(data, threshold = 321) {
   const grouped = d3.rollups(
     data,
-    v => ({
-      avgDelay: d3.mean(v, d => +d.ARR_DELAY),
-      origin: v[0].ORIGIN,
-      destination: v[0].DEST,
-      originCity: v[0].ORIGIN_CITY_NAME,
-      destinationCity: v[0].DEST_CITY_NAME,
-      carrier: v[0].OP_UNIQUE_CARRIER,
-      flightNumber: v[0].FL_NUM
-    }),
+    v => {
+      const avgDelay = d3.mean(v, d => +d.ARR_DELAY);
+      const worst = d3.maxIndex(v, d => +d.ARR_DELAY); // index of worst delay
+      const worstRecord = v[worst];
+
+      // Extract the date (just the date part, without time)
+      const flightDate = new Date(worstRecord.FL_DATE);
+      const formattedDate = flightDate.toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+      return {
+        avgDelay: avgDelay,
+        origin: worstRecord.ORIGIN,
+        destination: worstRecord.DEST,
+        originCity: worstRecord.ORIGIN_CITY_NAME,
+        destinationCity: worstRecord.DEST_CITY_NAME,
+        carrier: worstRecord.OP_UNIQUE_CARRIER,
+        flightNumber: worstRecord.FL_NUM,
+        date: formattedDate // Only the date, without time
+      };
+    },
     d => `${d.OP_UNIQUE_CARRIER}_${d.FL_NUM}_${d.ORIGIN}_${d.DEST}`
   );
 
@@ -136,9 +147,11 @@ function findHighDelayFlights(data, threshold = 321) {
     .sort((a, b) => d3.descending(a[1].avgDelay, b[1].avgDelay))
     .slice(0, 5)
     .map(([_, info]) =>
-      `${info.originCity} (${info.origin}) → ${info.destinationCity} (${info.destination}): ${info.avgDelay.toFixed(1)} min`
+      `${info.originCity} (${info.origin}) → ${info.destinationCity} (${info.destination}) on ${info.date}: ${info.avgDelay.toFixed(2)} min`
     );
 }
+
+
 
 
 function drawHeatmap() {
