@@ -116,12 +116,39 @@ function showNoDataMessage() {
     .text("No data for this month");
 }
 
+function findHighDelayFlights(data, threshold = 321) {
+  const grouped = d3.rollups(
+    data,
+    v => ({
+      avgDelay: d3.mean(v, d => +d.ARR_DELAY),
+      origin: v[0].ORIGIN,
+      destination: v[0].DEST,
+      originCity: v[0].ORIGIN_CITY_NAME,
+      destinationCity: v[0].DEST_CITY_NAME,
+      carrier: v[0].OP_UNIQUE_CARRIER,
+      flightNumber: v[0].FL_NUM
+    }),
+    d => `${d.OP_UNIQUE_CARRIER}_${d.FL_NUM}_${d.ORIGIN}_${d.DEST}`
+  );
+
+  return grouped
+    .filter(([_, val]) => val.avgDelay >= threshold)
+    .sort((a, b) => d3.descending(a[1].avgDelay, b[1].avgDelay))
+    .slice(0, 5)
+    .map(([_, info]) =>
+      `${info.originCity} (${info.origin}) → ${info.destinationCity} (${info.destination}): ${info.avgDelay.toFixed(1)} min`
+    );
+}
+
+
 function drawHeatmap() {
   d3.select(".no-data-message").remove();
   d3.select("#heatmap-container .tooltip").remove();
 
   const filteredData = filterData(selectedYear.value, selectedMonth.value);
   if (filteredData.length === 0) return showNoDataMessage();
+  
+  const topDelayedFlights = findHighDelayFlights(filteredData);
 
   const heatmapData = processHeatmapData(filteredData);
 
@@ -182,18 +209,46 @@ function drawHeatmap() {
     .attr("fill", d => colorScale(d.avgDelay))
     .attr("stroke", "#222")
     .on("mouseover", (event, d) => {
-      tooltip.style("visibility", "visible")
-        .text(`Avg Delay: ${d.avgDelay.toFixed(2)} min`)
-        .style("position", "absolute")
-        .style("background", "rgba(28, 28, 28, 0.9)")
-        .style("color", "white")
-        .style("padding", "6px 10px")
-        .style("border-radius", "5px")
-        .style("font-size", "13px")
-        .style("pointer-events", "none")
-        .style("left", `${event.pageX + 1}px`)
-        .style("top", `${event.pageY - 1}px`);
-    })
+        if (d.avgDelay >= 321) {
+            const topDelayedFlights = findHighDelayFlights(filteredData); // or however your filtered data is named
+
+            let tooltipText = `Avg Delay: ${d.avgDelay.toFixed(2)} min`;
+
+            if (topDelayedFlights.length > 0) {
+            tooltipText += `\n\nTop Delayed Flights:\n- ${topDelayedFlights.join("\n- ")}`;
+            }
+
+            tooltip
+            .style("visibility", "visible")
+            .text(tooltipText)
+            .style("position", "absolute")
+            .style("background", "rgba(28, 28, 28, 0.9)")
+            .style("color", "white")
+            .style("padding", "6px 10px")
+            .style("border-radius", "5px")
+            .style("font-size", "13px")
+            .style("white-space", "pre-line")
+            .style("pointer-events", "none")
+            .style("left", `${event.pageX + 1}px`)
+            .style("top", `${event.pageY - 1}px`);
+        } else {
+            // For less severe delays, just show the average delay
+            tooltip
+            .style("visibility", "visible")
+            .text(`Avg Delay: ${d.avgDelay.toFixed(2)} min`)
+            .style("position", "absolute")
+            .style("background", "rgba(28, 28, 28, 0.9)")
+            .style("color", "white")
+            .style("padding", "6px 10px")
+            .style("border-radius", "5px")
+            .style("font-size", "13px")
+            .style("white-space", "pre-line")
+            .style("pointer-events", "none")
+            .style("left", `${event.pageX + 1}px`)
+            .style("top", `${event.pageY - 1}px`);
+        }
+        })
+
     .on("mousemove", (event) => {
       tooltip.style("left", `${event.pageX + 10}px`)
         .style("top", `${event.pageY - 28}px`);
@@ -992,7 +1047,7 @@ const colorScale = d3.scaleDiverging()
 // Define Size Scale for Flights
 const sizeScale = d3.scaleSqrt()
   .domain([0, d3.max(airportData, d => d.totalFlights)])
-  .range([5, 30]); // Circle size
+  .range([4, 30]); // Circle size
 
   airportData.forEach(d => {
     if (!projection(d.coords)) console.warn("Invalid projection:", d.airport, d.coords);

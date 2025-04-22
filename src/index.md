@@ -109,7 +109,9 @@ body {
 The foundation of this project is a curated subset of the publicly available Flight Delay and Cancellation Dataset (2019–2023), compiled by Patrick Zelazko and originally sourced from the U.S. Department of Transportation’s Bureau of Transportation Statistics (BTS). This dataset is publicly accessible via [Kaggle](https://www.kaggle.com/datasets/patrickzel/flight-delay-and-cancellation-dataset-2019-2023), providing researchers, analysts, and enthusiasts with a valuable resource for exploring flight performance metrics.
 While the full dataset contains over 29 million records, our analysis focuses on a representative subset of 99,695 flights selected across various time frames, airlines, and airport routes between January 2019 and August 2023.
 
-This subset enables meaningful exploratory and explanatory visualizations without requiring intensive computational resources. Although it doesn’t include every U.S. domestic flight within the range, it preserves a diverse and balanced sample sufficient to draw generalizable insights on flight performance, delays, and cancellations.
+By focusing on a representative sample, the project retains the richness of the original data — covering multiple years, airlines, airports, and flight outcomes — while keeping the experience fast, smooth, and accessible for users.
+
+Importantly, this subset is statistically and structurally diverse, meaning it still supports the extraction of valid and generalizable insights. It enables clear identification of trends, comparison of airline and airport performance, and an understanding of the causes and distribution of delays and cancellations — all without the noise and complexity of the full-scale dataset.
 
 ### Data Structure and Variables
 Each flight record in the dataset includes 32 structured variables, capturing operational details from scheduling to performance outcomes. The key attributes used in our analysis can be grouped into the following categories:
