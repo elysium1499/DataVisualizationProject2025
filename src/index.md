@@ -85,16 +85,16 @@ body {
 ### 🚀 Why use this dashboard?
 - 📊 Interactive Data Visualizations
 - 🌍 Global Trends Analysis
-- ✈️ Airline Performance Insights
 - ⏳ Flight Delays & Statistics
+- ✈️ Airline Performance Insights
 - 📍 Airport Statistics
 
 🔎 Start exploring now and gain deeper insights into aviation trends!
 
 <div class="cards-container">
   <div class="card"><a href="1global-trends.html">🌍 Global Trends</a></div>
-  <div class="card"><a href="2airline-performance.html">✈️ Airline Performance</a></div>
-  <div class="card"><a href="3flight-delays.html">⏳ Flight Delays</a></div>
+  <div class="card"><a href="2flight-delays.html">⏳ Flight Delays</a></div>
+  <div class="card"><a href="3airline-performance.html">✈️ Airline Performance</a></div>
   <div class="card"><a href="4airport-statistics.html">📍 Airport Statistics</a></div>
 </div>
 
@@ -176,7 +176,7 @@ Another goal of this analysis is to **uncover patterns and insights** related to
 
 2. **Assess Airline Performance:** Compare different airlines based on their delay and cancellation rates, providing a benchmark for operational efficiency.
 
-3. **Evaluate Airport Efficiency:** Analyze airport-specific data to determine which airports experience higher rates of delays or cancellations, potentially highlighting infrastructural or logistical challenges.
+3. **Evaluate Airport Efficiency:** Analyze airport-specific data to determine which airports experience higher rates of delays or cancellations, potentially highlighting infrastructural or logistical challenges.
 
 4. **Understand Delay Causes:** Delve into the reasons behind flight delays, distinguishing between factors such as weather, carrier-related issues, and air traffic control constraints.
 
