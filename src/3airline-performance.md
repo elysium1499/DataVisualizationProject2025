@@ -15,6 +15,7 @@ The Airline Performance dashboard offers an in-depth analysis of how various U.S
 <br>
 
 ## Flights per Airline 
+<h4 style="color:grey"> <i> Which airlines have the highest rates of delays, diversions and cancellations? How do airlines compare in terms of operational efficiency and reliability? </i></h4>
 <br>
 
 ```js
@@ -280,6 +281,7 @@ Users can interact with the chart by toggling between different flight statuses,
 <br>
 
 ## Flight Status Flow 
+<h4 style="color:grey"> <i> How do airlines' flight statuses compare in terms of volume and distribution? </i></h4>
 <br>
 
 ```js
