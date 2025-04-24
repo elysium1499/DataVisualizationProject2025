@@ -1241,10 +1241,5 @@ This U.S. map displays average flight delays at various airports, with each circ
 </div><div>
 The circle size reflects the volume of flights at that airport, with larger circles representing higher traffic.
 By hovering over a circle, users can access detailed statistics about that airport's average delay and flight volume.
-<<<<<<< HEAD
-This geographic visualization allows users to identify regional patterns in flight delays, highlighting airports that may require operational improvements or those that excel in maintaining schedules.<br>
-Northeastern and Midwestern airports generally show higher delays, which may relate to weather variability, airspace congestion, and volume of connecting flights. Western and Southern airports, such as LAS or PHX, show more stable performance, with moderate to low average delays.
-=======
 This geographic visualization allows users to identify regional patterns in flight delays, highlighting airports that may require operational improvements or those that excel in maintaining schedules. Northeastern and Midwestern airports generally show higher delays, which may relate to weather variability, airspace congestion, and volume of connecting flights. Western and Southern airports, such as LAS or PHX, show more stable performance, with moderate to low average delays.
->>>>>>> 2dea91b0b27b5f470a89b1bb6a890fafe2614e7d
 </div>
