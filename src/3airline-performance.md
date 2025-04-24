@@ -1,71 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="generator" content="Observable Framework v1.13.2">
-<title>Airline performance | Flight Analysis</title>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
-<link rel="preload" as="style" href="./_observablehq/theme-near-midnight.d49e655d.css">
-<link rel="preload" as="style" href="./_observablehq/stdlib/inputs.ea9fd553.css">
-<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
-<link rel="stylesheet" type="text/css" href="./_observablehq/theme-near-midnight.d49e655d.css">
-<link rel="stylesheet" type="text/css" href="./_observablehq/stdlib/inputs.ea9fd553.css">
-<link rel="modulepreload" href="./_observablehq/client.16fc07f5.js">
-<link rel="modulepreload" href="./_observablehq/runtime.e080113b.js">
-<link rel="modulepreload" href="./_observablehq/stdlib.82806664.js">
-<link rel="modulepreload" href="./_npm/d3@7.9.0/e780feca.js">
-<link rel="modulepreload" href="./_observablehq/stdlib/inputs.6ba3de0b.js">
-<link rel="modulepreload" href="./_npm/d3-dsv@3.0.1/9cffc2bd.js">
-<link rel="modulepreload" href="./_npm/htl@0.3.1/72f4716c.js">
-<link rel="modulepreload" href="./_npm/isoformat@0.2.1/18cbf477.js">
-<link rel="modulepreload" href="./_npm/d3-array@3.2.4/e93ca09f.js">
-<link rel="modulepreload" href="./_npm/d3-axis@3.0.0/0f2de24d.js">
-<link rel="modulepreload" href="./_npm/d3-brush@3.0.0/65eb105b.js">
-<link rel="modulepreload" href="./_npm/d3-chord@3.0.1/7ef8fb2e.js">
-<link rel="modulepreload" href="./_npm/d3-color@3.1.0/aeb57b94.js">
-<link rel="modulepreload" href="./_npm/d3-contour@4.0.2/1d2aed74.js">
-<link rel="modulepreload" href="./_npm/d3-delaunay@6.0.4/5ced1d52.js">
-<link rel="modulepreload" href="./_npm/d3-dispatch@3.0.1/9ba9c7f3.js">
-<link rel="modulepreload" href="./_npm/d3-drag@3.0.0/4202580c.js">
-<link rel="modulepreload" href="./_npm/d3-ease@3.0.1/cdd7e898.js">
-<link rel="modulepreload" href="./_npm/d3-fetch@3.0.1/b4e2ad9a.js">
-<link rel="modulepreload" href="./_npm/d3-force@3.0.0/5e804d15.js">
-<link rel="modulepreload" href="./_npm/d3-format@3.1.0/86074ef6.js">
-<link rel="modulepreload" href="./_npm/d3-geo@3.1.1/40599fb3.js">
-<link rel="modulepreload" href="./_npm/d3-hierarchy@3.1.2/e49e792c.js">
-<link rel="modulepreload" href="./_npm/d3-interpolate@3.0.1/8d1e5425.js">
-<link rel="modulepreload" href="./_npm/d3-path@3.1.0/20d3f133.js">
-<link rel="modulepreload" href="./_npm/d3-polygon@3.0.1/7553081f.js">
-<link rel="modulepreload" href="./_npm/d3-quadtree@3.0.1/0dfd751c.js">
-<link rel="modulepreload" href="./_npm/d3-random@3.0.1/3c90ee06.js">
-<link rel="modulepreload" href="./_npm/d3-scale@4.0.2/843b6a76.js">
-<link rel="modulepreload" href="./_npm/d3-scale-chromatic@3.1.0/ba24c2e7.js">
-<link rel="modulepreload" href="./_npm/d3-selection@3.0.0/4d94e5b7.js">
-<link rel="modulepreload" href="./_npm/d3-shape@3.2.0/6d3a6726.js">
-<link rel="modulepreload" href="./_npm/d3-time@3.1.0/9f03c579.js">
-<link rel="modulepreload" href="./_npm/d3-time-format@4.1.0/07c9626f.js">
-<link rel="modulepreload" href="./_npm/d3-timer@3.0.1/b58a267d.js">
-<link rel="modulepreload" href="./_npm/d3-transition@3.0.1/004da2ac.js">
-<link rel="modulepreload" href="./_npm/d3-zoom@3.0.0/b5786b3f.js">
-<link rel="modulepreload" href="./_npm/internmap@2.0.3/e08981d9.js">
-<link rel="modulepreload" href="./_npm/delaunator@5.0.1/02d43215.js">
-<link rel="modulepreload" href="./_npm/robust-predicates@3.0.2/aa00730b.js">
-<link rel="icon" href="./_file/observable.a92c9a52.png" type="image/png" sizes="32x32">
-<script type="module">
+---
+theme: dark
+title: Airline performance
+toc: true
+---
 
-import {define} from "./_observablehq/client.16fc07f5.js";
-import {registerFile} from "./_observablehq/stdlib.82806664.js";
+# Airline performance ✈️
 
-registerFile("./data/flights_data.csv", {"name":"./data/flights_data.csv","mimeType":"text/csv","path":"./_file/data/flights_data.925f7b17.csv","lastModified":1744880580402,"size":13659204});
+<br>
 
-define({id: "6dc3996e", inputs: ["FileAttachment"], outputs: ["datasetFlights"], body: async (FileAttachment) => {
-const datasetFlights = await FileAttachment("./data/flights_data.csv").csv({ typed: true });
-return {datasetFlights};
-}});
+<div>
+The Airline Performance dashboard offers an in-depth analysis of how various U.S. airlines managed their flight operations, focusing on metrics such as punctuality, delays, cancellations, and diversions. By leveraging interactive visualizations, this dashboard provides a comprehensive view of airline performance, enabling users to discern patterns and make informed comparisons.</div>
 
-define({id: "a94f7b73", inputs: ["datasetFlights","Inputs","d3"], outputs: ["airlines","selectedView","width","height","margin","computeFlightCounts","flightData","maxOnTimeFlights","maxDelayedFlights","maxCanceledFlights","maxDivertedFlights","maxTotalFlights","drawBarChart","barChart"], body: (datasetFlights,Inputs,d3) => {
+
+<br>
+
+## Flights per Airline 
+<h4 style="color:grey"> <i> Which airlines have the highest rates of delays, diversions and cancellations? How do airlines compare in terms of operational efficiency and reliability? </i></h4>
+<br>
+
+```js
+const datasetFlights = await FileAttachment("data/flights_data.csv").csv({ typed: true });
+```
+
+
+```js
 // Airline Names
 const airlines = [...new Set(datasetFlights.map(d => d.AIRLINE))];
 
@@ -299,16 +257,34 @@ selectedView.addEventListener("input", () => {
 
 // Append the dropdown menu to the document body or a specific container
 document.body.appendChild(selectedView);
-return {airlines,selectedView,width,height,margin,computeFlightCounts,flightData,maxOnTimeFlights,maxDelayedFlights,maxCanceledFlights,maxDivertedFlights,maxTotalFlights,drawBarChart,barChart};
-}});
+```
 
-define({id: "1d3e1bb2", mode: "inline", inputs: ["selectedView","display"], body: async (selectedView,display) => {
-display(await(
-selectedView
-))
-}});
+<div style="font-family: 'Times New Roman', serif;">
+  <div style="display: flex; justify-content: center; align-items: center;">
+    <div style="display: inline-block; width: 250px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;">${selectedView}</div>
+  </div>
+  <div class="grid grid-cols-1"> <div class="card" style="display: flex; justify-content: center; align-items: center;"><div id="barchart-container"></div> </div> </div>
+</div>
 
-define({id: "ec0935c9", inputs: ["datasetFlights"], outputs: ["createSankeyChart"], body: (datasetFlights) => {
+<div>This interactive stacked bar chart provides a comprehensive overview of flight outcomes across different airlines. Each bar represents an airline's total flight operations, segmented into four distinct categories:
+
+  - On-Time Flights (Green): Flights that departed and arrived as scheduled.
+  - Delayed Flights (Yellow): Flights that experienced departure or arrival delays.
+  - Cancelled Flights (Red): Flights that were scheduled but did not operate.
+  - Diverted Flights (Purple): Flights that were rerouted from their original destination to an alternate airport.
+</div>
+
+<div>The height of each bar indicates the total number of flights operated by the respective airline, while the color segments reveal the proportion of each flight status. For instance, <i>Southwest Airlines Co.</i> exhibits the tallest bar, signifying its position as a leading carrier in terms of flight volume. However, a closer examination of the yellow segment within each bar uncovers that <i>American Airlines Inc.</i> and <i>JetBlue Airways</i> have a notable percentage of delayed flights, highlighting areas where punctuality may be a concern.
+Users can interact with the chart by toggling between different flight statuses, allowing for a focused analysis of specific performance metrics. Note that the scale adjusts dynamically when filtering. Hovering over individual bars provides detailed statistics, offering a granular view of each airline's operational outcomes.
+</div>
+
+<br>
+
+## Flight Status Flow 
+<h4 style="color:grey"> <i> How do airlines' flight statuses compare in terms of volume and distribution? </i></h4>
+<br>
+
+```js
 async function createSankeyChart() {
   // Load required libraries
   const [d3, { sankey, sankeyLinkHorizontal }] = await Promise.all([
@@ -546,92 +522,19 @@ async function createSankeyChart() {
 }
 
 createSankeyChart();
-return {createSankeyChart};
-}});
-
-</script>
-</head>
-<body>
-<input id="observablehq-sidebar-toggle" type="checkbox" title="Toggle sidebar">
-<label id="observablehq-sidebar-backdrop" for="observablehq-sidebar-toggle"></label>
-<nav id="observablehq-sidebar">
-  <ol>
-    <label id="observablehq-sidebar-close" for="observablehq-sidebar-toggle"></label>
-    <li class="observablehq-link"><a href="./">Flight Analysis</a></li>
-  </ol>
-  <ol>
-    <li class="observablehq-link"><a href="./1global-trends">Global Trends</a></li>
-    <li class="observablehq-link observablehq-link-active"><a href="./2airline-performance">Airline performance</a></li>
-    <li class="observablehq-link"><a href="./3flight-delays">Flight Delays</a></li>
-    <li class="observablehq-link"><a href="./4airport-statistics">Airport statistics</a></li>
-    <li class="observablehq-link"><a href="./5navigating-the-skies-through-data">Navigating the Skies Through Data</a></li>
-  </ol>
-</nav>
-<script>{const e=document.querySelector("#observablehq-sidebar"),o=document.querySelector("#observablehq-sidebar-toggle"),r=sessionStorage.getItem("observablehq-sidebar");r?o.checked=r==="true":o.indeterminate=!0;for(const t of document.querySelectorAll("#observablehq-sidebar summary")){const s=t.parentElement;switch(sessionStorage.getItem(`observablehq-sidebar:${t.textContent}`)){case"true":s.open=!0;break;case"false":s.classList.contains("observablehq-section-active")||(s.open=!1);break}}addEventListener("beforeunload",()=>sessionStorage.setItem("observablehq-sidebar-scrolly",`${e.scrollTop}`));const a=sessionStorage.getItem("observablehq-sidebar-scrolly");a!=null&&(e.style.cssText="overflow: hidden;",e.scrollTop=+a,e.style.cssText="");}</script>
-<div id="observablehq-center">
-<aside id="observablehq-toc" data-selector="h1:not(:first-of-type)[id], h2:first-child[id], :not(h1) + h2[id]">
-<nav>
-<div>Contents</div>
-<ol>
-<li class="observablehq-secondary-link"><a href="#flights-per-airline">Flights per Airline</a></li>
-<li class="observablehq-secondary-link"><a href="#flight-status-flow">Flight Status Flow</a></li>
-</ol>
-</nav>
-</aside>
-<main id="observablehq-main" class="observablehq">
-<h1 id="airline-performance" tabindex="-1"><a class="observablehq-header-anchor" href="#airline-performance">Airline performance ✈️</a></h1>
-<br>
-<div>
-The Airline Performance dashboard offers an in-depth analysis of how various U.S. airlines managed their flight operations, focusing on metrics such as punctuality, delays, cancellations, and diversions. By leveraging interactive visualizations, this dashboard provides a comprehensive view of airline performance, enabling users to discern patterns and make informed comparisons.</div>
-<br>
-<h2 id="flights-per-airline" tabindex="-1"><a class="observablehq-header-anchor" href="#flights-per-airline">Flights per Airline</a></h2>
-<br>
-<div class="observablehq observablehq--block"><!--:6dc3996e:--></div>
-<div class="observablehq observablehq--block"><!--:a94f7b73:--></div>
-<div style="font-family: 'Times New Roman', serif;">
-  <div style="display: flex; justify-content: center; align-items: center;">
-    <div style="display: inline-block; width: 250px; padding: 8px 5px; border: 1px solid; border-radius: 8px; margin-right: 10px; background-color:#292929; color: white;"><observablehq-loading></observablehq-loading><!--:1d3e1bb2:--></div>
-  </div>
-  <div class="grid grid-cols-1"> <div class="card" style="display: flex; justify-content: center; align-items: center;"><div id="barchart-container"></div> </div> </div>
-</div>
-<div>This interactive stacked bar chart provides a comprehensive overview of flight outcomes across different airlines. Each bar represents an airline's total flight operations, segmented into four distinct categories:
-<ul>
-<li>On-Time Flights (Green): Flights that departed and arrived as scheduled.</li>
-<li>Delayed Flights (Yellow): Flights that experienced departure or arrival delays.</li>
-<li>Cancelled Flights (Red): Flights that were scheduled but did not operate.</li>
-<li>Diverted Flights (Purple): Flights that were rerouted from their original destination to an alternate airport.</li>
-</ul>
-</div>
-<div>The height of each bar indicates the total number of flights operated by the respective airline, while the color segments reveal the proportion of each flight status. For instance, <i>Southwest Airlines Co.</i> exhibits the tallest bar, signifying its position as a leading carrier in terms of flight volume. However, a closer examination of the yellow segment within each bar uncovers that <i>American Airlines Inc.</i> and <i>JetBlue Airways</i> have a notable percentage of delayed flights, highlighting areas where punctuality may be a concern.
-Users can interact with the chart by toggling between different flight statuses, allowing for a focused analysis of specific performance metrics. Note that the scale adjusts dynamically when filtering. Hovering over individual bars provides detailed statistics, offering a granular view of each airline's operational outcomes.
-</div>
-<br>
-<h2 id="flight-status-flow" tabindex="-1"><a class="observablehq-header-anchor" href="#flight-status-flow">Flight Status Flow</a></h2>
-<br>
-<div class="observablehq observablehq--block"><!--:ec0935c9:--></div>
+```
 <div class="grid grid-cols-1"> 
   <div class="card" style="display: flex; justify-content: center; align-items: center;"> <div id="sankey-container"></div> </div> 
 </div>
+
 <div>The Sankey diagram offers a dynamic visualization of the journey from flight departure to final status across various airlines. This flow diagram effectively illustrates the distribution of flight outcomes, enabling users to discern patterns and identify which airlines face challenges in specific areas.<br> The diagram is structured into three columns:
-<ol>
-<li>
-<p>Number of Flights: This leftmost column quantifies the total flight volume for each airline, with bar heights corresponding to the number of flights operated.</p>
-</li>
-<li>
-<p>Airline: The central column lists the airlines, serving as a conduit between the total flight volume and the resulting flight statuses.</p>
-</li>
-<li>
-<p>Status: The rightmost column delineates the possible flight outcomes—On-Time, Delayed, Cancelled, and Diverted—each represented by distinct colors (green, yellow, red, and purple, respectively).</p>
-</li>
-</ol>
+
+1. Number of Flights: This leftmost column quantifies the total flight volume for each airline, with bar heights corresponding to the number of flights operated.
+
+2. Airline: The central column lists the airlines, serving as a conduit between the total flight volume and the resulting flight statuses.
+
+3. Status: The rightmost column delineates the possible flight outcomes—On-Time, Delayed, Cancelled, and Diverted—each represented by distinct colors (green, yellow, red, and purple, respectively).
 </div>
 <div>
 Flows between these columns are proportionally sized, reflecting the volume of flights transitioning from each airline to the respective status categories. For example, a substantial green flow from <i>Southwest Airlines Co.</i> to the On-Time status indicates a high rate of punctual flights. Conversely, thinner flows in red or purple from other airlines to the Cancelled or Diverted statuses may point to operational challenges. <br> This visualization facilitates a comparative analysis of airline performance, allowing users to quickly assess which carriers excel in maintaining schedules and which may require improvements in operational reliability.
-</div></main>
-<footer id="observablehq-footer">
-<nav><a rel="prev" href="./1global-trends"><span>Global Trends</span></a><a rel="next" href="./3flight-delays"><span>Flight Delays</span></a></nav>
-<div><a href="https://github.com/elysium1499/DataVisualizationProject2025" target="_blank" rel="noopener noreferrer">Source Code</a></div>
-</footer>
 </div>
-</body>
-</html>

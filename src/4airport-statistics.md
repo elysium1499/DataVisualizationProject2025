@@ -18,6 +18,9 @@ The "Airport Statistics" dashboard offers an in-depth exploration of flight perf
 ## Flight Delay Distribution by Airport
 
 ### Flight Delay Distribution of Top 10 Busiest Airports 
+<h4 style="color:grey"> <i> Which airports show tight, compact distributions — suggesting more predictable performance? </i></h4>
+
+
 <!--(Grouped by State)-->
 
 ```js
@@ -288,6 +291,7 @@ This visualization allows for a comparative assessment of delay patterns across 
 <br>
 
 ## Airport Performance on Delays, Cancellations, and Diversions 
+<h4 style="color:grey"> <i> Do airports that have low delays also have low cancellation and diversion rates, or is there a tradeoff? </i></h4>
 
 ```js
 // Load necessary D3 libraries

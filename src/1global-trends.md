@@ -28,6 +28,7 @@ The aviation industry is a dynamic indicator of economic activity, global connec
 <br>
 
 ## Flight Volume Over Time
+<h4 style="color:grey"> <i> How did global flight traffic evolve from 2019 through 2023? When did major disruptions occur, and how quickly did the industry recover? </i></h4>
 <br>
 
 <div> 
@@ -306,6 +307,7 @@ The blue line shows the number of flights per day. The filters can be use to sel
 
 
 ## Destination density Map
+<h4 style="color:grey"> <i>  Where are the busiest regions in the U.S., and how have those patterns changed over time? </i></h4>
 <br>
 
 <div> 
@@ -602,6 +604,8 @@ The second visualization shifts focus from time to geography. This U.S. map shad
 
  
  ## Monthly Flight Volume
+<h4 style="color:grey"> <i> What seasonal trends can we identify in flight volumes? </i></h4>
+<br>
 
  ```js
 // Extract unique years and properly format them
